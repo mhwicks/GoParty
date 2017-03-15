@@ -38,6 +38,8 @@ Sub DeclareMez
 		/if (${BRDmez.Equal[""Lullaby of the Forlorn""]}) /varset intMaxMezLev 95
 		/if (${BRDmez.Equal[""Lullaby of the Forsaken""]}) /varset intMaxMezLev 100
 		/if (${BRDmez.Equal[""Slumber of Motlak""]}) /varset intMaxMezLev 103
+		/if (${BRDmez.Equal[""Lullaby of Silisia""]}) /varset intMaxMezLev 105
+		/if (${BRDmez.Equal[""Slumber of Silisia""]}) /varset intMaxMezLev 108	
 	}
 	
 	| What is an Enchanter's highest level of Mezzable mob?
