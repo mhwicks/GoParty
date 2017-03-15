@@ -1,0 +1,285 @@
+|**---------------------------------------------------------- 
+GoFollow.mac 
+by Dadda!
+
+This macro will Automate following.  Better than Verant did.
+
+Run the macro with person you want to follow targeted. 
+Usage: /mac GoFollow
+
+11/20/2006 v1.0
+Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+#include spell_routines.inc
+#include iTracking.inc
+
+|#event Exp "You gain#*#" 
+#event Stop "#*#tells the group, 'stop#*#" 
+#event Invites "#*#invite me#*#" 
+#event Invited "#*#invites you to join a group.#*#"
+#event Selected "You have selected template:#*#"
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare 	Iterations 			int 		outer 	0
+/declare 	LocDistance 		float 		outer
+/declare 	tankname 			string 		outer 	${Target}
+/declare 	intTooFar 			int 		outer 	0 
+/declare	intStartZone		int			outer	${Zone.ID}
+/declare	intStartTime		int			outer	0
+/declare	intFollowMinutes	int			outer	0
+/declare 	mychannel 			string	 	outer 	brv9
+
+
+|MOB Tracking Variables:
+|--------------------------------
+/declare intTracking int outer 1
+/declare intTrackNumber int outer 0
+/declare intTrackReport int outer 1
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Follow! ===>>
+
+/varset intStartTime ${Macro.RunTime}
+
+/leaveall
+/join ${mychannel} 
+
+|Mage Invites:
+/If (${Me.Class.ID} == 13) {
+	/if (!${Me.Grouped}) /call Event_Invites
+}
+
+|Grand Illusion:
+/if (${FindItemCount[=Bone Mask of the Ancient Iksar]}) {
+	/if (!${Me.Buff[Illusion: Ancient Iksar].ID}) {
+		/if (${Zone.ID} == 452 || ${Zone.ID} == 454|| ${Zone.ID} == 455) {
+			/call Cast "Bone Mask of the Ancient Iksar" item
+			|/call CastWait
+		}
+	}
+}
+
+|Rangers Tracking
+|/if (${Me.Class.ID} == 4) {
+	/Call Tracking
+|}
+
+/if (!${Target.ID}) { 
+	/echo Target the person you wish to follow when you run this macro. 
+	/end 
+} else {
+	
+	/echo Following: ${tankname} 
+}
+
+:mainloop
+
+|Announce time if the macro has been running long enough:
+/if (${Macro.RunTime} > ${intStartTime} + 300) {
+	/varset intStartTime ${Macro.RunTime}
+	/varcalc intFollowMinutes ${intFollowMinutes} + 5
+	/echo This macro has been running for ${intFollowMinutes} minutes.
+	/if (${intFollowMinutes} >= 30) {
+		/beep
+	}
+}
+
+/if (!${Target.ID}) { 
+	/echo You have lost your follow target. 
+	/keypress forward
+	/beep
+	/beep
+	
+	|Attempting to zone (if the follow target is not in zone):
+	/delay 1
+	/if (!${SpawnCount[pc ${tankname}]}) {
+		/squelch /doortarget
+		/if (${Switch.Distance} > 36) {
+			/look 0
+			
+			|No door nearby.  How about?
+			/if (${Spawn[npc radius 20 "Herald of Druzzil Ro"].ID}) {
+				/target id ${Spawn[npc radius 20 "Herald of Druzzil Ro"].ID}
+				/say time
+			}
+			
+			/end
+		}
+		/face door
+		/delay 5
+		
+		/for Iterations 1 to 10
+			/echo Click the nearest door, try number ${Iterations}.
+			/face door
+			/look 0
+			/delay 8
+			/if (${intStartZone} != ${Zone.ID}) /end
+			|/click left center
+			/keypress u
+			/keypress forward hold
+			/delay 1
+			/keypress forward
+		/next Iterations
+	}
+			
+	/end 
+	
+} else {
+
+/Target pc ${tankname}
+
+/face fast
+/varcalc LocDistance ${Math.Distance[${Me.X},${Me.Y},0:${Target.X},${Target.Y},0]}
+	
+|STOP if too close:
+/if  (${LocDistance} < 10) {
+	/keypress forward
+	/varset intTooFar 0
+} 
+
+|Follow if we can:
+/if  (${LocDistance} > 15) {
+	/keypress forward hold
+} 
+
+|Verbally complain once if WAY too far:
+/if  (${LocDistance} > 160) {
+	|/keypress forward 
+	/if (${intTooFar} < 1) {
+		|/echo Early intTooFar: ${intTooFar}
+		/beep
+		|/g I'm pretty far away, but I'm trying to get to %t.
+		/varset intTooFar 1
+		|/echo intTooFar: ${intTooFar}
+		/echo ${Target.Name} is ${LocDistance} feet away.
+	}
+} 
+
+/doevents
+/doevents flush
+
+/varcalc Iterations ${Iterations} + 1
+/if (${Iterations} > 100) {
+	/varset Iterations 0
+	|/echo Iterations: ${Iterations}
+	|/echo Distance: ${LocDistance}
+	|/echo intTooFar: ${intTooFar}
+}
+
+|Trade Window Auto-Trade:
+/if (${Window[TradeWnd].HisTradeReady}) /notify TradeWnd TRDW_Trade_Button leftmouseup
+
+|Accept Brell's Arena requests:
+/if (${Zone.ID} == 480) {
+	/if (${Window[TaskTemplateSelectWnd].Open}) {
+		/if (${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[1].Equal[Nra`Vruu_Mucktail]}) {
+			/delay ${Math.Rand[50]}
+			/notify TaskTemplateSelectWnd TaskTemplateSelectListRequired leftmouseup
+			/delay 10
+			/if (${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[1,2]} == 1) {
+				|/notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect 1
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[Nra`Vruu_Mucktail]} 
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired leftmouse ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[Nra`Vruu_Mucktail]} 
+
+				/goto :chosen
+			}
+			/if (${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[2,2]} == 1) {
+				|/notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect 2
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[SaNril`Rexsso]} 
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired leftmouse ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[SaNril`Rexsso]} 
+				/goto :chosen
+			}
+			/if (${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[3,2]} == 1) {
+				|/notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect 3
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired listselect ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[Sodkee_Blackfang]} 
+				/nomodkey /notify TaskTemplateSelectWnd TaskTemplateSelectListRequired leftmouse ${Window[TaskTemplateSelectWnd].Child[TaskTemplateSelectListRequired].List[Sodkee_Blackfang]} 
+				/goto :chosen
+			}
+			:chosen
+			/delay 20
+			/notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
+			/delay 10
+			/doevents
+		}
+	}
+}
+
+|Reloop:
+|/delay 1
+/goto :mainloop
+
+/end
+
+|==================================================================================================|
+
+
+|==================================================================================================|
+|XP Message code:
+|---------------------------------------------------
+Sub Event_Exp 
+
+	/echo A mob Killed - Following over.
+	/end 
+
+/return
+
+|==================================================================================================|
+|Stop Macro code:
+|---------------------------------------------------
+Sub Event_Stop 
+
+	/echo Asked to stop - Following over.
+	/end 
+
+/return
+
+|==================================================================================================|
+|Invites code:
+|---------------------------------------------------
+Sub Event_Invites
+	|Mage Invites
+	/If (${Me.Class.ID} == 13) {
+		/invite Leisah
+		/invite Logs
+		/invite Heffex
+		/invite Baiylee
+		/invite Derailer
+		/invite Arei
+		/invite Tinksa
+	}
+/return
+
+|==================================================================================================|
+|Invited code:
+|---------------------------------------------------
+Sub Event_Invited
+	
+	/invite
+
+/return
+
+|==================================================================================================|
+|Monster Selected code:
+|---------------------------------------------------
+Sub Event_Selected
+	
+	/if (${Window[TaskTemplateSelectWnd].Open}) {
+		/keypress esc
+		/delay 3
+		/keypress esc
+		/delay 3
+		/target pc ${tankname}
+	}
+
+/return
+

@@ -1,0 +1,103 @@
+|**---------------------------------------------------------- 
+GoLow.mac 
+by Dadda!
+
+This macro will target the lowets HP mob in a desired radius.
+
+Usage: /mac GoLow
+
+03/28/2007 v1.0
+Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+
+|#event Exp "You gain#*#" 
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare Iterations int outer 0
+/declare intLowestHP int outer 100
+/declare intRadius int outer 88
+/declare intAttackPercent int outer 100
+
+/declare strTempName str outer
+/declare intTempHP int outer 100
+/declare intTempID int outer 0
+
+/declare intBestID int outer 0
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Low! ===>>
+/echo Using the default radius of ${intRadius}
+/echo Targeting lowest mob that is under ${intAttackPercent} percent.
+
+:mainloop
+
+|Don't play targeter while you have a PC targeted:
+|/if (${Target.Type.Equal[PC]}) /goto :mainloop
+
+|Dump the corpse targets
+/if (${Target.Type.Equal[Corpse]}) /target clear
+
+|Dump the full health targets
+/if (${Target.PctHPs} > 99) /target clear
+
+/if (${SpawnCount[npc radius ${intRadius}]}) {
+	
+	|Get the closest mob if you don't have a target:
+	|Get the SELF if you don't have a target:
+	/if (!${Target.ID}) {
+			|/echo Monitoring ${SpawnCount[npc radius ${intRadius}]} mobs within ${intRadius} feet.
+			|/target npc zradius 20 radius ${intRadius}
+			/target id 0
+			/varset intBestID ${Target.ID}
+	}
+	
+	|Quick target each mob to get HP information:
+	/for Iterations 1 to ${SpawnCount[npc radius ${intRadius}]}
+		/target ${NearestSpawn[${Iterations}, npc zradius 20 radius ${intRadius}]}
+		/delay 1
+	/next Iterations
+	
+	/if (${intBestID}) /target id ${intBestID}
+	/delay 1
+	
+	|Target which of the closest mobs has the least HP:
+	/echo Monitoring ${SpawnCount[npc radius ${intRadius}]} mobs within ${intRadius} feet.
+	/for Iterations 1 to ${SpawnCount[npc radius ${intRadius}]}
+		|/echo Iteration ${Iterations}: ${NearestSpawn[${Iterations}, npc radius ${intRadius}].CleanName}
+		/if (${NearestSpawn[${Iterations}, npc radius ${intRadius}].PctHPs} > 5) {
+		
+			/varset strTempName ${NearestSpawn[${Iterations}, npc radius ${intRadius}].CleanName}
+			/varset intTempHP ${NearestSpawn[${Iterations}, npc radius ${intRadius}].PctHPs}
+			/varset intTempID ${NearestSpawn[${Iterations}, npc radius ${intRadius}].ID}
+			/echo Mob ${Iterations}: ${strTempName} (${intTempHP})
+			
+			/if (${intTempHP} < ${Target.PctHPs} && ${intTempHP} < ${intAttackPercent}) {
+				/echo Switching from ${Target.CleanName} (${Target.PctHPs}) to ${strTempName} (${intTempID}: ${intTempHP})
+				|/echo Monitoring ${SpawnCount[npc radius ${intRadius}]} mobs within ${intRadius} feet.
+				/varset intBestID ${intTempID}
+				/if (${intBestID}) /target id ${intBestID}
+			}
+		}
+		/delay 1
+	/next Iterations
+	
+	/doevents
+	/doevents flush
+	
+	/delay 5s
+}
+
+|Reloop:
+/goto :mainloop
+
+/end

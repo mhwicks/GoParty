@@ -1,0 +1,223 @@
+#turbo
+
+#event Success "#*#Your target is immune to the stun portion of this effect#*#" 
+
+|==================================================================================================|
+Sub Main
+
+/declare	intRecentTarget		int 	outer	0
+/declare	intTargetList[10]	int		outer	0
+/declare	intAuto				int		outer	0
+/declare	intMobsInRange		int		outer	0
+/declare	intLooper			int		outer	0
+/declare	intLooper2			int		outer	0
+/declare	intNearestSpawnID	int		outer	0
+/declare	strWeapon			string	outer
+/declare	intBoomstrikes		int		outer	0
+/declare	intNextRun			int		outer	0
+/declare	intLocDistance		int		outer	0
+/declare	intLocX				int		outer	0
+/declare	intLocY				int		outer	0
+
+
+/echo ==============================
+/echo GoBooms Active.
+/echo - Use GoBooms auto for auto mode
+
+|Auto Mode?:
+/if (${Param0.Equal[auto]}) {
+	/varset intAuto 1
+	/echo Auto mode is set ON, this makes you move around a little bit.
+}
+
+|Count Boomerangs:
+/if (!${FindItemCount[Blue Boomerang]} && !${FindItemCount[Red Boomerang]} && !${FindItemCount[Yellow Boomerang]}) /goto EndOfLine:
+
+/if (!${FindItemCount[Blue Boomerang]}) /echo You are on the BLUE team.
+/if (!${FindItemCount[Red Boomerang]}) /echo You are on the RED team.
+/if (!${FindItemCount[Yellow Boomerang]}) /echo You are on the YELLOW team.
+
+|Close the Information window if it's up:
+/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
+
+|===============================================================================
+|Main Loop:
+:MainLoop
+
+|Handle Stun and Feign Death:
+/if (${Me.Feigning}) {
+	/if (${Me.Stunned}) {
+		|/echo I'm stunned!
+		/delay 2s
+	}
+	/echo I'm FD, Getting up!
+	/sit on
+	/if (${Me.Sitting}) {
+		/sit off
+		/echo I'm up!
+	}
+}
+
+|Verify that we are still in combat arena:
+/if (!${FindItemCount[Blue Boomerang]} && !${FindItemCount[Red Boomerang]} && !${FindItemCount[Yellow Boomerang]}) /goto :EndOfLine
+
+|Target the closest mob that we have line of sight to:
+/varset intMobsInRange ${SpawnCount[npc zradius 20 radius 90]}
+
+|Don't try to start if Gilbot is still there:
+/if (${SpawnCount[Gilbot the Wary]}) /varset intMobsInRange 0
+
+/if (${intMobsInRange}) {
+	/for intLooper 1 to ${intMobsInRange}
+		/varset intNearestSpawnID ${NearestSpawn[${intLooper}, npc zradius 20 radius 90].ID}
+		|/echo Checking on ${Spawn[${intNearestSpawnID}].CleanName} at ${Spawn[${intNearestSpawnID}].Distance} feet.
+		
+		|/if (${Spawn[${intNearestSpawnID}].LineOfSight} && ${Spawn[${intNearestSpawnID}].Name.Length} > 3 && ${Spawn[${intNearestSpawnID}].Level} > 3) {
+		|Removed Line of Sight requirement.
+		/if (${Spawn[${intNearestSpawnID}].Name.Length} > 3 && ${Spawn[${intNearestSpawnID}].Level} > 3) {
+			|/echo I can see ${Spawn[${intNearestSpawnID}].CleanName}.
+			
+			|Check the list of recent targets to prevent re-targeting (Basically try more targets fast!):
+			/varset intRecentTarget 0
+			/for intLooper2 1 to 5
+				/if (${Spawn[${intNearestSpawnID}].ID} == ${intTargetList[${intLooper2}]}) {
+					/varset intRecentTarget 1
+					|/echo ${intLooper2}: ${Spawn[${intNearestSpawnID}].ID} is on my list.
+				} else {
+					|/echo ${intLooper2}: ${Spawn[${intNearestSpawnID}].ID} != ${intTargetList[${intLooper2}]}
+				}
+			/next intLooper2
+			/if (!${intRecentTarget}) {
+				|/echo ${Spawn[${intNearestSpawnID}].CleanName} is not my most recent target.
+
+				/if (!${Spawn[${intNearestSpawnID}].State.Equal[FEIGN]}) {
+					|Don't bother attacking any FD guys!
+									
+					|Blue Targets:
+					/if (${Spawn[${intNearestSpawnID}].Level} < ${Me.Level}) {
+						/varset strWeapon "Blue Boomerang"
+						/call BoomCheck
+					} else {
+						|Red Targets:
+						/if (${Spawn[${intNearestSpawnID}].Level} >= ${Me.Level} + 3) {
+							/varset strWeapon "Red Boomerang"
+							/call BoomCheck
+						|Yellow Targets:
+						} else {
+							/varset strWeapon "Yellow Boomerang"
+							/call BoomCheck
+						}
+					}
+				}
+			}
+		}
+	/next intLooper
+}
+
+|Auto mode:run towards the next "new" target:
+/if (${intAuto} && ${SpawnCount[npc]} > 10) {
+	/if (${intNextRun} <= ${Macro.RunTime}) {
+		/varcalc intNextRun ${Macro.RunTime} + 10
+		/if (${intTargetList[5]}) {
+			|/echo I think I know who's up next! (${intTargetList[1]})
+			/target id ${intTargetList[5]}
+			/delay 1
+			/varset intLocX ${Target.X}
+			/varset intLocY ${Target.Y}
+			/squelch /target clear
+		} else {
+			|/echo No good targets, back to center.
+			/varset intLocX 0
+			/varset intLocY 0
+		}
+		/call GoThere
+		/keypress forward
+	}
+}
+
+|Drop oldest target off:
+/varset intTargetList[1] 0
+|/delay 1
+
+|Re-run Main Loop:
+/goto :MainLoop
+
+:EndOfLine
+/echo You do not appear to be engaged in Brells Arena combat at this time.
+/keypress forward
+/end
+
+|==================================================================================================|
+Sub BoomCheck
+|==================================================================================================|
+|Fire the correct boomerang at the target:
+
+|Do I have that boomerang?
+/if (${FindItemCount[${strWeapon}]}) {
+	|/echo I have a ${strWeapon}, which is good for a level ${Spawn[${intNearestSpawnID}].Level} kobold.
+	|Is that boomerang ready?
+	/if (!${FindItem[${strWeapon}].TimerReady}) {
+		/echo ${intNearestSpawnID} (${Spawn[${intNearestSpawnID}].Level}) at ${Spawn[${intNearestSpawnID}].Distance} - ${strWeapon} (${intBoomstrikes}).
+		/target id ${intNearestSpawnID}
+		
+		|Fire the Boomerang!!!
+		/itemnotify ${FindItem[${strWeapon}].InvSlot} rightmouseup
+
+		|Fill out the target list:
+		/for intLooper2 1 to 4
+			/varset intTargetList[${intLooper2}] ${intTargetList[${Math.Calc[${intLooper2} + 1]}]}
+		/next intLooper2
+		/varset intTargetList[5] ${Target.ID}
+		
+		/varset intLooper ${intMobsInRange}
+
+		|Document the attempt details:
+		|/mqlog (${Target.ID}) ${Target.CleanName} - level ${Target.Level} - ${strWeapon}
+
+		/delay 1
+		/squelch /target clear
+		/doevents
+	}
+}
+
+/return
+
+|==================================================================================================|
+Sub GoThere
+|==================================================================================================|
+
+	/varset intLooper 0
+	/echo Heading to (${intLocX},${intLocX}).
+	:KeepFollowing
+	/if (!${FindItemCount[Blue Boomerang]} && !${FindItemCount[Red Boomerang]} && !${FindItemCount[Yellow Boomerang]}) /return
+	/varcalc intLooper ${intLooper} + 1
+	/face fast nolook loc ${intLocY}, ${intLocX}
+	/varcalc intLocDistance ${Math.Distance[${Me.X},${Me.Y},0:${intLocX},${intLocY},0]}
+	|/echo Distance: ${intLocDistance}
+
+	/if (${intLocDistance} <= 10) {
+		|STOP if too close:
+		/echo I'm close enough to (${intTargetList[5]}).
+		/return
+	} else {
+		|Follow if we can:
+		|/echo I'm coming for you (${intTargetList[1]}) - ${intLocDistance} ft.
+		/keypress forward hold
+	} 
+	/if (${intLooper} < 400) /goto :KeepFollowing
+
+/return 
+
+|==================================================================================================|
+Sub Event_Success
+|==================================================================================================|
+	
+	/varcalc intBoomstrikes ${intBoomstrikes} + 1
+	
+	/echo Got one!  I think I'm at about ${intBoomstrikes}.
+	|/mqlog **           **
+	|/mqlog ** CLEAN HIT **
+	|/mqlog **           **
+
+/return 
+

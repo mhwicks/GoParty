@@ -1,0 +1,56 @@
+#event SkillUp "You have become better at #1#! (#2#)"
+#event OOS "Sorry, but you #*#" 
+#event NoGain "You can no longer #*#" 
+
+sub main 
+   /echo TS Clicker 
+   /call click 
+   /return 
+
+sub click 
+:Click 
+   /if (${Window[TradeskillWnd].Child[CombineButton].Enabled}) { 
+      /notify TradeskillWnd CombineButton leftmouseup 
+   } 
+   /call drop 
+   /doevents 
+   /goto :Click 
+
+
+Sub drop 
+:drop 
+	/if (${Cursor.ID}) {
+   		|Delete Junk:
+   		/if (${Cursor.ID} == 8238) /destroy		|Unfired Casserole Dish
+   		/if (${Cursor.ID} == 16933) /destroy	|Unfired Large Bowl
+   		/if (${Cursor.ID} == 91111) /destroy	|Cuirasses
+   		|/if (${Cursor.ID} == 16598) /destroy	|Bottles
+   		|/if (${Cursor.ID} ==35253) /destroy	|Tantalum Chain Bracer	
+   		/if (${Cursor.ID} ==48190) /destroy		|Exquisite Hilt Wrap
+   		/if (${Cursor.ID} ==48191) /destroy		|Immaculate Hilt Wrap
+   		
+   		|Keep anything Else:
+		/autoinv
+		/goto :drop 
+	}
+	/doevents 
+	/return 
+    
+|--------------------------------------------------------------------------------
+|SUB: Event subroutines.
+|--------------------------------------------------------------------------------
+
+Sub Event_SkillUp(SkillUpText,Skill,int Amount)
+   /popup Skill increased to ${Amount}.
+   /echo Skill increased to ${Amount}.
+/return
+
+sub Event_oos 
+   /Echo Ran out of stuff. Ending.
+   /windowstate TradeskillWnd close 
+   /endmacro
+   
+sub Event_NoGain 
+   /Echo You can't get better this way. Ending.
+   /windowstate TradeskillWnd close 
+   /if (1==1) /endmacro

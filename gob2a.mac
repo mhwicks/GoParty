@@ -1,0 +1,232 @@
+|
+|GoB2A.mac 
+|by Dadda!
+
+|This macro will look through all of the items on all of the traders in the Bazaar.
+|It will then compare Bazaar prices to Barter, Vendor and Tribute prices to find quick cash options.
+
+|It uses bazaar.inc from don't_know_at_all.
+
+|Usage: /mac GoB2A
+
+|The "verbose" switch will include detailed information.
+
+|v0.1 -- 12/24/2008 -- Basic Creation.
+
+|All updates by Dadda
+|---------------------------------------------------------**| 
+#turbo 40 
+#include bazaar.inc
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+
+/declare 	intI				int 	outer 	0
+/declare 	intMainLoop			int		outer 	0
+/declare 	intSlot 			int 	outer 	0
+/declare 	intItem 			int 	outer 	0
+/declare 	strItem 			string 	outer
+/declare 	strMyPrice 			string 	outer 	0
+/declare 	intMyPrice 			int 	outer 	0
+/declare 	intVendPrice 		int 	outer 	0
+/declare 	intCompPrice 		int 	outer 	0
+/declare 	intMinPrice 		int 	outer 	0
+/declare 	intMaxPrice 		int 	outer 	0
+/declare	intMinVendorAmount	int		outer	0
+/declare	strMinVendorName	string	outer	
+/declare	intMinVendorPrice	int		outer	0
+
+/declare	intValue			int		outer	0
+/declare	intAdjustedValue	int		outer	0
+/declare	intTribute			int		outer	0
+
+/declare	intMyPricePP		int		outer	0
+/declare	intValuePP			int		outer	0
+/declare	intTributePP		int		outer	0
+/declare	intProfitPP			int		outer	0
+/declare	intQuantitySold		int		outer	0
+
+/declare 	intVerbose 			int 	outer 	0
+/declare 	intDetailed 		int 	outer 	0
+
+/declare 	intID	 			int 	outer	0
+/declare 	arrPricedID[50] 	int 	outer 	0
+/declare	intTotalPriced		int		outer	0
+/declare	intPriceLoop		int		outer	0
+
+/declare	intTraderItemLoop	int		outer	0
+
+/declare	intTopDealTot[15]	int		outer	0
+/declare	intTopDealQty[15]	int		outer	0
+/declare	strTopDealItm[15]	string	outer	0
+/declare	strTopDealWho[15]	string	outer	0
+/declare 	intDealLoop			int		outer 	0
+
+|----------------------------------------------------------**| 
+
+/declare	strTraderName		string	outer	
+/declare	strTraderQTY		string	outer	
+/declare	intTraderQTY		int		outer	0
+/declare 	intMaxTraderPrice 	int 	outer 	0
+/declare 	intMaxTraderAmount	int 	outer 	0
+/declare	strMaxTraderName	string	outer	
+/declare	intCount			int		outer 	0
+
+/declare	intMaxQTY			int		outer	0
+/declare	intMaxProfit		int		outer	0
+
+
+|Main Routine
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== === Go Bazaar 2 ALL === ===>>
+
+| Handle Parameters:
+|Verbose?
+/If ((${Param0.Equal[verbose]}) || (${Param1.Equal[verbose]}) || (${Param2.Equal[verbose]})) {
+	/varset intVerbose 1
+	/echo Verbose mode is set ON.
+}
+
+| Open Bazaar Search Window:
+/Windowstate BazaarSearchWnd open
+/echo -----------------------------------------------------------
+
+/call ResetQuery
+
+/for intMainLoop 2 to ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].Items}
+	/call CheckEachTrader
+/next intMainLoop
+
+/Windowstate BazaarSearchWnd close
+
+| Display top deals list:
+/if (${intTopDealTot[1]} > 0) {
+	/echo Top Deals:
+	/echo --------------------
+}
+/for intDealLoop 1 to 10
+	/if (${intTopDealTot[${intDealLoop}]} > 0) {
+		| Show a good deal:
+		/echo ${intTopDealTot[${intDealLoop}]} pp (for ${intTopDealQty[${intDealLoop}]}): Trader ${strTopDealWho[${intDealLoop}]} - ${strTopDealItm[${intDealLoop}]}
+	}
+/next intDealLoop
+
+/end
+
+|==================================================================================================|
+Sub CheckEachTrader
+|---------------------------------------------------
+
+	/if (${intVerbose}) /echo Setting Trader to number ${intMainLoop}.
+	/call SetTraderByNumber ${intMainLoop}
+	
+	/if (${intVerbose}) /echo Trader name is ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].List[${intMainLoop}]}.
+	/call MakeQuery
+	
+	/if (${intVerbose}) /echo Trader ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].List[${intMainLoop}]} has ${Window[BazaarSearchWnd].Child[BZR_ItemList].Items} items available.
+	
+	/for intTraderItemLoop 1 to ${Window[BazaarSearchWnd].Child[BZR_ItemList].Items}
+		/call GetItemNameFromListIndex ${intTraderItemLoop}
+		/varset strItem "${Macro.Return}"
+
+		/call GetItemIDFromListIndex ${intTraderItemLoop}
+		/varset intItem ${Macro.Return}
+
+		/if (${intVerbose}) /echo Evaluating ${strItem} (Item ${intTraderItemLoop} of ${Window[BazaarSearchWnd].Child[BZR_ItemList].Items}).
+		
+		| Set price and quantity information:
+		/call GetPriceFromListIndex ${intTraderItemLoop}
+		/varset strMyPrice ${Macro.Return}
+		/if (${intVerbose}) /echo Rough Price for ${strItem} is ${strMyPrice}.
+		
+		/call PriceToIntPrice ${strMyPrice}
+		/varset intMyPrice ${Macro.Return}
+
+		/if (${intVerbose}) /echo Price for ${strItem} is ${intMyPrice} cp.
+		
+		| Price Check on isle 4!:
+		/if (${Ini[items.ini, ${intItem}, Active]} == 1) {
+		    /varset intValue 				${Ini[items.ini, ${intItem}, Value]}				
+		    /varset intTribute				${Ini[items.ini, ${intItem}, Tribute]}
+		} else {
+			/if (${intVerbose}) /echo No INI entry for ${strItem}...  Reading the Display.
+			/call InspectItemFromListIndex ${intTraderItemLoop}
+			/delay 1s ${DisplayItem[${strItem}].ID}
+			/varset intValue 				${DisplayItem[${intItem}].Value}
+			/varset intTribute				${DisplayItem[${intItem}].Tribute}
+			/keypress ESC
+			
+			/ini "items.ini" ${intItem} "Name" ${strItem}
+			/ini "items.ini" ${intItem} "Active" 1
+			/ini "items.ini" ${intItem} "Value" "${intValue}"
+			/ini "items.ini" ${intItem} "Tribute" "${intTribute}"
+		}
+		
+		| No vendors pay the full value:
+		/varset intAdjustedValue ${Int[${Math.Calc[${intValue} / 1.05]}]}
+		/if (${intVerbose}) /echo Full value is ${intValue}cp, adjusted value is ${intAdjustedValue}cp.
+		
+		/if (${intVerbose}) /echo A vendor will pay ${intAdjustedValue}cp for this item.
+		/if (${intVerbose}) /echo A tributer will pay ${intTribute}cp for this item.
+
+		| Report Winners! (Value only - Who cares about Tribute?):
+		/if (${intAdjustedValue} > ${intMyPrice}) {
+			|/echo Trader ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].List[${intMainLoop}]} is selling ${strItem} for ${intMyPrice} cp.
+			/if (${intAdjustedValue} > ${intMyPrice}) {
+				/varset intValuePP ${Int[${Math.Calc[${intAdjustedValue} / 1000]}]}
+				/varset intMyPricePP ${Int[${Math.Calc[${intMyPrice} / 1000]}]}
+				/varset intProfitPP	${Int[${Math.Calc[${intValuePP} - ${intMyPricePP}]}]}
+
+				/call GetQuantityFromListIndex ${intTraderItemLoop}
+				/varset intQuantitySold ${Macro.Return}
+				
+				/if (${intVerbose}) /echo Profit is ${intProfitPP} * ${intQuantitySold}
+				/varcalc intProfitPP ${intProfitPP} * ${intQuantitySold}
+				
+				/echo ${intProfitPP} pp (for ${intQuantitySold}): Trader ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].List[${intMainLoop}]} - ${strItem} : ${intMyPricePP} < ${intValuePP} pp.
+				
+				| Make a top deals list:
+				
+				| Use slot 11 as the current item:
+				/varset intTopDealTot[11] ${intProfitPP}
+				/varset intTopDealQty[11] ${intQuantitySold}
+				/varset strTopDealItm[11] ${strItem}
+				/varset strTopDealWho[11] ${Window[BazaarSearchWnd].Child[BZR_PlayersCombobox].List[${intMainLoop}]}
+				
+				/for intDealLoop 1 to 10
+					/if (${intTopDealTot[11]} > ${intTopDealTot[${intDealLoop}]}) {
+						| Found a slot for a new item!
+						/if (${intVerbose}) /echo TOP DEAL: ${intTopDealTot[11]} > ${intTopDealTot[${intDealLoop}]}
+						| Put the loop item in a temp slot (12):
+						/varset intTopDealTot[12] ${intTopDealTot[${intDealLoop}]}
+						/varset intTopDealQty[12] ${intTopDealQty[${intDealLoop}]}
+						/varset strTopDealItm[12] ${strTopDealItm[${intDealLoop}]}
+						/varset strTopDealWho[12] ${strTopDealWho[${intDealLoop}]}
+						
+						| Put the current item (11) into the loop item:
+						/varset intTopDealTot[${intDealLoop}] ${intTopDealTot[11]}
+						/varset intTopDealQty[${intDealLoop}] ${intTopDealQty[11]}
+						/varset strTopDealItm[${intDealLoop}] ${strTopDealItm[11]}
+						/varset strTopDealWho[${intDealLoop}] ${strTopDealWho[11]}
+						
+						| Put the temp item (12) into the current item slot (11):
+						/varset intTopDealTot[11] ${intTopDealTot[12]}
+						/varset intTopDealQty[11] ${intTopDealQty[12]}
+						/varset strTopDealItm[11] ${strTopDealItm[12]}
+						/varset strTopDealWho[11] ${strTopDealWho[12]}
+					}
+				/next intDealLoop
+				
+			}
+			/if (${intTribute} > ${intMyPrice}) {
+				|/echo Tributers buy ${strItem} for ${intTribute} cp.
+			}
+		}
+	/next intTraderItemLoop
+
+/return
+
+|==================================================================================================|

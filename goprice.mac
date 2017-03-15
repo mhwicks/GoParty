@@ -1,0 +1,299 @@
+|
+GoPrice.mac 
+by Dadda!
+
+This macro will use statistical analysis to price items in the Bazaar.
+It uses bazaar.inc from don't_know_at_all.
+
+Run the macro with person you want to follow targeted. 
+Usage: /mac GoPrice [update]
+
+The "update" switch will force price updates.
+The "verbose" switch will include detailed information.
+The "detailed" switch will complete a thorough examination of the selected vendow item.
+	This switch is now automactic if an item is selected.
+The "iterate" switch will iterate through the items until cancelled.
+
+v0.1 -- 08/10/2007 -- Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+#include bazaar.inc
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+
+/declare 	intI				int 	outer 	0
+/declare 	intSlot 			int 	outer 	0
+/declare 	strItem 			string 	outer
+/declare	strItemNoQuote		string	outer
+/declare 	intMyPrice 			int 	outer 	0
+/declare 	intVendPrice 		int 	outer 	0
+/declare 	intCompPrice 		int 	outer 	0
+/declare 	intMinPrice 		int 	outer 	0
+/declare 	intMaxPrice 		int 	outer 	0
+/declare 	intVerbose 			int 	outer 	0
+/declare 	intDetailed 		int 	outer 	0
+/declare 	intIterate 		int 	outer 	0
+
+/declare 	intID	 			int 	outer	0
+/declare 	arrPricedID[100] 	int 	outer 	0
+/declare	intTotalPriced		int		outer	0
+/declare	intPriceLoop		int		outer	0
+
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Price! ===>>
+/echo There are ${Math.Calc[${SpawnCount[PC]} - ${SpawnCount[trader]}]} customers here.
+
+|Handle Parameters:
+|Verbose?
+/If ((${Param0.Equal[verbose]}) || (${Param1.Equal[verbose]}) || (${Param2.Equal[verbose]})) {
+	/varset intVerbose 1
+	/echo Verbose mode is set ON.
+} else {
+	/echo Use "verbose" for more spam.
+}
+
+|Detailed?
+|/If ((${Param0.Equal[detailed]}) || (${Param1.Equal[detailed]}) || (${Param2.Equal[detailed]})) {
+|	/varset intDetailed 1
+|	/echo Detailed mode is set ON.
+	
+|Set the Evaluation Item:
+/if (!${SelectedItem.ID}) {
+	/echo Select any item to perform a detailed analysis.
+} else {
+	/varset intDetailed 1
+	/echo Detailed mode is set ON.
+	/varset strItem "${SelectedItem.Name}"
+	/varset intID ${SelectedItem.ID}
+	/varset intMyPrice ${Window[BazaarWnd].Child[BZW_Money0].Text}
+}
+
+|Iterate?
+/If ((${Param0.Equal[iterate]}) || (${Param1.Equal[iterate]}) || (${Param2.Equal[iterate]})) {
+	/varset intIterate 1
+	/echo Iterate mode enabled.  F1 (Target yourself) to end.
+} else {
+	/echo Use "iterate" for continuous updates.
+}
+
+|Re-Open Bazaar Trader Window:
+/Windowstate BazaarWnd Close
+/Windowstate BazaarWnd Open
+
+|Open Bazaar Search Window:
+/Windowstate BazaarSearchWnd open
+
+/if (${intDetailed}) {
+	/call Detailed
+} else {
+	/notify BazaarWnd BZW_Start_Button leftmouseup
+
+	:Iterate
+	/call Normal
+
+	/if (${intIterate}) {
+		/echo Iterate mode enabled.  F1 (Target yourself) to end.
+		/echo Waiting 10 minutes.
+	
+		/for intPriceLoop 1 to 360
+			/delay 1s
+			/if (${Target.ID} == ${Me.ID}) /end
+		/next intPriceLoop
+	}
+
+	/if (${intIterate}) {
+		/goto :Iterate
+	}
+}
+
+|Activate Trader mode:
+|Note: Found this by doing:
+| "/echo ${Window[BazaarWnd].FirstChild.Name}"
+| "/echo ${Window[BazaarWnd].Child[BZW_Clear_Button].Next.Name}"
+
+|/notify BazaarWnd BZW_Start_Button leftmouseup
+
+/end
+
+|==================================================================================================|
+Sub Normal 
+|---------------------------------------------------
+
+|Clear out price History:
+/for intPriceLoop 1 to ${intTotalPriced}
+	/varset arrPricedID[${intPriceLoop}] 0
+/next intPriceLoop
+/varset intTotalPriced 0
+
+|Look in every Bazaar Trader slot:
+/for intSlot 0 to 79
+
+	/if (${Target.ID} == ${Me.ID}) /end
+
+	/varset strItem "${Window[BazaarWnd].Child[BZR_BazaarSlot${intSlot}].Tooltip}"
+	/varset strItemNoQuote ${Window[BazaarWnd].Child[BZR_BazaarSlot${intSlot}].Tooltip}
+	
+	|If there is an item in that slot, evaluate it:
+	/if (${Bool[${strItem}]}) {
+		|Select the item:
+		/notify BazaarWnd BZR_BazaarSlot${intSlot} leftmouseup
+		
+		/varset intID ${SelectedItem.ID}
+
+		|Check to see if we have already done a duplicate of this item:
+		/for intPriceLoop 1 to ${intTotalPriced}
+			|/echo ${intID} - ${arrPricedID[${intPriceLoop}]}
+			/if (${intID} == ${arrPricedID[${intPriceLoop}]}) {
+				/if (${intVerbose}) {
+					/echo Found ${strItem} in the Priced list - SKIPPING.
+				}
+				/next intSlot
+			}
+		/next intPriceLoop
+		
+		/varset intMyPrice ${Window[BazaarWnd].Child[BZW_Money0].Text}
+		/if (${intVerbose}) {
+			/echo --------------------------------------------------
+			/echo Processing: ${strItem} (${intID}) (${intMyPrice} pp).
+		}
+		/call ResetQuery
+		/call SetItemName ${strItem}
+		/call MakeQuery
+
+		/if (${intVerbose}) {
+			/echo There are ${Bazaar.Count} items matching.
+		}
+		
+		|Identify Vendor Pricing:
+		/varset intVendPrice ${Int[${Math.Calc[${FindItem[=${strItemNoQuote}].Value} / 1000]}]}
+		/if (${intVendPrice} > 0) {
+			/if (${intVerbose}) {
+				/echo A vendor will give you ${intVendPrice} pp for ${strItem}.
+			}
+		}
+		
+		|Cycle through all available items and find prices:
+		/varset intI 1
+		/varset intMinPrice 999999
+		:TraderCycle
+		/if (${intI} <= ${Bazaar.Count}) {
+			|Verify that it's a true match:
+			|/echo Does ${intID} = ${Bazaar.Item[${intI}].ItemID}?
+			/if (${Bazaar.Item[${intI}].ItemID} == ${intID}) {
+				|/echo True Match!
+				/varset intCompPrice ${Int[${Math.Calc[${Bazaar.Item[${intI}].Price} / 1000]}]}
+				/if (${intVerbose}) {
+					/echo ${Bazaar.Item[${intI}].Trader} has ${Bazaar.Item[${intI}].Quantity} for ${intCompPrice} pp.
+				}
+				/if (${intCompPrice} < ${intMinPrice}) {
+					/varset intMinPrice ${intCompPrice}
+				}
+			}
+		}
+		/varcalc intI ${intI} + 1
+		/doevents
+		/if (${intI} <= ${Bazaar.Count}) /goto :TraderCycle
+		
+		|Done Cycling through competition, evaluate results:\
+		/if (${intMyPrice} < ${intMinPrice}) {
+			/varset intMinPrice ${intMyPrice}
+		}
+		
+		/if (${intMinPrice} < ${intVendPrice}) {
+			/echo -------------
+			/echo ACTION: ${strItem}
+			/echo Minimun price (${intMinPrice}pp) is lower than the vendor price (${intVendPrice}pp) - SELL TO VENDOR.
+		} else {
+			/if (${intMyPrice} <= ${intMinPrice}) {
+				/if (${intVerbose}) {
+					/echo Your price is the lowest.
+				}
+			} else {
+				/echo -------------
+				/echo ACTION: ${strItem}
+				/echo Your price (${intMyPrice}pp) should be made lower than the min. (${intMinPrice}pp).
+				/beep
+			}
+		}
+		
+		|Add the item to the list of items handled:
+		/varcalc intTotalPriced ${intTotalPriced} + 1
+		/varset arrPricedID[${intTotalPriced}] ${intID}
+		/if (${intVerbose}) {
+			/echo Adding ${strItem} (${intID}) to slot ${intTotalPriced} in the Priced Items array.
+		}
+		
+	}
+
+/next intSlot
+
+/Return
+
+|==================================================================================================|
+Sub Detailed 
+|---------------------------------------------------
+
+	/echo =================================================
+	/echo Performing Detailed Analysis on ${strItem}.
+
+	/call ResetQuery
+	/call SetItemName ${strItem}
+	/call MakeQuery
+	
+
+	|Identify Vendor Pricing:
+	/varset intVendPrice ${Int[${Math.Calc[${FindItem[${strItem}].Value} / 1000]}]}
+	/echo -----------------------------------------------------------
+	/echo A vendor will give you ${intVendPrice} pp for ${strItem}.
+	/echo -----------------------------------------------------------
+
+	/echo There are ${Bazaar.Count} matching items in the Bazaar.
+
+	|Cycle through all available items and find prices:
+	/varset intI 1
+	/varset intMinPrice 999999
+	/varset intMaxPrice 0
+
+	:TraderCycle
+	/if (${intI} <= ${Bazaar.Count}) {
+		|Verify that it's a true match:
+		|/echo Does ${intID} = ${Bazaar.Item[${intI}].ItemID}?
+		/if (${Bazaar.Item[${intI}].ItemID} == ${intID}) {
+			|/echo True Match!
+
+			/varset intCompPrice ${Int[${Math.Calc[${Bazaar.Item[${intI}].Price} / 1000]}]}
+			/echo ${Bazaar.Item[${intI}].Trader} has ${Bazaar.Item[${intI}].Quantity} for ${intCompPrice} pp.
+			/if (${intCompPrice} < ${intMinPrice}) {
+				/varset intMinPrice ${intCompPrice}
+			}
+			/if (${intCompPrice} > ${intMaxPrice}) {
+				/varset intMaxPrice ${intCompPrice}
+			}
+		}
+	}
+	/varcalc intI ${intI} + 1
+	/doevents
+	/if (${intI} <= ${Bazaar.Count}) /goto :TraderCycle
+	
+	/echo -----------------------------------------------------------
+	/echo Minimum price: ${intMinPrice} pp.
+	/echo Maximum price: ${intMaxPrice} pp.
+	/echo Your Price: ${intMyPrice} pp.
+	
+
+	/echo Analysis complete.
+
+/Return
+
+|==================================================================================================|
+

@@ -1,0 +1,36 @@
+|**---------------------------------------------------------- 
+GoGear.mac 
+by Dadda!
+
+This macro will show a gear report.
+
+Run the macro on person you want a gear report. 
+Usage: /mac GoGear
+
+03/05/2017 v1.0
+Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+
+
+Sub Main
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare 	Iterations 			int 		outer 	0
+/declare 	intScore 			int 		outer 	0
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Gear Report ===>>
+/echo Score Calulation = (AC * 10) + HP
+
+/for Iterations 0 to 22
+	/varcalc intScore (${InvSlot[${Iterations}].Item.AC} * 10) + ${InvSlot[${Iterations}].Item.HP}
+	/echo ${intScore} (${InvSlot[${Iterations}].Name}) ${InvSlot[${Iterations}].Item.Name}
+/next Iterations
+	
+
+/end

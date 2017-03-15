@@ -1,0 +1,43 @@
+	#turbo 40 
+	#include iLoot.inc
+	#include iMove.inc
+	#include ZZdeletions.inc
+
+sub main
+	/echo <<========= Go Loot! =========>>
+
+	/call DeclareMove
+	/call DeclareLoot
+	/varset intSafeLootRadius 1
+
+	/declare	intVerbose 	     		int 	local 0
+	/declare	Iterations 	     		int 	outer 0
+	/declare	intTotalDiff			int		local 0
+	/declare	intEasyNotLoop			int		local 0
+
+		
+	/squelch /target clear
+		
+	:BeginLoop
+	
+	/call LootCheck
+	
+	/varset intEasyNotLoop 0
+	/varset intTotalDiff 0
+	:EasyNotList
+	/varcalc intEasyNotLoop ${intEasyNotLoop} + 1
+		
+	|Count difficult corpses:
+	/if (${arrDiffCorpse[${intEasyNotLoop}]} > 0) {
+		/varcalc intTotalDiff ${intTotalDiff} + 1
+	}
+	/if (${intEasyNotLoop} < 10) /goto :EasyNotList
+	/if (${intVerbose}) /echo Difficult corpse list count: ${intTotalDiff}
+	
+	/if (${SpawnCount[NPC Corpse radius 140]} > ${intTotalDiff}) {
+		|/echo More corpses nearby, relooping...
+		/goto :BeginLoop
+	}
+
+/return 
+

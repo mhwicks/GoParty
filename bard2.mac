@@ -1,0 +1,2102 @@
+|#Event IRC            "<#1#> #2#" 
+#Event Enrageon       "#*#|${Target.CleanName}| has become ENRAGED#*#" 
+#Event Enrageoff      "#*#|${Target.CleanName}| is no longer enraged#*#" 
+#event FollowMe       "#1# tells the group, 'follow me'" 
+#event FollowMe       "#1# tells you, 'follow me'" 
+#event MobGating      "#*# begins to cast the gate spell#*#" 
+#event SnareIt        "#*# tells the group, 'snare#*#" 
+#event SnareIt        "#*# tells you, 'snare#*#" 
+#event StayHere       "#1# tells the group, 'stay here'" 
+#event StayHere       "#1# tells you, 'stay here'" 
+#event MakeCamp       "#1# tells the group, 'make camp'" 
+#event MakeCamp       "#1# tells you, 'make camp'" 
+#Event TooFarAway     "#*#Your target is too far away, get closer#*#" 
+#event GotHit         "#*#hits YOU for#*#" 
+#event GotHit         "#*#slashes YOU for#*#" 
+#event GotHit         "#*#crushes YOU for#*#" 
+#event GotHit         "#*#bashes YOU for#*#" 
+#event GotHit         "#*#kicks YOU for#*#" 
+#event GotHit         "#*#smashes YOU for#*#" 
+#event GotHit         "#*#mauls YOU for#*#" 
+#event GotHit         "#*#gores YOU for#*#" 
+#event GotHit         "#*#pierces YOU for#*#" 
+#event GotHit         "#*#kicks YOU for#*#" 
+#event GotHit         "#*#bashes YOU for#*#"  
+#event NotStanding    "#*#You must be standing to attack!#*#" 
+#event NoSeeTarget    "#*#You cannot see your target.#*# 
+#event NoSeeTarget    "#*#You can't hit them from here#*# 
+#event Bswapoff       "#*#MQ2BardSwap::Melee-Swapping OFF#*#" 
+#Event MobDead        "#*#You have slain#*#" 
+#Event MobDead        "#*#has been slain by#*#" 
+#Event gohome         "#*#must be standing#*#spell#*#" 
+#Event Outdoors       "#*#You can only cast this spell in the outdoors#*#" 
+#Event Outdoors       "#*#This spell does not work here#*#" 
+#Event Zoned          "#*#You have entered#*#" 
+#Event ImDead         "You have been slain by#*#" 
+#Event MezzImmune     "Your target cannot be mesmerized#*#" 
+#Event TBswap         "[MQ2] toggle bswap#*#" 
+#Event TBswapMelee    "[MQ2] toggle bswapmelee#*#" 
+#Event TDoMezz        "[MQ2] toggle domezz#*#" 
+#Event TMezzAllAdds   "[MQ2] toggle mezzalladds#*#" 
+#Event TProactiveMezz "[MQ2] toggle proactivemezz#*#" 
+#Event TVerbose       "[MQ2] toggle verbose#*#" 
+#Event TSlow          "[MQ2] toggle slow#*#" 
+#Event TDEBUG         "[MQ2] toggle DEBUG#*# 
+#Event BardHelp       "[MQ2] Display Bard Help#*#" 
+#Event SPartyFight    "[MQ2] set PartyFightFlag #1# #2#" 
+#Event SPartyAug      "[MQ2] set PartyAugFlag #1# #2#" 
+#Event SSnare         "[MQ2] set SnareFlag #1# #2#" 
+#Event SDebuffDR      "[MQ2] set DebuffDRFlag #1# #2#" 
+#Event SDebuffFR      "[MQ2] set DebuffFRFlag #1# #2#" 
+#Event SDebuffCR      "[MQ2] set DebuffCRFlag #1# #2#" 
+#Event SDebuffPR      "[MQ2] set DebuffPRFlag #1# #2#" 
+#Event SDamageShield  "[MQ2] set DamageShieldFlag #1# #2#" 
+#Event SManaDrain     "[MQ2] set ManaDrainFlag #1# #2#" 
+#Event STash          "[MQ2] set TashFlag #1# #2#" 
+#Event SResistMR      "[MQ2] set ResistMRFlag #1# #2#" 
+#Event SResistDR      "[MQ2] set ResistDRFlag #1# #2#" 
+#Event SPartyMana     "[MQ2] set PartyManaFlag #1# #2#" 
+#Event SAEMana        "[MQ2] set AEManaFlag #1# #2#" 
+#Event SMezz          "[MQ2] set MezzFlag #1# #2#" 
+#Event SInterrupt     "[MQ2] set InterruptFlag #1# #2#" 
+#Event SInvis         "[MQ2] set InvisFlag #1# #2#" 
+#Event STravel        "[MQ2] set TravelFlag #1# #2#" 
+#Event SFear          "[MQ2] set FearFlag #1# #2#" 
+#Event aura			"Shawdow tells the group, 'aura'"
+#Event aura			"Shawdow is surrounded by a Disciple's Aura."
+#event zoned	   "#*#LOADING, PLEASE WAIT...#*#"
+
+#include wait4rez.inc 
+#include advloot.inc 
+
+
+Sub Main 
+|/declare  MasterList         string outer "IRCMASTER" 
+|/declare  MasterOnly                outer TRUE 
+|# Calling IRC Declares and joining channel... 
+|  /call IRCDeclares 
+
+/declare  IniFile           string outer ${Me.Name}_bardhelper.ini 
+/declare  DEBUG                    outer FALSE 
+/declare  DEBUG2                   outer FALSE 
+/declare  MovingCamp               outer FALSE 
+/declare  Following                outer FALSE 
+/declare  Outside                  outer TRUE 
+/declare  StaticCamp               outer TRUE 
+/declare  HomeX             int    outer ${Me.X} 
+/declare  HomeY             int    outer ${Me.Y} 
+/declare  TankName          string outer ${Target} 
+/declare  Engaged                  outer FALSE 
+/declare  GroupMobs                outer TRUE 
+/declare  SingingResting           outer FALSE 
+/declare  JustZoned                outer FALSE 
+/declare  FightingSongs     string outer 
+/declare  RestingSongs      string outer 
+/declare  FightSongs[4]     int    outer 0 
+/declare  RestSongs[4]      int    outer 0 
+/declare  TargetArray[4]    string outer 
+/declare  AddArray[4]       int    outer 0 
+/declare  ExcludeArray[4]   int    outer 0 
+/declare  MezzTimers[4]     int    outer 0 
+/declare  ClericMezzTimer   timer  outer 0 
+/declare  SnareTimer        timer  outer 0 
+/declare  MobSlowed                outer FALSE 
+/declare  LootMobs          int    outer 1 
+/declare  CorpseList        string outer 0 
+/declare  CorpseRadius      int    outer 70 
+/declare  MobsTooClose      int    outer 50 
+/declare  CorpseAlertList   int    outer 70 
+/declare  CorpseRotTime     string outer 440s 
+/declare  CorpseRotTimer    timer  outer 
+/declare  CorpseRotSetTimer string outer FALSE 
+/declare  LootINIFile       string outer "${Me.Name}_loot.ini" 
+/declare  useAutoLoot              outer TRUE 
+/declare  InvisMove                outer FALSE 
+/declare  FollowName        string outer 
+
+/declare  DefaultMT       string outer ${Ini[${IniFile},General,DefaultMT]} 
+/declare  AssistDistance  int    outer ${Ini[${IniFile},General,AssistDistance]} 
+/declare  AssistAt        int    outer ${Ini[${IniFile},General,AssistAt]} 
+/declare  Closeness       int    outer ${Ini[${IniFile},General,Closeness]} 
+/declare  SnareMob               outer ${Ini[${IniFile},General,SnareMob]} 
+/declare  SlowMobs               outer ${Ini[${IniFile},General,SlowMobs]} 
+/declare  Bswap                  outer ${Ini[${IniFile},General,Bswap]} 
+/declare  Bswapmelee             outer ${Ini[${IniFile},General,Bswapmelee]} 
+/declare  DoMezz                 outer ${Ini[${IniFile},General,DoMezz]} 
+/declare  MezzAllAdds            outer ${Ini[${IniFile},General,MezzAllAdds]} 
+/declare  ProactiveMezz          outer ${Ini[${IniFile},General,ProactiveMezz]} 
+/declare  MaxMezzLevel    int    outer ${Ini[${IniFile},General,MaxMezzLevel]} 
+/declare  Verbose                outer ${Ini[${IniFile},General,Verbose]} 
+
+/declare  PartyFightFlag         outer ${Ini[${IniFile},SongFlags,PartyFightFlag]} 
+/declare  PartyAugFlag           outer ${Ini[${IniFile},SongFlags,PartyAugFlag]} 
+/declare  SnareFlag              outer ${Ini[${IniFile},SongFlags,SnareFlag]} 
+/declare  DebuffDRFlag           outer ${Ini[${IniFile},SongFlags,DebuffDRFlag]} 
+/declare  DebuffFRFlag           outer ${Ini[${IniFile},SongFlags,DebuffFRFlag]} 
+/declare  DebuffCRFlag           outer ${Ini[${IniFile},SongFlags,DebuffCRFlag]} 
+/declare  DebuffPRFlag           outer ${Ini[${IniFile},SongFlags,DebuffPRFlag]} 
+/declare  DamageShieldFlag       outer ${Ini[${IniFile},SongFlags,DamageShieldFlag]} 
+/declare  ManaDrainFlag          outer ${Ini[${IniFile},SongFlags,ManaDrainFlag]} 
+/declare  TashFlag               outer ${Ini[${IniFile},SongFlags,TashFlag]} 
+/declare  ResistMRFlag           outer ${Ini[${IniFile},SongFlags,ResistMRFlag]} 
+/declare  ResistDRFlag           outer ${Ini[${IniFile},SongFlags,ResistDRFlag]} 
+/declare  SlowFlag               outer ${Ini[${IniFile},SongFlags,SlowFlag]} 
+/declare  SlowDDFlag             outer ${Ini[${IniFile},SongFlags,SlowDDFlag]} 
+/declare  PartyManaFlag          outer ${Ini[${IniFile},SongFlags,PartyManaFlag]} 
+/declare  AEManaFlag             outer ${Ini[${IniFile},SongFlags,AEManaFlag]} 
+/declare  MezzFlag               outer ${Ini[${IniFile},SongFlags,MezzFlag]} 
+/declare  InterruptFlag          outer ${Ini[${IniFile},SongFlags,InterruptFlag]} 
+/declare  InvisFlag              outer ${Ini[${IniFile},SongFlags,InvisFlag]} 
+/declare  TravelFlag             outer ${Ini[${IniFile},SongFlags,TravelFlag]} 
+/declare  FearFlag               outer ${Ini[${IniFile},SongFlags,FearFlag]} 
+
+/declare  PartyFight      string outer ${Ini[${IniFile},Songs,PartyFight]} 
+/declare  PartyFightGem   int    outer ${Ini[${IniFile},Songs,PartyFightGem]} 
+/declare  PartyAug        string outer ${Ini[${IniFile},Songs,PartyAug]} 
+/declare  PartyAugGem     int    outer ${Ini[${IniFile},Songs,PartyAugGem]} 
+/declare  Snare           string outer ${Ini[${IniFile},Songs,Snare]} 
+/declare  SnareGem        int    outer ${Ini[${IniFile},Songs,SnareGem]} 
+/declare  DebuffDR        string outer ${Ini[${IniFile},Songs,DebuffDR]} 
+/declare  DebuffDRGem     int    outer ${Ini[${IniFile},Songs,DebuffDRGem]} 
+/declare  DamageShield    string outer ${Ini[${IniFile},Songs,DamageShield]} 
+/declare  DamageShieldGem int    outer ${Ini[${IniFile},Songs,DamageShieldGem]} 
+/declare  ManaDrain       string outer ${Ini[${IniFile},Songs,ManaDrain]} 
+/declare  ManaDrainGem    int    outer ${Ini[${IniFile},Songs,ManaDrainGem]} 
+/declare  Tash            string outer ${Ini[${IniFile},Songs,Tash]} 
+/declare  TashGem         int    outer ${Ini[${IniFile},Songs,TashGem]} 
+/declare  ResistMR        string outer ${Ini[${IniFile},Songs,ResistMR]} 
+/declare  ResistMRGem     int    outer ${Ini[${IniFile},Songs,ResistMRGem]} 
+/declare  ResistDR        string outer ${Ini[${IniFile},Songs,ResistDR]} 
+/declare  ResistDRGem     int    outer ${Ini[${IniFile},Songs,ResistDRGem]} 
+/declare  Resist          string outer ${Ini[${IniFile},Songs,Resist]} 
+/declare  ResistGem       int    outer ${Ini[${IniFile},Songs,ResistGem]} 
+/declare  Slow            string outer ${Ini[${IniFile},Songs,Slow]} 
+/declare  SlowGem         int    outer ${Ini[${IniFile},Songs,SlowGem]} 
+/declare  SlowDD          string outer ${Ini[${IniFile},Songs,SlowDD]} 
+/declare  SlowDDGem       int    outer ${Ini[${IniFile},Songs,SlowDDGem]} 
+/declare  PartyMana       string outer ${Ini[${IniFile},Songs,PartyMana]} 
+/declare  PartyManaGem    int    outer ${Ini[${IniFile},Songs,PartyManaGem]} 
+/declare  AEMana          string outer ${Ini[${IniFile},Songs,AEMana]} 
+/declare  AEManaGem       int    outer ${Ini[${IniFile},Songs,AEManaGem]} 
+/declare  Mezz            string outer ${Ini[${IniFile},Songs,Mezz]} 
+/declare  MezzGem         int    outer ${Ini[${IniFile},Songs,MezzGem]} 
+/declare  Fear            string outer ${Ini[${IniFile},Songs,Fear]} 
+/declare  FearGem         int    outer ${Ini[${IniFile},Songs,FearGem]} 
+/declare  Interrupt       string outer ${Ini[${IniFile},Songs,Interrupt]} 
+/declare  InterruptGem    int    outer ${Ini[${IniFile},Songs,InterruptGem]} 
+/declare  Invis           string outer ${Ini[${IniFile},Songs,Invis]} 
+/declare  InvisGem        int    outer ${Ini[${IniFile},Songs,InvisGem]} 
+/declare  Travel          string outer ${Ini[${IniFile},Songs,Travel]} 
+/declare  TravelGem       int    outer ${Ini[${IniFile},Songs,TravelGem]} 
+
+/squelch /alias /bswap           /echo toggle bswap 
+/squelch /alias /bswapmelee      /echo toggle bswapmelee 
+/squelch /alias /bslow           /echo toggle slow 
+/squelch /alias /bmezz           /echo toggle domezz 
+/squelch /alias /bmezzall        /echo toggle mezzalladds 
+/squelch /alias /bproactive      /echo toggle proactivemezz 
+/squelch /alias /bverbose        /echo toggle verbose 
+/squelch /alias /bardhelp        /echo Display Bard Help 
+/squelch /alias /bdebug          /echo toggle DEBUG 
+
+/squelch /alias /spartyfight     /echo set PartyFightFlag 
+/squelch /alias /spartyaug       /echo set PartyAugFlag 
+/squelch /alias /ssnare          /echo set SnareFlag 
+/squelch /alias /sdebuffdr       /echo set DebuffDRFlag 
+/squelch /alias /sdebufffr       /echo set DebuffFRFlag 
+/squelch /alias /sdebuffcr       /echo set DebuffCRFlag 
+/squelch /alias /sdebuffpr       /echo set DebuffPRFlag 
+/squelch /alias /sdamageshield   /echo set DamageShieldFlag 
+/squelch /alias /smanadrain      /echo set ManaDrainFlag 
+/squelch /alias /stash           /echo set TashFlag 
+/squelch /alias /sresistmr       /echo set ResistMRFlag 
+/squelch /alias /sresistdr       /echo set ResistDRFlag 
+/squelch /alias /spartymana      /echo set PartyManaFlag 
+/squelch /alias /saemana         /echo set AEManaFlag 
+/squelch /alias /sfear           /echo set FearFlag 
+/squelch /alias /smezz           /echo set MezzFlag 
+/squelch /alias /sinterrupt      /echo set InterruptFlag 
+/squelch /alias /sinvis          /echo set InvisFlag 
+/squelch /alias /stravel         /echo set TravelFlag 
+
+/if (!${Bool[${Plugin[mq2twist]}]}) { 
+  /echo MQ2Twist not detected!  This macro requires it. 
+  /beep 
+  /end 
+} 
+
+/if (!${Bool[${Plugin[mq2moveutils]}]}) { 
+  /echo MQ2MoveUtils not detected!  This macro requires it! 
+  /beep 
+  /end 
+} 
+
+/if (${Bool[${Plugin[mq2bardswap]}]} && ${Bswap}) { 
+  /bardswap on 
+  /if (${Bswapmelee}) /bardswap melee 
+  /doevents 
+  /echo MQ2BardSwap has been enabled 
+} else { 
+  /echo MQ2BardSwap not detected! 
+} 
+
+/echo Starting bardhelper.mac... 
+/echo /bardhelp for program help and toggles 
+/echo Mezzing is set to: ${DoMezz} 
+
+/if (!${Target.ID} || ${Target.Type.NotEqual[PC]} || ${Target.Type.Equal[Corpse]} || ${Target.Type.Equal[PET]}) { 
+  /varset TankName ${DefaultMT} 
+  } else { 
+/varset TankName ${Target} 
+} 
+
+/declare z int local 1 
+/for z 1 to 4 
+  /varset ExcludeArray[${z}] 0 
+/next z 
+
+/declare y int local 1 
+/for y 1 to 4 
+  /varset AddArray[${y}] 0 
+/next y 
+  
+/echo Now Assisting: [ ${TankName} ] 
+/call MemSpells 
+
+/varset TargetArray[4] 0 
+/call SongSelection 
+
+:Main_Loop 
+  /delay 1 
+  /doevents 
+  /if (${ProactiveMezz}) /call CheckForAdds 
+  /if (!${Engaged}) /call AssistTank 
+  /if (${Engaged} && ${TargetArray[4]} && ${Spawn[${TargetArray[4]}].Distance} < ${AssistDistance}) /call KillTarget 
+  /if (${DoMezz}) /call CheckMezzTimers 
+  /call ReadyForNext 
+  /goto :Main_Loop 
+/return 
+
+Sub AssistTank 
+  /if (${DEBUG2}) /echo Entered Sub AssistTank 
+  /assist ${TankName}
+
+  |Doug------------------------------
+  /delay 7 
+  |Doug------------------------------
+
+  /if (${Target.ID} && ${Target.Type.NotEqual[PC]} && ${Target.Distance}<${AssistDistance} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[PET]}) { 
+    /if (${DEBUG}) /echo Setting TargetArray 
+    /varset TargetArray[1] ${Target.CleanName} 
+    /varset TargetArray[2] ${Target.Level} 
+    /varset TargetArray[3] ${Target.Name} 
+    /varset TargetArray[4] ${Target.ID} 
+    /if (${Me.Sitting}) /stand 
+    /if (${Target.PctHPs}<=${AssistAt}) /varset Engaged TRUE 
+    /if (${DoMezz}) /call CheckForAdds 
+    /return 
+  } 
+/return 
+
+Sub KillTarget 
+  /declare FightSinging local FALSE 
+  /declare BackTimer timer local 5s 
+  /declare SlowTimer timer local 15s 
+  /if (${DEBUG}) /echo Entered Sub KillTarget 
+   :Combat 
+   /doevents 
+  /if (${DoMezz}) /call CheckForAdds 
+  /if (${DoMezz}) /call CheckMezzTimers 
+  /if (${Target.Type.Equal["Corpse"]} || !${Target.ID}) { 
+  	
+  	|Doug--------------------------
+  	/target clear
+	/varset TargetArray[4] 0 
+  	|Doug--------------------------
+  	
+    /varset Engaged FALSE 
+    /attack off 
+    /delay 1 
+    /twist ${RestingSongs} 
+    /doevents 
+    /if (${LootMobs}==1) /call Lootmobs
+    /call ReturnHome
+    /if (${DEBUG}) /echo Leaving Sub KillTarget 
+    /return 
+  } 
+  /if (${SlowMobs} && !${SlowTimer} && ${Target.PctHPs}<=${AssistAt}) { 
+    /squelch /twist once ${SlowGem} 
+    /varset SlowTimer 15s 
+  } 
+   /if (!${Me.Combat} && ${Target.Distance} < ${AssistDistance} && ${Target.PctHPs}<=${AssistAt} && !${FightSinging}) { 
+     /if (${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} > 50) { 
+       /squelch /stick behindonce moveback 49 
+     } else { 
+       /squelch /stick behindonce moveback ${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} 
+     } 
+     /varset FightSinging TRUE 
+     /delay 3 
+     /twist ${FightingSongs} 
+   } 
+   /if (!${Me.Combat} && ${Target.Distance} <= ${Math.Calc[${Target.MaxRangeTo}-2]}) /attack on 
+  /if (${Target.Class.Name.Equal[Cleric]} && ${Target.PctHPs} <= 45 && !${ClericMezzTimer} && ${Target.Level} <= ${MaxMezzLevel}) { 
+    /squelch /twist once ${MezzGem} 
+    /delay 31 
+    /varset ClericMezzTimer 6s 
+  } 
+  /if (${SnareMob} && !${SnareTimer} && ${Target.PctHPs} <= 22) { 
+    /squelch /twist once ${SnareGem} 
+    /delay 31 
+    /varset SnareTimer 12s 
+  } 
+  /if (${Me.Combat} && !${BackTimer}) { 
+     /if (${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} > 50) { 
+       /squelch /stick behindonce moveback 49 
+     } else { 
+       /squelch /stick behindonce moveback ${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} 
+     } 
+    /varset BackTimer 10s 
+  } 
+  /delay 1 
+  /doevents 
+  /goto :Combat 
+/return    
+
+Sub CheckForAdds 
+  /declare DEBUG4 local TRUE
+  /delay 1 
+  /if (${DEBUG4}) /echo In Sub CheckForAdds 
+  /declare s   int local 0 
+  /declare i   int local 1 
+  /declare j   int local 1 
+  /declare k   int local 1 
+  /declare l   int local 1 
+  /for i 1 to 4 
+    /if (${DEBUG4}) /echo i: ${i} 
+    /if (${DEBUG4}) /echo TargetArray[4]: ${TargetArray[4]} 
+    /varset s ${NearestSpawn[${i},npc].ID} 
+    /if (${DEBUG4}) /echo s is now set to: ${s}, ${Spawn[${s}].CleanName} 
+    /if (${Spawn[${s}].Type.Equal["Corpse"]}) { 
+      /if (${DEBUG4}) /echo /next i because Spawn[s] is a corpse. 
+      /next i 
+    } 
+    /if (${DEBUG4}) /echo AddArray[1]: ${AddArray[1]} 
+    /if (${DEBUG4}) /echo AddArray[2]: ${AddArray[2]} 
+    /if (${DEBUG4}) /echo AddArray[3]: ${AddArray[3]} 
+    /if (${DEBUG4}) /echo AddArray[4]: ${AddArray[4]} 
+    /for j 1 to ${AddArray.Size} 
+      /if (${s} == ${AddArray[${j}]}) { 
+        /if (${DEBUG4}) /echo /next i because Target.ID:${s} was found in AddArray 
+        /next i 
+      } 
+    /next j 
+
+	|Doug--------------------------
+    /if (${Spawn[${s}].Type.Equal[Untargetable]}) { 
+      /if (${DEBUG4}) /echo /next i because next spawn is Untargetable! 
+      /next i 
+    } 
+    /if (${Spawn[${s}].Type.Equal[Corpse]}) { 
+      /if (${DEBUG4}) /echo /next i because next spawn is Dead! 
+      /next i 
+    } 
+    /if (${Spawn[${s}].ID} ==  ${Me.ID}) { 
+      /if (${DEBUG4}) /echo /next i because next spawn is Me! 
+      /next i 
+    } 
+	|Doug--------------------------
+
+
+    /if (${Spawn[${s}].Distance} > ${AssistDistance}) { 
+      /if (${DEBUG4}) /echo /next i because next spawn is at: ${Spawn[${s}].Distance} Distance 
+      /return 
+    } 
+    /if (${s} == ${TargetArray[4]}) { 
+      /if (${DEBUG4}) /echo next i because Target.ID S:${s} was equal to MT's target, ${TargetArray[4]} 
+      /next i 
+    } 
+    /for k 1 to ${ExcludeArray.Size} 
+      /if (${ExcludeArray[${k}]} == ${s}) { 
+        /if (${DEBUG4}) /echo /next i because Target.ID:${s} was found in Exclude Array 
+        /next i 
+      } 
+    /next k 
+    /for l 1 to ${AddArray.Size} 
+      /if (${DEBUG4}) /echo Adding Target.ID:${s} to AddArray at Position: ${l} 
+      /if (!${AddArray[${l}]}) { 
+        /varset AddArray[${l}] ${s} 
+        /goto :pastadd 
+      } 
+    /next l 
+    :pastadd 
+    /if (${DEBUG4}) /echo Targeting ID for mezzing: ${s} 
+    /squelch /target id ${s} 
+    /if (${DEBUG4}) /echo Calling Mezz on: ${Target.CleanName}, ID: ${Target.ID} 
+    /call Mezz ${s} 
+    /if (${DEBUG4}) /echo Back from Mezz 
+    /if (!${MezzAllAdds}) /return 
+  /next i 
+/return 
+
+Sub Mezz(int tempMezID) 
+  /declare DEBUG5 local TRUE 
+  /if (${DEBUG5}) /echo In Sub Mezz 
+  :wait4targetID 
+  /if (${Target.ID}==${TargetArray[4]}) { 
+    /if (${DEBUG5}) /echo Going back to :wait4targetID because Target.ID:${Target.ID} == TargetArray[4]:${TargetArray[4]} 
+    /target id ${tempMezID} 
+    /delay 1 
+    /goto :wait4targetID 
+  } 
+  |/if (${Target.Type.Equal[Corpse]}) || (${Target.ID} == ${Me.ID}) || (${Target.ID} == ${Me.ID}) /return
+  /declare i int local 1 
+  /declare j int local 1 
+  /declare k int local 1 
+  /for i 1 to ${ExcludeArray.Size} 
+    /if (${Target.ID} == ${ExcludeArray[${i}]}) /return 
+  /next i 
+  /if (${Ini[${IniFile},"Excludes.${Zone}","${Spawn[${s}].CleanName}"].Equal[Exclude]}) { 
+    /if (${Verbose}) /gsay [ %t ] cannot be mezzed! OffTank Needed! 
+    /for j 1 to ${ExcludeArray.Size} 
+      /if (${ExcludeArray[${j}]} == ${Target.ID}) /return 
+      /if (!${ExcludeArray[${j}]}) /varset ExcludeArray[${k}] ${Target.ID} 
+    /next j 
+    /return 
+  } 
+  /if (${Target.Level} > ${MaxMezzLevel}) { 
+    /if (${Verbose}) /gsay [ %t ] is too high level to mezz!  Someone Tank it! 
+    /for k 1 to ${ExcludeArray.Size} 
+      /if (${ExcludeArray[${k}]} == ${Target.ID}) /return 
+      /if (!${ExcludeArray[${k}]}) /varset ExcludeArray[${k}] ${Target.ID} 
+    /next k 
+    /return 
+  } 
+|/if (${Target.Type.Equal[Corpse]}) /return
+|/if (${Target.ID} == ${Me.ID}) /return
+/if (${Target.DistanceZ} > 10) /return
+|/if (${Target.Distancey} > 10) /return
+
+
+  /attack off 
+  /delay 1 
+  /squelch /twist once ${MezzGem} 
+  /delay 3s 
+  /if (${Verbose}) /gsay [%T] Is being mezzed STAY AWAY!!
+  /doevents MezzImmune 
+  /call SetMezzTimer ${Target.ID} 150 
+/return 
+
+
+Sub SetMezzTimer(int id,timer t) 
+  /if (${DEBUG}) /echo In Sub SetMezzTimer 
+  /declare i int local 1 
+  /for i 1 to ${AddArray.Size} 
+    /if (${AddArray[${i}]}) { 
+      /if (!${Defined[MezzTimer${AddArray[${i}]}]}) { 
+        /declare MezzTimer${AddArray[${i}]} timer outer ${t} 
+      } else { 
+        /varset MezzTimer${AddArray[${i}]} ${t} 
+      } 
+    } 
+  /next i 
+/return 
+
+Sub CheckMezzTimers 
+  /if (${DEBUG}) /echo In Sub CheckMezzTimers 
+  /declare i int local 1 
+  /for i 1 to ${AddArray.Size} 
+    /if (${AddArray[${i}]}) /if (!${Spawn[${AddArray[${i}]}].ID} || ${Spawn[${AddArray[${i}]}].State.Equal[DEAD]}) { 
+      /if (${Defined[MezzTimer${AddArray[${i}]}]}) /deletevar MezzTimer${AddArray[${i}]}  
+      /varset AddArray[${i}] 0 
+    } 
+    /if (${AddArray[${i}]}) /if (${Defined[MezzTimer${AddArray[${i}]}]}) /if (${MezzTimer${AddArray[${i}]}}<=6) { 
+      /if (${Me.Combat}) /attack off 
+      /target id ${AddArray[${i}]} 
+      /call Mezz 
+      
+      |Doug----------------------------
+      |/target id ${TargetArray[4]} 
+      |/attack on 
+      |Doug----------------------------
+    } 
+  /next i 
+/return 
+
+Sub SongSelection 
+  /if (${DEBUG2}) /echo In Sub SongSelection 
+  /declare DEBUG3 local FALSE 
+  /declare i int local 1 
+  /declare j int local 1 
+  /declare k int local 1 
+  /declare l int local 1 
+  /if (${PartyFightFlag} == 1) { 
+    /varset FightSongs[${i}] ${PartyFightGem} 
+    /if (${DEBUG3}) /echo FightSongs[${i}] set to: ${FightSongs[${i}]} 
+    /varcalc i ${i}+1 
+    /if (${DEBUG3}) /echo i: ${i} 
+  } else /if (${PartyFightFlag} == 2) { 
+    /varset RestSongs[${j}] ${PartyFightGem} 
+    /varcalc j ${j}+1 
+  } else /if (${PartyFightFlag} == 3) { 
+    /varset FightSongs[${i}] ${PartyFightGem} 
+    /varset RestSongs[${j}] ${PartyFightGem} 
+    /varcalc i ${i}+1 
+    /varcalc j ${j}+1 
+  } 
+
+  /if (${PartyAugFlag} == 1) { 
+    /varset FightSongs[${i}] ${PartyAugGem} 
+    /if (${DEBUG3}) /echo FightSongs[${i}] set to: ${FightSongs[${i}]} 
+    /varcalc i ${i}+1 
+    /if (${DEBUG3}) /echo i: ${i} 
+  } else /if (${PartyAugFlag} == 2) { 
+    /varset RestSongs[${j}] ${PartyAugGem} 
+    /varcalc j ${j}+1 
+  } else /if (${PartyAugFlag} == 3) { 
+    /varset FightSongs[${i}] ${PartyAugGem} 
+    /varset RestSongs[${j}] ${PartyAugGem} 
+    /varcalc i ${i}+1 
+    /varcalc j ${j}+1 
+  } 
+
+  /if (${SnareFlag} == 1) { 
+    /varset FightSongs[${i}] ${SnareGem} 
+    /if (${DEBUG3}) /echo FightSongs[${i}] set to: ${FightSongs[${i}]} 
+    /varcalc i ${i}+1 
+    /if (${DEBUG3}) /echo i: ${i} 
+  } else /if (${SnareFlag} == 2) { 
+    /varset RestSongs[${j}] ${SnareGem} 
+    /varcalc j ${j}+1 
+  } else /if (${SnareFlag} == 3) { 
+    /varset FightSongs[${i}] ${SnareGem} 
+    /varset RestSongs[${j}] ${SnareGem} 
+    /varcalc i ${i}+1 
+    /varcalc j ${j}+1 
+  } 
+
+  /if (${DebuffDRFlag} == 1) { 
+    /varset FightSongs[${i}] ${DebuffDRGem} 
+    /if (${DEBUG3}) /echo FightSongs[${i}] set to: ${FightSongs[${i}]} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${DEBUG3}) /echo i: ${i} 
+  } else /if (${DebuffDRFlag} == 2) { 
+    /varset RestSongs[${j}] ${DebuffDRGem} 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } else /if (${DebuffDRFlag} == 3) { 
+    /varset FightSongs[${i}] ${DebuffDRGem} 
+    /varset RestSongs[${j}] ${DebuffDRGem} 
+    /varcalc i ${i}+1 
+    /varcalc j ${j}+1 
+  } 
+  
+  /if (${DebuffFRFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${DebuffFRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+  } else /if (${DebuffFRFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${DebuffFRGem} 
+    /varcalc j ${j}+1 
+  } else /if (${DebuffFRFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${DebuffFRGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${DebuffFRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${DebuffCRFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${DebuffCRGem} 
+    /varcalc i ${i}+1 
+  } else /if (${DebuffCRFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${DebuffCRGem} 
+    /varcalc j ${j}+1 
+  } else /if (${DebuffCRFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${DebuffCRGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${DebuffCRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${DebuffPRFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${DebuffPRGem} 
+    /varcalc i ${i}+1 
+  } else /if (${DebuffPRFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${DebuffPRGem} 
+    /varcalc j ${j}+1 
+  } else /if (${DebuffPRFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${DebuffPRGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${DebuffPRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+    
+  /if (${DamageShieldFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${DamageShieldGem} 
+    /varcalc i ${i}+1 
+  } else /if (${DamageShieldFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${DamageShieldGem} 
+    /varcalc j ${j}+1 
+  } else /if (${DamageShieldFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${DamageShieldGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${DamageShieldGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${ManaDrainFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${ManaDrainGem} 
+    /varcalc i ${i}+1 
+  } else /if (${ManaDrainFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${ManaDrainGem} 
+    /varcalc j ${j}+1 
+  } else /if (${ManaDrainFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${ManaDrainGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${ManaDrainGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${TashFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${TashGem} 
+    /varcalc i ${i}+1 
+  } else /if (${TashFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${TashGem} 
+    /varcalc j ${j}+1 
+  } else /if (${TashFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${TashGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${TashGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+  
+  /if (${ResistMRFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${ResistMRGem} 
+    /varcalc i ${i}+1 
+  } else /if (${ResistMRFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${ResistMRGem} 
+    /varcalc j ${j}+1 
+  } else /if (${ResistMRFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${ResistMRGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${ResistMRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${ResistDRFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${ResistDRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+  } else /if (${ResistDRFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${ResistDRGem} 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } else /if (${ResistDRFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${ResistDRGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${ResistDRGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${SlowFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${SlowGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+  } else /if (${SlowFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${SlowGem} 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } else /if (${SlowFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${SlowGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${SlowGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${SlowDDFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${SlowDDGem} 
+    /varcalc i ${i}+1 
+  } else /if (${SlowDDFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${SlowDDGem} 
+    /varcalc j ${j}+1 
+  } else /if (${SlowDDFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${SlowDDGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${SlowDDGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${PartyManaFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${PartyManaGem} 
+    /varcalc i ${i}+1 
+  } else /if (${PartyManaFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${PartyManaGem} 
+    /varcalc j ${j}+1 
+  } else /if (${PartyManaFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${PartyManaGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${PartyManaGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${AEManaFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${AEManaGem} 
+    /varcalc i ${i}+1 
+  } else /if (${AEManaFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${AEManaGem} 
+    /varcalc j ${j}+1 
+  } else /if (${AEManaFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${AEManaGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${AEManaGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${FearFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${FearGem} 
+    /varcalc i ${i}+1 
+  } else /if (${FearFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${FearGem} 
+    /varcalc j ${j}+1 
+  } else /if (${FearFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${FearGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${FearGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${MezzFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${MezzGem} 
+    /varcalc i ${i}+1 
+  } else /if (${MezzFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${MezzGem} 
+    /varcalc j ${j}+1 
+  } else /if (${MezzFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${MezzGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${MezzGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${InterruptFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${InterruptGem} 
+    /varcalc i ${i}+1 
+  } else /if (${InterruptFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${InterruptGem} 
+    /varcalc j ${j}+1 
+  } else /if (${InterruptFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${InterruptGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${InterruptGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${InvisFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${InvisGem} 
+  } else /if (${InvisFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${InvisGem} 
+  } else /if (${InvisFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${InvisGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${InvisGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+
+  /if (${TravelFlag} == 1 && ${i} < 4) { 
+    /varset FightSongs[${i}] ${TravelGem} 
+  } else /if (${TravelFlag} == 2 && ${j} < 4) { 
+    /varset RestSongs[${j}] ${TravelGem} 
+  } else /if (${TravelFlag} == 3) { 
+    /if (${i} <= 4) /varset FightSongs[${i}] ${TravelGem} 
+    /if (${j} <= 4) /varset RestSongs[${j}] ${TravelGem} 
+    /if (${i} < 4) /varcalc i ${i}+1 
+    /if (${j} < 4) /varcalc j ${j}+1 
+  } 
+  /if (${DEBUG3}) /echo i: ${i} 
+  /if (${DEBUG3}) /echo j: ${j} 
+  
+  /if (${DEBUG3}) /echo About to set Fighting Songs 
+  /if (${i} > 1) { 
+    /for k 1 to ${i} 
+      /if (${k} == 1) { 
+        /if (${FightSongs[${k}]}) /varset FightingSongs ${FightSongs[${k}]} 
+      } else { 
+       /if (${FightSongs[${k}]} && ${FightSongs[${k}]} != ${FightSongs[${Math.Calc[${k}-1]}]}) /varset FightingSongs ${FightingSongs} ${FightSongs[${k}]} 
+      } 
+      /if (${DEBUG3}) /echo FightingSongs: ${FightingSongs} 
+    /next k 
+  } else /if (${i} == 1) { 
+    /if (${FightSongs[${i}]}) /varset FightingSongs ${FightSongs[${i}]} 
+  } 
+  
+  /if (${j} == 1) { 
+    /echo Setting ${j} to ${RestSongs[${j}]} 
+    /if (${RestSongs[${j}]}) /varset RestingSongs ${RestSongs[${j}]} 
+  } else /if (${j} > 1) { 
+    /for l 1 to ${j} 
+      /if (${l} == 1) { 
+        /if (${RestSongs[${l}]}) /varset RestingSongs ${RestSongs[${l}]} 
+      } else { 
+        /if (${RestSongs[${l}]} && ${RestSongs[${l}]} != ${RestSongs[${Math.Calc[${l}-1]}]}) /varset RestingSongs ${RestingSongs} ${RestSongs[${l}]} 
+      } 
+    /if (${DEBUG3}) /echo RestingSongs: ${RestingSongs} 
+    /next l 
+  } 
+  /if (${DEBUG3}) /echo Leaving Sub SongSelection 
+
+  /if (${Engaged}) { 
+    /squelch /twist ${FightingSongs} 
+  } else { 
+    /squelch /twist ${RestingSongs} 
+  } 
+
+/return 
+
+Sub ReturnHome 
+  /if (${DEBUG}) /echo Entered Sub ReturnHome 
+  /if (${Following} || ${MovingCamp} || !${StaticCamp}) /return 
+  /if (${Me.Sitting}) /stand 
+  /if (${Math.Distance[${HomeY},${HomeX}]}<5) { 
+    /keypress forward 
+    /keypress back 
+    /keypress left 
+    /keypress right 
+    /delay 2 
+    /return 
+  } 
+  :MoveHome 
+  /doevents 
+  /face fast nolook loc ${HomeY},${HomeX} 
+  /if (${Math.Distance[${HomeY},${HomeX}]}>20) /keypress forward hold 
+  /call AreWeStuck 
+  /if (${Math.Distance[${HomeY},${HomeX}]}<25) { 
+    /keypress forward 
+    /keypress back 
+    /keypress left 
+    /keypress right 
+    /if (${DEBUG}) /echo Leaving Sub ReturnHome 
+    /return 
+  } 
+  /goto :MoveHome 
+/return 
+
+Sub AreWeStuck 
+   /doevents 
+  /declare  StuckXLoc      int local ${Me.X} 
+  /declare  StuckYLoc      int local ${Me.Y} 
+  /delay 5 
+  /if (${StuckXLoc}==${Me.X} && ${StuckYLoc}==${Me.Y}) /call MoveAround 
+/return 
+
+Sub ReadyForNext 
+  /if (${DEBUG2}) /echo Entered Sub ReadyForNext 
+  /declare i int local 1 
+  /if (${DoMezz}) { 
+    /for i 1 to ${ExcludeArray.Size} 
+      /if (${ExcludeArray[${i}]}) /if (!${Spawn[${ExcludeArray[${i}]}].ID} || ${Spawn[${ExcludeArray[${i}]}].State.Equal[DEAD]}) /varset ExcludeArray[${i}] 0  
+    /next i 
+  } 
+  /if (${SingingResting}) /return 
+  /squelch /twist ${RestingSongs} 
+  /varset MobSlowed FALSE 
+  /varset Engaged FALSE 
+  /varset Closeness ${Ini[${IniFile},General,Closeness]} 
+  /varset SingingResting TRUE 
+  |/if (${Me.AbilityReady[forage]}) /doability "forage"
+  /autoinventory
+/return 
+
+Sub Event_Bswapoff 
+    /squelch /bardswap melee 
+/return
+
+Sub MoveAround 
+  /doevents 
+  /keypress forward 
+  /keypress back hold 
+  /delay 8 
+  /keypress forward 
+  /if (${Math.Rand[2]}) { 
+     /keypress strafe_right hold 
+  } else { 
+     /keypress strafe_left hold 
+  } 
+  /delay 15 
+  /keypress strafe_right 
+  /keypress strafe_left 
+/return 
+
+Sub Event_GotHit 
+  /if (!${Engaged}) { 
+    |/assist ${TankName} 
+    /call SongSelection 
+    /squelch /stick behindonce moveback ${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} 
+    /varset Engaged TRUE 
+    /varset SingingResting FALSE 
+    /call KillTarget 
+  } 
+/return 
+
+Sub Event_NotStanding 
+  /call MoveAround 
+  /assist ${TankName} 
+  /call ReturnHome 
+/return 
+
+Sub Event_NoSeeTarget 
+  /varcalc Closeness ${Closeness}+10 
+  /if (!${Engaged}) /return 
+  /assist ${TankName} 
+  /squelch stick off 
+  /squelch stick 10 
+/return 
+
+Sub Event_MobDead 
+  /squelch /stick off 
+  /keypress forward 
+  /keypress back 
+  /if (${Math.Distance[${HomeY},${HomeX}]}>15) /call ReturnHome 
+/return 
+
+Sub Event_gohome 
+  /call ReturnHome 
+/return 
+
+Sub MemSpells 
+  /if (${DEBUG}) /echo In Sub MemSpells 
+  /declare gemnum int local 
+  /if (${Me.Standing}) /sit 
+  /if (${Me.Gem[${PartyFight}]} && ${Me.Gem[${PartyFight}]}!=${PartyFightGem} && ${PartyFightFlag}) { 
+    /varset gemnum ${Me.Gem[${PartyFight}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${PartyFightGem} "${PartyFight}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${PartyFight}]} && ${PartyFightFlag}) { 
+    /if (${DEBUG}) /echo in partyfight mem? 
+    /memspell ${PartyFightGem} "${PartyFight}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${PartyAug}]} && ${Me.Gem[${PartyAug}]}!=${PartyAugGem} && ${PartyAugFlag}) { 
+    /varset gemnum ${Me.Gem[${PartyAug}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${PartyAugGem} "${PartyAug}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${PartyAug}]} && ${PartyAugFlag}) { 
+    /memspell ${PartyAugGem} "${PartyAug}" 
+    /delay 25 
+  } 
+  
+  /if (${Me.Gem[${Snare}]} && ${Me.Gem[${Snare}]}!=${SnareGem} && ${SnareFlag}) { 
+    /varset gemnum ${Me.Gem[${Snare}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${SnareGem} "${Snare}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Snare}]} && ${SnareFlag}) { 
+    /memspell ${SnareGem} "${Snare}" 
+    /delay 25 
+  } 
+  
+  /if (${Me.Gem[${DebuffDR}]} && ${Me.Gem[${DebuffDR}]}!=${DebuffDRGem} && ${DebuffDRFlag}) { 
+    /varset gemnum ${Me.Gem[${DebuffDR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${DebuffDRGem} "${DebuffDR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${DebuffDR}]} && ${DebuffDRFlag}) { 
+    /memspell ${DebuffDRGem} "${DebuffDR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${DebuffFR}]} && ${Me.Gem[${DebuffFR}]}!=${DebuffFRGem} && ${DebuffFRFlag}) { 
+    /varset gemnum ${Me.Gem[${DebuffFR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${DebuffFRGem} "${DebuffFR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${DebuffFR}]} && ${DebuffFRFlag}) { 
+    /memspell ${DebuffFRGem} "${DebuffFR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${DebuffCR}]} && ${Me.Gem[${DebuffCR}]}!=${DebuffCRGem} && ${DebuffCRFlag}) { 
+    /varset gemnum ${Me.Gem[${DebuffCR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${DebuffCRGem} "${DebuffCR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${DebuffCR}]} && ${DebuffCRFlag}) { 
+    /memspell ${DebuffCRGem} "${DebuffCR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${DebuffPR}]} && ${Me.Gem[${DebuffPR}]}!=${DebuffPRGem} && ${DebuffPRFlag}) { 
+    /varset gemnum ${Me.Gem[${DebuffPR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${DebuffPRGem} "${DebuffPR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${DebuffPR}]} && ${DebuffPRFlag}) { 
+    /memspell ${DebuffPRGem} "${DebuffPR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${DamageShield}]} && ${Me.Gem[${DamageShield}]}!=${DamageShieldGem} && ${DamageShieldFlag}) { 
+    /varset gemnum ${Me.Gem[${DamageShield}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${DamageShieldGem} "${DamageShield}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${DamageShield}]} && ${DamageShieldFlag}) { 
+    /memspell ${DamageShieldGem} "${DamageShield}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${ManaDrain}]} && ${Me.Gem[${ManaDrain}]}!=${ManaDrainGem} && ${ManaDrainFlag}) { 
+    /varset gemnum ${Me.Gem[${ManaDrain}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${ManaDrainGem} "${ManaDrain}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${ManaDrain}]} && ${ManaDrainFlag}) { 
+    /memspell ${ManaDrainGem} "${ManaDrain}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Tash}]} && ${Me.Gem[${Tash}]}!=${TashGem} && ${TashFlag}) { 
+    /varset gemnum ${Me.Gem[${Tash}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${TashGem} "${Tash}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Tash}]} && ${TashFlag}) { 
+    /memspell ${TashGem} "${Tash}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${ResistMR}]} && ${Me.Gem[${ResistMR}]}!=${ResistMRGem} && ${ResistMRFlag}) { 
+    /varset gemnum ${Me.Gem[${ResistMR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${ResistMRGem} "${ResistMR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${ResistMR}]} && ${ResistMRFlag}) { 
+    /memspell ${ResistMRGem} "${ResistMR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${ResistDR}]} && ${Me.Gem[${ResistDR}]}!=${ResistDRGem} && ${ResistDRFlag}) { 
+    /varset gemnum ${Me.Gem[${ResistDR}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${ResistDRGem} "${ResistDR}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${ResistPR}]} && ${ResistPRFlag}) { 
+    /memspell ${ResistPRGem} "${ResistPR}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Slow}]} && ${Me.Gem[${Slow}]}!=${SlowGem} && ${SlowFlag}) { 
+    /varset gemnum ${Me.Gem[${Slow}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${SlowGem} "${Slow}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Slow}]} && ${SlowFlag}) { 
+    /memspell ${SlowGem} "${Slow}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${SlowDD}]} && ${Me.Gem[${SlowDD}]}!=${SlowDDGem} && ${SlowDDFlag}) { 
+    /varset gemnum ${Me.Gem[${SlowDD}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${SlowDDGem} "${SlowDD}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${SlowDD}]} && ${SlowDDFlag}) { 
+    /memspell ${SlowDDGem} "${SlowDD}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${PartyMana}]} && ${Me.Gem[${PartyMana}]}!=${PartyManaGem} && ${PartyManaFlag}) { 
+    /varset gemnum ${Me.Gem[${PartyMana}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${PartyManaGem} "${PartyMana}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${PartyMana}]} && ${PartyManaFlag}) { 
+    /memspell ${PartyManaGem} "${PartyMana}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${AEMana}]} && ${Me.Gem[${AEMana}]}!=${AEManaGem} && ${AEManaFlag}) { 
+    /varset gemnum ${Me.Gem[${AEMana}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${AEManaGem} "${AEMana}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${AEMana}]} && ${AEManaFlag}) { 
+    /memspell ${AEManaGem} "${AEMana}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Mezz}]} && ${Me.Gem[${Mezz}]}!=${MezzGem} && ${MezzFlag}) { 
+    /varset gemnum ${Me.Gem[${Mezz}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${MezzGem} "${Mezz}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Mezz}]} && ${MezzFlag}) { 
+    /memspell ${MezzGem} "${Mezz}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Fear}]} && ${Me.Gem[${Fear}]}!=${FearGem} && ${FearFlag}) { 
+    /varset gemnum ${Me.Gem[${Fear}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${FearGem} "${Fear}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Fear}]} && ${FearFlag}) { 
+    /memspell ${FearGem} "${Fear}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Interrupt}]} && ${Me.Gem[${Interrupt}]}!=${InterruptGem} && ${InterruptFlag}) { 
+    /varset gemnum ${Me.Gem[${Interrupt}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${InterruptGem} "${Interrupt}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Interrupt}]} && ${InterruptFlag}) { 
+    /memspell ${InterruptGem} "${Interrupt}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Travel}]} && ${Me.Gem[${Travel}]}!=${TravelGem} && ${TravelFlag}) { 
+    /varset gemnum ${Me.Gem[${Travel}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${TravelGem} "${Travel}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Travel}]} && ${TravelFlag}) { 
+    /memspell ${TravelGem} "${Travel}" 
+    /delay 25 
+  } 
+
+  /if (${Me.Gem[${Invis}]} && ${Me.Gem[${Invis}]}!=${InvisGem} && ${InvisFlag}) { 
+    /varset gemnum ${Me.Gem[${Invis}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${InvisGem} "${Invis}" 
+    /delay 25 
+  } else /if (!${Me.Gem[${Invis}]} && ${InvisFlag}) { 
+    /memspell ${InvisGem} "${Invis}" 
+    /delay 25 
+  } 
+  /if (${Me.Sitting}) /stand 
+/return 
+
+Sub Event_Outdoors 
+  /squelch /twist off 
+  /echo In Sub Event_Outdoors 
+  /echo Invis: ${Invis} 
+  /echo InvisGem: ${InvisGem} 
+  /if (${Me.Gem[${Invis}]} && ${Me.Gem[${Invis}]}!=${InvisGem}) { 
+    /varset gemnum ${Me.Gem[${Invis}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${InvisGem} "${Invis}" 
+    /delay 30 
+  } 
+  /if (!${Me.Gem[${Invis}]}) { 
+    /memspell ${InvisGem} "${Invis}" 
+    /delay 30 
+  } 
+  /varset InvisFlag ${TravelFlag} 
+  /echo InvisFlag: ${InvisFlag} 
+  /varset TravelFlag 0 
+  /ini ${IniFile} "SongFlags" "TravelFlag" 0 
+  /call SongSelection 
+  /varset Outside FALSE 
+  /varset SingingResting FALSE 
+/return 
+
+Sub Event_Zoned 
+  /varset  HomeX ${Me.X} 
+  /varset  HomeY ${Me.Y} 
+  /varset Outside TRUE 
+  /varset JustZoned TRUE 
+  /call SongSelection 
+  /if (${Me.Gem[${Travel}]} && ${Me.Gem[${Travel}]}!=${TravelGem}) { 
+    /varset gemnum ${Me.Gem[${Travel}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${TravelGem} "${Travel}" 
+    /varset TravelFlag ${InvisFlag} 
+    /varset InvisFlag 0 
+    /ini ${IniFile} "SongFlags" "TravelFlag" ${TravelFlag} 
+    /delay 30 
+  } 
+  /if (!${Me.Gem[${Travel}]}) { 
+    /memspell ${TravelGem} "${Travel}" 
+    /delay 30 
+    /varset TravelFlag ${InvisFlag} 
+    /varset InvisFlag 0 
+    /ini ${IniFile} "SongFlags" "TravelFlag" ${TravelFlag} 
+  } 
+  /if (${Following}) { 
+    :WaitForTank 
+    /delay 10 
+    /doevents 
+    /squelch /target ${FollowName} 
+    /if (!${Target.ID}) /goto :WaitForTank 
+    /squelch /stick 20 
+  } 
+/return 
+
+|Sub Event_ImDead 
+  /sit  
+  |/varset Following FALSE 
+  |/varset MobSlowed FALSE 
+  |/varset Engaged FALSE 
+  |/varset Closeness ${Ini[${IniFile},General,Closeness]} 
+  |/varset SingingResting FALSE 
+  /twist off
+  /stop song
+  /delay 20s
+  /call MemSpells
+  /delay 20s 
+  /camp desktop
+  /end
+/return 
+
+Sub Event_TooFarAway 
+  /if (${Int[${Target.Distance}]} > 50) /return 
+  /echo ** Too far away - Getting 10% closer now! 
+  /varset Closeness ${Math.Calc[${Closeness}*0.9].Int} 
+  /if (${Closeness}<15) /varset Closeness 15 
+  /squelch /stick behindonce moveback ${Math.Calc[${Target.MaxRangeTo} * ${Closeness} / 100]} 
+  /delay 1s 
+/return 
+
+Sub Event_FollowMe 
+  /if (${Outside}) { 
+    /if (${Me.Gem[${Travel}]} && ${Me.Gem[${Travel}]}!=${TravelGem}) { 
+      /varset gemnum ${Me.Gem[${Travel}]} 
+      /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+      /memspell ${TravelGem} ${Travel} 
+      /delay 30 
+    } 
+    /if (!${Me.Gem[${Travel}]}) { 
+      /memspell ${TravelGem} ${Travel} 
+      /delay 30 
+    } 
+  } 
+  /varset Following TRUE 
+  /target ${TankName} 
+  /squelch /stick 20 hold 
+  /squelch /twist off 
+  /delay 3 
+  /cast 6
+  /if (!${InvisMove}) /return 
+  /if (${Outside}) { 
+    /squelch /twist ${TravelGem} 
+    /return 
+  } 
+  /squelch /twist ${InvisGem} 
+/return 
+
+Sub Event_MobGating 
+  /if (${Me.Gem[${Mezz}]} && ${Me.Gem[${Mezz}]}!=${MezzGem}) { 
+    /varset gemnum ${Me.Gem[${Mezz}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${MezzGem} ${Mezz} 
+    /delay 30 
+  } 
+  /if (!${Me.Gem[${Mezz}]}) { 
+    /memspell ${MezzGem} ${Mezz} 
+    /delay 30 
+  } 
+  /squelch /twist once ${MezzGem} 
+/return 
+
+Sub Event_SnareIt 
+  /if (${Me.Gem[${Snare}]} && ${Me.Gem[${Snare}]}!=${SnareGem}) { 
+    /varset gemnum ${Me.Gem[${Snare}]} 
+    /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+    /memspell ${SnareGem} ${Snare} 
+    /delay 30 
+  } 
+  /if (!${Me.Gem[${Snare}]}) { 
+    /memspell ${SnareGem} ${Snare} 
+    /delay 30 
+  } 
+  /varset SnareMob TRUE 
+/return 
+
+Sub Event_StayHere 
+  /varset Following FALSE 
+  /varset StaticCamp    FALSE 
+  /squelch /stick off 
+  /timed 50 /face pc ${maintank} 
+  /squelch /twist off 
+  /delay 2 
+/return 
+
+Sub Event_MakeCamp 
+  /varset MovingCamp    FALSE 
+  /varset Following FALSE 
+  /squelch /stick off 
+  /varset  HomeX ${Me.X} 
+  /varset  HomeY ${Me.Y} 
+  /squelch /twist off 
+  /delay 2 
+  /varset SingingResting FALSE 
+  /call SongSelection 
+/return 
+
+Sub Event_RaidMode 
+  /varset GroupMobs FALSE 
+/return 
+
+Sub Event_XPMode 
+  /varset GroupMobs TRUE 
+/return 
+
+Sub Event_TBswap    
+  /if (${Bswap}) { 
+    /varset Bswap FALSE 
+    /return 
+  } 
+  /varset Bswap TRUE 
+/return 
+
+Sub Event_TBswapMelee 
+  /if (${BswapMelee}) { 
+    /varset BswapMelee FALSE 
+    /return 
+  } 
+  /varset BswapMelee TRUE 
+/return 
+
+Sub Event_TDoMezz 
+  /if (${DoMezz}) { 
+    /varset DoMezz FALSE 
+    /echo Mezz routines turned OFF 
+    /return 
+  } 
+  /varset DoMezz TRUE 
+  /echo Mezz routines turned ON 
+/return 
+
+Sub Event_TSlow 
+  /if (${SlowMobs}) { 
+    /varset SlowMobs FALSE 
+    /echo Slow routines turned OFF 
+    /return 
+  } 
+  /varset SlowMobs TRUE 
+  /echo Slow routines turned ON 
+/return 
+
+Sub Event_TMezzAllAdds 
+  /if (${MezzAllAdds}) { 
+    /varset MezzAllAdds FALSE 
+    /echo Mezz all adds turned OFF 
+    /return 
+  } 
+  /varset MezzAllAdds TRUE 
+  /echo Mezz all adds turned ON 
+/return 
+
+Sub Event_TProactiveMezz 
+  /if (${ProactiveMezz}) { 
+    /varset ProactiveMezz FALSE 
+    /echo Proactive Mezzing(not in combat) turned OFF 
+    /return 
+  } 
+  /varset ProactiveMezz TRUE 
+  /echo Proactive Mezzing(not in combat) turned ON 
+/return 
+
+Sub Event_TVerbose 
+  /if (${Verbose}) { 
+    /varset Verbose FALSE 
+    /echo Group/Raid announcing turned OFF 
+    /return 
+  } 
+  /varset Verbose TRUE 
+  /echo Group/Raid announcing turned ON 
+/return 
+
+Sub Event_TDEBUG 
+  /if (${DEBUG}) { 
+    /varset DEBUG FALSE 
+    /echo Debugging turned off. 
+    /return 
+  } 
+  /varset DEBUG TRUE 
+  /echo Debugging turned on. 
+/return 
+
+Sub Event_BardHelp 
+  /echo BardHelper.mac - Define the Default MT in the macro, or target your default MT and run bardhelper.mac 
+  /echo Available Toggles: 
+  /echo /bswap - Turn off/on the BardSwap plugin 
+  /echo /bswapmelee - Turn off/on Melee Bard Swapping 
+  /echo /bslow - Turn off/on Bard slowing -- Currently set to: ${SlowMobs} -- 
+  /echo /bmezz - Turn off/on Target Mezzing -- Currently set to: ${DoMezz} -- 
+  /echo /bmezzall - Turn off/on Mezzing all Adds -- Currently set to: ${MezzAllAdds} -- 
+  /echo /bproactive - Turn off/on Proactive Mezzing -- Currently set to: ${ProactiveMezz} -- 
+  /echo /bverbose - Turn off/on /gsay and /rsay use -- Currently set to: ${Verbose} -- 
+  /echo /bardhelp - Displays this help. 
+/return 
+
+Sub Event_MezzImmune 
+  /declare i int local 1 
+  /if (${Verbose}) /gsay [ %t ] is too high level to mezz!  Someone Tank it! 
+  /for i 1 to ${ExcludeArray.Size} 
+    /if (!${ExcludeArray[${i}]}) /varset ExcludeArray[${i}] ${Target.ID} 
+    /next i 
+  /ini ${IniFile} "Excludes.${Zone}" "${Target.CleanName}" "Exclude" 
+/return 
+
+Sub Event_SPartyFight(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,PartyFight]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,PartyFight]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,PartyFight]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,PartyFight]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /spartyfight <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "PartyFightFlag" ${Flag} 
+  /varset PartyFightFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "PartyFightGem" ${Gem} 
+    /varset PartyFightGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+
+Sub Event_SPartyAug(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,PartyAug]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,PartyAug]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,PartyAug]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,PartyAug]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /spartyaug <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "PartyAugFlag" ${Flag} 
+  /varset PartyAugFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "PartyAugGem" ${Gem} 
+    /varset PartyAugGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SSnare(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Snare]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /ssnare <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "SnareFlag" ${Flag} 
+  /varset SnareFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "SnareGem" ${Gem} 
+    /varset SnareGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SSnare(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Snare]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Snare]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /ssnare <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "SnareFlag" ${Flag} 
+  /varset SnareFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "SnareGem" ${Gem} 
+    /varset SnareGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SDebuffDR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,DebuffDR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,DebuffDR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,DebuffDR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,DebuffDR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sdebuffdr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "DebuffDRFlag" ${Flag} 
+  /varset DebuffDRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "DebuffDRGem" ${Gem} 
+    /varset DebuffDRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SDebuffFR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,DebuffFR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,DebuffFR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,DebuffFR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,DebuffFR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sdebufffr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "DebuffFRFlag" ${Flag} 
+  /varset DebuffFRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "DebuffFRGem" ${Gem} 
+    /varset DebuffFRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SDebuffCR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,DebuffCR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,DebuffCR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,DebuffCR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,DebuffCR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sdebuffcr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "DebuffCRFlag" ${Flag} 
+  /varset DebuffCRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "DebuffCRGem" ${Gem} 
+    /varset DebuffCRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SDebuffPR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,DebuffPR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,DebuffPR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,DebuffPR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,DebuffPR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sdebuffpr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "DebuffPRFlag" ${Flag} 
+  /varset DebuffPRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "DebuffPRGem" ${Gem} 
+    /varset DebuffPRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SDamageShield(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,DamageShield]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,DamageShield]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,DamageShield]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,DamageShield]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sdamageshield <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "DamageShieldFlag" ${Flag} 
+  /varset DamageShieldFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "DamageShieldGem" ${Gem} 
+    /varset DamageShieldGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SManaDrain(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,ManaDrain]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,ManaDrain]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,ManaDrain]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,ManaDrain]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /smanadrain <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "ManaDrainFlag" ${Flag} 
+  /varset ManaDrainFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "ManaDrainGem" ${Gem} 
+    /varset ManaDrainGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_STash(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Tash]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Tash]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Tash]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Tash]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /stash <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "TashFlag" ${Flag} 
+  /varset TashFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "TashGem" ${Gem} 
+    /varset TashGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SFear(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Fear]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Fear]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Fear]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Fear]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sfear <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "FearFlag" ${Flag} 
+  /varset FearFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "FearGem" ${Gem} 
+    /varset FearGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+
+Sub Event_SResistMR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,ResistMR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,ResistMR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,ResistMR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,ResistMR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sresistmr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "ResistMRFlag" ${Flag} 
+  /varset ResistMRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "ResistMRGem" ${Gem} 
+    /varset ResistMRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+
+Sub Event_SResistDR(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,ResistDR]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,ResistDR]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,ResistDR]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,ResistDR]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sresistdr <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "ResistDRFlag" ${Flag} 
+  /varset ResistDRFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "ResistDRGem" ${Gem} 
+    /varset ResistDRGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+
+Sub Event_SPartyMana(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,PartyMana]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,PartyMana]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,PartyMana]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,PartyMana]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sfear <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "PartyManaFlag" ${Flag} 
+  /varset PartyManaFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "PartyManaGem" ${Gem} 
+    /varset PartyManaGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+
+Sub Event_SAEMana(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,AEMana]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,AEMana]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,AEMana]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,AEMana]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /saemana <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "AEManaFlag" ${Flag} 
+  /varset AEManaFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "AEManaGem" ${Gem} 
+    /varset AEManaGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SMezz(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Mezz]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Mezz]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Mezz]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Mezz]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /smezz <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "MezzFlag" ${Flag} 
+  /varset MezzFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "MezzGem" ${Gem} 
+    /varset MezzGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SInterrupt(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Interrupt]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Interrupt]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Interrupt]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Interrupt]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sinterrupt <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "InterruptFlag" ${Flag} 
+  /varset InterruptFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "InterruptGem" ${Gem} 
+    /varset InterruptGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_SInvis(string Line,int Flag,int Gem) 
+  /echo In Set Invis event 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Invis]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Invis]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Invis]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Invis]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /sinvis <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "InvisFlag" ${Flag} 
+  /varset InvisFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "InvisGem" ${Gem} 
+    /varset InvisGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub Event_STravel(string Line,int Flag,int Gem) 
+  /if (${Verbose}) { 
+    /if (${Flag} == 0) { 
+      /echo ${ini[${IniFile},Songs,Travel]} DISABLED 
+    } else /if (${Flag} == 1) { 
+      /echo ${ini[${IniFile},Songs,Travel]} Combat Only 
+    } else /if (${Flag} == 2) { 
+      /echo ${ini[${IniFile},Songs,Travel]} Resting Only 
+    } else /if (${Flag} == 3) { 
+      /echo ${ini[${IniFile},Songs,Travel]} Combat and Resting 
+    } else /if (${Flag} > 3) { 
+      /echo Usage: /stravel <mode> <gem> 
+      /call SongFlagHelp 
+      /return 
+    } 
+  } 
+  /ini ${IniFile} "SongFlags" "TravelFlag" ${Flag} 
+  /varset TravelFlag ${Flag} 
+  /if (${Gem}) { 
+    /ini ${IniFile} "Songs" "TravelGem" ${Gem} 
+    /varset TravelGem ${Gem} 
+  } 
+  /call MemSpells 
+  /call SongSelection 
+/return 
+
+Sub SongFlagHelp 
+  /echo Modes are: 
+  /echo "  0 = disabled, don't memorize" 
+  /echo "  1 = sing during combat" 
+  /echo "  2 = sing while resting" 
+  /echo "  3 = sing during combat and resting" 
+  /echo "  4 = memorize but don't use actively" 
+/return 
+
+Sub Event_IRC(string IRCSay,string IRCSender,IRCCommand) 
+/if (${MasterList.Find[${IRCSender}]}) { 
+  /if (${IRCSay.Find[follow]}) { 
+    /if (${Me.Sitting}) /stand 
+    /if (${Outside}) { 
+      /if (${Me.Gem[${Travel}]} && ${Me.Gem[${Travel}]}!=${TravelGem}) { 
+        /varset gemnum ${Me.Gem[${Travel}]} 
+        /notify SpellBookWnd SBW_Spell${gemnum} rightmouseup 
+        /memspell ${TravelGem} ${Travel} 
+        /delay 30 
+      } 
+      /if (!${Me.Gem[${Travel}]}) { 
+        /memspell ${TravelGem} ${Travel} 
+        /delay 30 
+      } 
+    } 
+    /if (${IRCSay.Arg[3].Length} && ${Spawn[pc ${IRCSay.Arg[3]}].ID}) { 
+      /target id ${Spawn[pc ${IRCSay.Arg[3]}].ID} 
+      /delay 1s ${Target.ID}==${Spawn[pc ${IRCSay.Arg[3]}].ID} 
+      /varset FollowName ${Target.CleanName} 
+    } else { 
+      /target id ${Spawn[pc ${IRCSender}].ID} 
+      /delay 1s ${Target.ID}==${Spawn[pc ${IRCSender}].ID} 
+      /varset FollowName ${Target.CleanName} 
+    } 
+    /varset Following TRUE 
+    /squelch /twist off 
+    /delay 3 
+    /squelch /stick hold 20 
+    /if (!${InvisMove}) /return 
+    /if (${Outside}) { 
+      /squelch /twist ${TravelGem} 
+      /return 
+    } 
+    /squelch /twist ${InvisGem} 
+    /stick 20 hold 
+  } 
+  
+  /if (${IRCSay.Find[stop]}) { 
+    /varset MovingCamp    FALSE 
+    /varset Following FALSE 
+    /squelch /stick off 
+    /varset  HomeX ${Me.X} 
+    /varset  HomeY ${Me.Y} 
+    /squelch /twist off 
+    /delay 2 
+    /varset SingingResting FALSE 
+    /call SongSelection 
+  } 
+  /if (${IRCCommand.Left[1].Equal[/]}) { 
+    /docommand ${IRCCommand} 
+  } 
+} 
+/return  
+
+Sub IrcDeclares 
+  /declare IRCIniFile    string outer ${Me.Name}_IRC.ini 
+  /declare UseIRC     bool   outer ${Ini[${IRCIniFile},General,UseIRC]} 
+  /declare IRCServer  string outer ${Ini[${IRCIniFile},General,IRCServer]} 
+  /declare IRCPort    int    outer ${Ini[${IRCIniFile},General,IRCPort]} 
+  /declare IRCChannel string outer ${Ini[${IRCIniFile},General,IRCChannel]} 
+  /if (!${Bool[${Plugin[mq2irc]}]}) { 
+    /plugin mq2irc 
+    /delay 2 
+    /if (${Bool[${Plugin[mq2irc]}]}) { 
+      /call JoinIRC 
+    } else { 
+       /echo mq2IRC cannot be loaded... 
+      /return 
+    } 
+  } else { 
+    /call JoinIRC 
+  } 
+/return 
+
+Sub JoinIRC 
+   /if (${IRCChannel.Left[1].NotEqual[#]}) { 
+      /echo Channel name needs to start with a # 
+      /endmacro 
+   } 
+   /if (${Irc}) { 
+      /if (${Irc.Server.NotEqual[${IRCServer}]} || ${Irc.Nick.NotEqual[${Me.Name}]}) { 
+         /squelch /i quit 
+         /squelch /iconnect ${IRCServer} ${IRCPort} ${IRCChannel} ${Me.Name} 
+         /delay 5 
+         /i join ${IRCChannel} 
+      } else { 
+         /if (${IRC.Channel.NotEqual[${IRCChannel}]}) { 
+            /squelch /i part 
+            /delay 5 
+            /i join ${IRCChannel} 
+         } 
+      } 
+   } else { 
+      /squelch /iconnect ${IRCServer} ${IRCPort} ${IRCChannel} ${Me.Name} 
+      /delay 5 
+      /i join ${IRCChannel} 
+   } 
+/return 
+
+Sub Event_Enrageon 
+  /if (${Me.Combat}) /attack off 
+  /if (${Me.Pet.ID}) { 
+    /pet back off 
+    /delay 2 
+    /pet hold 
+  } 
+/return 
+
+Sub Event_Enrageoff 
+  /if (!${Me.Combat}) /attack on 
+  /if (${Me.Pet.ID}) /pet attack 
+/return
+
+sub Event_aura
+ /twist off
+ /delay 1s
+ /stopsong 
+ /delay 1s
+ /cast 5
+ /delay 7s
+ /twist
+ /return
+
+
+Sub Event_zoned
+/sit
+/delay 10m
+/camp desktop
+/end

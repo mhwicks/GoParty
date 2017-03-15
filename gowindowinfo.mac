@@ -1,0 +1,131 @@
+|
+|GoWindowInfo.mac 
+|by Dadda!
+
+|This macro will define a window's information - thoroughly.
+
+|Usage: /mac gowindowinfo *window name*
+
+|v0.1 -- 12/13/2009 -- Basic Creation.
+
+|All updates by Dadda
+|---------------------------------------------------------**| 
+#turbo 40 
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+
+/declare 	intI				int 	outer 	0
+/declare	strTopWindow		string	outer
+/declare	strDepth			string	outer	0
+/declare	strItemText			string	outer
+
+/declare 	intMainLoop			int		outer 	0
+/declare 	intSlot 			int 	outer 	0
+/declare 	strItem 			string 	outer
+/declare 	intMyPrice 			int 	outer 	0
+/declare 	intVendPrice 		int 	outer 	0
+/declare 	intCompPrice 		int 	outer 	0
+/declare 	intMinPrice 		int 	outer 	0
+/declare 	intMaxPrice 		int 	outer 	0
+/declare	intMinVendorAmount	int		outer	0
+/declare	strMinVendorName	string	outer	
+/declare	intMinVendorPrice	int		outer	0
+
+/declare 	intVerbose 			int 	outer 	0
+/declare 	intDetailed 		int 	outer 	0
+
+/declare 	intID	 			int 	outer	0
+/declare 	arrPricedID[50] 	int 	outer 	0
+/declare	intTotalPriced		int		outer	0
+/declare	intPriceLoop		int		outer	0
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== === Go Window Information === ===>>
+
+|Handle Parameters:
+|Verbose?
+/if (${Param0.Length} == 0) {
+	/echo Please indicate a window to get information about.
+	/end
+} else {
+	/varset strTopWindow ${Param0}
+	/echo Analyzing the ${strTopWindow} window.
+	/echo ${strTopWindow}
+}
+
+/if (${Window[${strTopWindow}].Children}) {
+	/call GetWindowDetails ${Window[${strTopWindow}].Name} 0
+}
+
+/end
+
+|==================================================================================================|
+Sub GetWindowDetails(string strWindow, int intDepth)
+|---------------------------------------------------
+	|Define the depth of the window:
+	/if (${intDepth} < 1 ) /varset strDepth +
+	/if (${intDepth} == 1 ) /varset strDepth -
+	/if (${intDepth} == 2 ) /varset strDepth --
+	/if (${intDepth} == 3 ) /varset strDepth ---
+	/if (${intDepth} == 4 ) /varset strDepth ----
+	/if (${intDepth} == 5 ) /varset strDepth -----
+	/if (${intDepth} > 5 ) /varset strDepth -----+
+
+
+	/if (${Window[${strTopWindow}].Child[${strWindow}].Type.Equal[Combobox]}) {
+
+		|/echo Combo Situation.
+		/echo ${strDepth}(${Window[${strTopWindow}].Child[${strWindow}].Name})${strWindow} (${Window[${strTopWindow}].Child[${strWindow}].Type}) -->
+
+		|Item Information:
+		/if (${Window[${strTopWindow}].Child[${strWindow}].Items}) {
+			|/echo ${Window[${strTopWindow}].Child[${strWindow}].Items}
+			/for intI 1 to ${Window[${strTopWindow}].Child[${strWindow}].Items}
+				-/echo ${strDepth}${intI})${Window[${strTopWindow}].Child[${strWindow}].List[${intI}]}
+			/next intI
+		}
+	} else {
+		/if (${Window[${strTopWindow}].Child[${strWindow}].Type.Equal[Listbox]}) {
+
+			|/echo Listbox Situation.
+			/echo ${strDepth}(${Window[${strTopWindow}].Child[${strWindow}].Name})${strWindow} (${Window[${strTopWindow}].Child[${strWindow}].Type}) -->
+	
+			|Item Information:
+			/if (${Window[${strTopWindow}].Child[${strWindow}].Items}) {
+				|/echo ${Window[${strTopWindow}].Child[${strWindow}].Items}
+				/for intI 1 to ${Window[${strTopWindow}].Child[${strWindow}].Items}
+					/echo ${strDepth}${intI})${Window[${strTopWindow}].Child[${strWindow}].List[${intI}]}, ${Window[${strTopWindow}].Child[${strWindow}].List[${intI}, 2]}, ${Window[${strTopWindow}].Child[${strWindow}].List[${intI}, 3]}, ${Window[${strTopWindow}].Child[${strWindow}].List[${intI}, 4]}
+				/next intI
+			}
+		} else {
+			/if (${Window[${strTopWindow}].Child[${strWindow}].Text.Length} < 25) {
+				/varset strItemText ${Window[${strTopWindow}].Child[${strWindow}].Text}
+			} else {
+				/varset strItemText *String too long*
+			}
+			/echo ${strDepth}(${Window[${strTopWindow}].Child[${strWindow}].Name})${strWindow} (${Window[${strTopWindow}].Child[${strWindow}].Type}) - ${strItemText}
+	
+			|Child Information:
+			/if (${Window[${strTopWindow}].Child[${strWindow}].Children}) {
+				|/echo *--Going to check CHILD ${Window[${strTopWindow}].Child[${strWindow}].FirstChild.Name} window...
+				/call GetWindowDetails ${Window[${strTopWindow}].Child[${strWindow}].FirstChild.Name} ${Math.Calc[${intDepth} + 1]}
+			}
+			
+			|Sibling Information:
+			/if (${Window[${strTopWindow}].Child[${strWindow}].Next}) {
+				|/echo *--Going to check SIBLING ${Window[${strWindow}].Next.Name} window...
+				/call GetWindowDetails ${Window[${strTopWindow}].Child[${strWindow}].Next.Name} ${intDepth}
+			|} else {
+			|	/echo ${Window[${strTopWindow}].Child[${strWindow}].Name} Siblings:${Window[${strTopWindow}].Child[${strWindow}].Next}
+			}
+		}
+	}
+	
+/return
+

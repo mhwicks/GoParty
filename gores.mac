@@ -1,0 +1,31 @@
+#turbo 40 
+#include spell_routines.inc
+
+sub main
+	/echo <<========= Go Res! =========>>
+
+	/declare	intVerbose 	     		int 	local 0
+	/declare	i		 	     		int 	local 0
+		
+	/squelch /target clear
+		
+	|Target nearest player corpse:
+	
+	/for i 1 to ${SpawnCount[corpse radius 200 zradius 20]}
+		/target id ${NearestSpawn[${i}, corpse radius 40 zradius 10].ID}
+		/delay 5
+		/if (!${Target.Deity.ID}==0) {
+			|Resurrect Target
+			/echo Ressing ${Target.CleanName}...
+			/call Cast "Blessing of Resurrection" alt
+	
+			/echo Ressed player.
+			/squelch /target clear
+			/end
+		}
+	/next i
+
+	/echo No nearby player corpses, Exiting.
+
+/return 
+

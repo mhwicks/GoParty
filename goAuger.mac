@@ -1,0 +1,665 @@
+| -- goAuger.mac --
+|
+|Lists all of your Augs for easier management.
+|
+|#define mqlog echo
+#turbo
+
+Sub Main
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+   	/declare	intForce		int		outer	0
+   	/declare	intAll			int		outer	0
+   	/declare	Iterations		int		outer	0
+   
+   	/echo <<=== Go Auger! ===>>
+   	/echo Use the "force" parameter to overwrite INI entries.
+   	/echo Use the "all" parameter to evaluate ALL owned Augs
+   	/echo 
+
+   	|Check all Parameters:
+	/for Iterations 0 to 9
+		|Force?
+		/if (${Param${Iterations}.Equal[force]}) {
+			/varset intForce 1
+			/echo Force mode is set ON.
+		}
+		|All?
+		/if (${Param${Iterations}.Equal[all]}) {
+			/varset intAll 1
+			/echo "All" mode is set ON.
+		}
+		
+	/next Iterations
+   	/echo ${Me.Name}'s Augmentation Inventory...
+
+	/if (${intAll}) {
+		/call CheckWorn
+   		/call CheckInventory
+   		/call CheckBank
+	   	/echo Done.  Look for "goauger.mac.log" in your MQ2 Logs directory.
+   	} else {
+   		/echo Looking for uses for free augs in Inventory.
+   		/call CheckInventory
+   	}
+
+/end
+   	
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|UPGRADE Handling:
+|
+Sub CheckUpgrades
+	/echo Checking for upgrade items...
+/return
+	
+   	
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|WORN Item Handling:
+|
+Sub CheckWorn
+   	/mqlog clear
+   	/mqlog , Slot, Bagslot, Item, Aug, Aug ID, Spell, Type1, Type2, Type3, Type4, Type5, Type6, Type7, Type8, Type9, Type10, Type11, Type12, Type13, Type14, Type15, Lore, AC, HP, Mana, Endurance, STR, STA, INT, WIS, AGI, DEX, CHA, HeroicSTR, HeroicSTA, HeroicINT, HeroicWIS, HeroicAGI, HeroicDEX, HeroicCHA, svMagic, svFire, svCold, svDisease, svPoison, svCorruption, HPRegen, ManaRegen, EnduranceRegen, Attack, Avoidance, Clairvoyance, CombatEffects, DamShield, DoTShielding, HealAmount, Shielding, SpellShield, StunResist, StrikeThrough
+
+   	/echo Worn Items...
+   	/call CheckItem Head
+   	/call CheckItem Face
+   	/call CheckItem Neck
+   	/call CheckItem RightEar
+   	/call CheckItem LeftEar
+   	/call CheckItem Arms
+   	/call CheckItem Hands
+   	/call CheckItem RightWrist
+   	/call CheckItem LeftWrist
+   	/call CheckItem RightFinger
+   	/call CheckItem LeftFinger
+   	/call CheckItem Shoulder
+   	/call CheckItem Back
+   	/call CheckItem Chest
+   	/call CheckItem Waist
+   	/call CheckItem Legs
+   	/call CheckItem Feet
+   	/call CheckItem Mainhand
+   	/call CheckItem Offhand
+   	/call CheckItem Ranged
+   	/call CheckItem Ammo
+/return
+   	
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|INVENTORY Item Handling:
+|
+Sub CheckInventory
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+
+   	/echo Inventory Items...
+
+   	/for index 1 to 8
+   		/if (${Me.Inventory[pack${index}].Container})  {
+        	/call MainPack ${index}
+      	} else {
+      		/if (${Me.Inventory[pack${index}].ID}) {
+      			/if (${Me.Inventory[pack${index}].Type.Equal[Augmentation]}) {
+	         		|/mqlog ${Me.Inventory[pack${PackSlot}].Stack}x ${Me.Inventory[pack${index}].Name}
+    	     		|/mqlog Inv slot ${index}, none, none, ${Me.Inventory[pack${index}].Name}
+        	 		/call AugDetailer "Pack${index}" "none" "none" "${Me.Inventory[pack${index}].Name}" "${Me.Inventory[pack${index}].ID}"
+         		} else {
+         			/if (${intAll}) {
+	         			/for index2 1 to 5
+	         				/if (${Me.Inventory[pack${index}].Item[${index2}].Type.Equal[Augmentation]}) {
+	         					|/mqlog Inv slot ${index}, none, ${Me.Inventory[pack${index}].Name}, ${Me.Inventory[pack${index}].Item[${index2}].Name}
+	         					/call AugDetailer "Pack${index}" "none" "${Me.Inventory[pack${index}].Name}" "${Me.Inventory[pack${index}].Item[${index2}].Name}" "${Me.Inventory[pack${index}].Item[${index2}].ID}"
+	         				}
+	         			/next index2
+         			}
+         		}
+        	}
+      	}
+   	/next index
+/return
+   
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|BANK Item Handling:
+|
+Sub CheckBank
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+
+   	/echo Bank Items...
+   	/for index 1 to 24
+      	/if (${Me.Bank[${index}].Container})  {
+        	/call BankPack ${index}
+      	} else {
+      		/if (${Me.Bank[${index}].Type.Equal[Augmentation]}) {
+        		|/mqlog ${index}) ${Me.Bank[${index}].Stack}x ${Me.Bank[${index}].Name}
+      			|/mqlog Bank slot ${index}: ${Me.Bank[${index}].Name}
+      			/call AugDetailer "Bank${index}" "none" "none" "${Me.Bank[${index}].Name}" "${Me.Bank[${index}].ID}"
+        	} else {
+        		/for index2 1 to 5
+        			/if (${Me.Bank[${index}].Item[${index2}].Type.Equal[Augmentation]}) {
+        				|/mqlog Bank Slot ${index}, none, ${Me.Bank[${index}].Name}, ${Me.Bank[${index}].Item[${index2}].Name}
+        				/call AugDetailer "Bank${index}" "none" "${Me.Bank[${index}].Name}" "${Me.Bank[${index}].Item[${index2}].Name}" "${Me.Bank[${index}].Item[${index2}].ID}"
+        			}
+        		/next index2
+        	}
+      	}
+	/next index
+/return
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|SLOT Item Handling:
+|
+Sub CheckItem(string strSlot)
+    /declare index int local
+    
+	|/mqlog ${Me.Inventory[${strSlot}].Name}
+	/for index 1 to 5
+		/if (${Me.Inventory[${strSlot}].Item[${index}].Type.Equal[Augmentation]}) {
+			|/mqlog ${strSlot}, none, ${Me.Inventory[${strSlot}].Name}, ${Me.Inventory[${strSlot}].Item[${index}].Name}
+			/call AugDetailer "${strSlot}" "none" "${Me.Inventory[${strSlot}].Name}" "${Me.Inventory[${strSlot}].Item[${index}].Name}" "${Me.Inventory[${strSlot}].Item[${index}].ID}"
+		}
+	/next index
+/return
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|PACK Item Handling:
+|
+Sub MainPack(int PackSlot)
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+
+   	|/mqlog ${PackSlot}) ${InvSlot[pack${PackSlot}].Item.Name} has ${InvSlot[pack${PackSlot}].Item.Container}/${InvSlot[pack${PackSlot}].Item.Items} slots/used, combine type: ${InvSlot[pack${PackSlot}].Item.Type}
+    /for index 1 to ${InvSlot[pack${PackSlot}].Item.Container}
+        /if (${InvSlot[pack${PackSlot}].Item.Item[${index}].ID}) {
+        	/if (${InvSlot[pack${PackSlot}].Item.Item[${index}].Type.Equal[Augmentation]}) {
+            	|/mqlog ${InvSlot[pack${PackSlot}].Item.Item[${index}].Stack}x ${InvSlot[pack${PackSlot}].Item.Item[${index}].Name}
+            	|/mqlog Inv slot ${PackSlot}, Bag slot ${index}, none, ${InvSlot[pack${PackSlot}].Item.Item[${index}].Name}
+            	/call AugDetailer "Pack${PackSlot}" "Bag${index}" "none" "${InvSlot[pack${PackSlot}].Item.Item[${index}].Name}" "${InvSlot[pack${PackSlot}].Item.Item[${index}].ID}"
+            } else {
+        		/if (${intAll}) {
+	            	/for index2 1 to 5
+	        			/if (${Me.Inventory[pack${PackSlot}].Item[${index}].Item[${index2}].Type.Equal[Augmentation]}) {
+	         				|/mqlog Inv slot ${PackSlot}, Bag slot ${index}, ${Me.Inventory[pack${PackSlot}].Item[${index}].Name}, ${Me.Inventory[pack${PackSlot}].Item[${index}].Item[${index2}].Name}
+		       				/call AugDetailer "Pack${PackSlot}" "Bag${index}" "${Me.Inventory[pack${PackSlot}].Item[${index}].Name}" "${Me.Inventory[pack${PackSlot}].Item[${index}].Item[${index2}].Name}" "${Me.Inventory[pack${PackSlot}].Item[${index}].Item[${index2}].ID}"
+	         			}
+	            	/next index2
+	            }
+            }
+        }
+   /next index
+/return
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|BANK Item Handling:
+|
+Sub BankPack(int PackSlot)
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+
+    |/mqlog ${PackSlot}) ${Me.Bank[${PackSlot}].Name} has ${Me.Bank[${PackSlot}].Container}/${Me.Bank[${PackSlot}].Items} slots/used, combine type: ${Me.Bank[${PackSlot}].Type}
+    /for index 1 to ${Me.Bank[${PackSlot}].Container}
+        /if (${Me.Bank[${PackSlot}].Item[${index}].ID}) {
+        	/if (${Me.Bank[${PackSlot}].Item[${index}].Type.Equal[Augmentation]}) {
+            	|/mqlog ${Me.Bank[${PackSlot}].Item[${index}].Stack}x ${Me.Bank[${PackSlot}].Item[${index}].Name}
+            	|/mqlog Bank slot ${PackSlot}, Bag slot ${index}, ${Me.Bank[${PackSlot}].Item[${index}].Name}
+            	/call AugDetailer "Bank${PackSlot}" "Bag${index}" "none" "${Me.Bank[${PackSlot}].Item[${index}].Name}" "${Me.Bank[${PackSlot}].Item[${index}].ID}"
+            } else {
+           	/for index2 1 to 5
+        		/if (${Me.Bank[${PackSlot}].Item[${index}].Item[${index2}].Type.Equal[Augmentation]}) {
+         			|/mqlog Bank slot ${PackSlot}, Bag slot ${index}, ${Me.Bank[${PackSlot}].Item[${index}].Name}, ${Me.Bank[${PackSlot}].Item[${index}].Item[${index2}].Name}
+         			/call AugDetailer "Bank${PackSlot}" "Bag${index}" "${Me.Bank[${PackSlot}].Item[${index}].Name}" "${Me.Bank[${PackSlot}].Item[${index}].Item[${index2}].Name}" "${Me.Bank[${PackSlot}].Item[${index}].Item[${index2}].ID}"
+         		}
+            /next index2
+            }
+        }
+   /next index
+/return
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|AUG Detail Handling:
+|
+Sub AugDetailer(string strSlot, string strBag, string strItem, string strAug, int intAugID)
+   	/declare 	index 			int 	local
+   	/declare 	index2 			int 	local
+
+    /declare intSave 				int local 0
+    /declare intDataThere			int local 0
+    /declare strMessage			string	local
+
+    /declare intAC 					int local 0
+    /declare intHP 					int local 0
+    /declare intMana 				int local 0
+    /declare intEndurance 			int local 0
+	
+    /declare intSTR 				int local 0
+    /declare intSTA 				int local 0
+    /declare intINT 				int local 0
+    /declare intWIS 				int local 0
+    /declare intAGI 				int local 0
+    /declare intDEX 				int local 0
+    /declare intCHA 				int local 0
+	
+    /declare intHeroicSTR 			int local 0
+    /declare intHeroicSTA 			int local 0
+    /declare intHeroicINT 			int local 0
+    /declare intHeroicWIS 			int local 0
+    /declare intHeroicAGI 			int local 0
+    /declare intHeroicDEX 			int local 0
+    /declare intHeroicCHA 			int local 0
+			
+    /declare intsvMagic 			int local 0
+    /declare intsvFire 				int local 0
+    /declare intsvCold 				int local 0
+    /declare intsvDisease	 		int local 0
+    /declare intsvPoison 			int local 0
+    /declare intsvCorruption 		int local 0
+			
+    /declare intHPRegen 			int local 0
+    /declare intManaRegen 			int local 0
+    /declare intEnduranceRegen 		int local 0
+	
+    /declare intAttack 				int local 0
+    /declare intAvoidance 			int local 0
+    /declare intClairvoyance 		int local 0
+    /declare intCombatEffects 		int local 0
+    /declare intDamShield 			int local 0
+    /declare intDoTShielding 		int local 0
+    /declare intHealAmount 			int local 0
+    /declare intShielding 			int local 0
+    /declare intSpellShield 		int local 0
+    /declare intStunResist 			int local 0
+    /declare intStrikeThrough 		int local 0
+    
+    /declare strSpell			string	local
+    
+    /declare intType1				int	local 0
+    /declare intType2				int	local 0
+    /declare intType3				int	local 0
+    /declare intType4				int	local 0
+    /declare intType5				int	local 0
+    /declare intType6				int	local 0
+    /declare intType7				int	local 0
+    /declare intType8				int	local 0
+    /declare intType9				int	local 0
+    /declare intType10				int	local 0
+    /declare intType11				int	local 0
+    /declare intType12				int	local 0
+    /declare intType13				int	local 0
+    /declare intType14				int	local 0
+    /declare intType15				int	local 0
+
+    /declare intLore				int	local 0
+    
+    |Aug Comparison Variables:
+    /declare	intSlotNumber			int			local	0
+    /declare	intSlotName				string		local
+    
+    
+    |Get Aug Details:
+	
+	|Try .ini file first:
+	/if (${Ini[goAuger.ini, ${intAugID}, Name].Equal[${strAug}]}) {
+		/varset intDataThere 1
+		|/echo Data Exists for ${strAug} (${intAugID}).
+		
+	    /varset intAC 				${Ini[goauger.ini, ${intAugID}, AC]}				
+	    /varset intHP 				${Ini[goauger.ini, ${intAugID}, HP]}				
+	    /varset intMana 			${Ini[goauger.ini, ${intAugID}, Mana]}			
+	    /varset intEndurance 		${Ini[goauger.ini, ${intAugID}, Endurance]}		
+		
+	    /varset intSTR 				${Ini[goauger.ini, ${intAugID}, STR]}				
+	    /varset intSTA 				${Ini[goauger.ini, ${intAugID}, STA]}				
+	    /varset intINT 				${Ini[goauger.ini, ${intAugID}, INT]}				
+	    /varset intWIS 				${Ini[goauger.ini, ${intAugID}, WIS]}				
+	    /varset intAGI 				${Ini[goauger.ini, ${intAugID}, AGI]}				
+	    /varset intDEX 				${Ini[goauger.ini, ${intAugID}, DEX]}				
+	    /varset intCHA 				${Ini[goauger.ini, ${intAugID}, CHA]}				
+		                              
+	    /varset intHeroicSTR 		${Ini[goauger.ini, ${intAugID}, HeroicSTR]}		
+	    /varset intHeroicSTA 		${Ini[goauger.ini, ${intAugID}, HeroicSTA]}		
+	    /varset intHeroicINT 		${Ini[goauger.ini, ${intAugID}, HeroicINT]}		
+	    /varset intHeroicWIS 		${Ini[goauger.ini, ${intAugID}, HeroicWIS]}		
+	    /varset intHeroicAGI 		${Ini[goauger.ini, ${intAugID}, HeroicAGI]}		
+	    /varset intHeroicDEX 		${Ini[goauger.ini, ${intAugID}, HeroicDEX]}		
+	    /varset intHeroicCHA 		${Ini[goauger.ini, ${intAugID}, HeroicCHA]}		
+				                      
+	    /varset intsvMagic 			${Ini[goauger.ini, ${intAugID}, svMagic]}			
+	    /varset intsvFire 			${Ini[goauger.ini, ${intAugID}, svFire]}			
+	    /varset intsvCold 			${Ini[goauger.ini, ${intAugID}, svCold]}			
+	    /varset intsvDisease		${Ini[goauger.ini, ${intAugID}, svDisease]}	 	
+	    /varset intsvPoison 		${Ini[goauger.ini, ${intAugID}, svPoison]}		
+	    /varset intsvCorruption 	${Ini[goauger.ini, ${intAugID}, svCorruption]}	
+				                      
+	    /varset intHPRegen 			${Ini[goauger.ini, ${intAugID}, HPRegen]}			
+	    /varset intManaRegen 		${Ini[goauger.ini, ${intAugID}, ManaRegen]}		
+	    /varset intEnduranceRegen 	${Ini[goauger.ini, ${intAugID}, EnduranceRegen]}	
+		                              
+	    /varset intAttack 			${Ini[goauger.ini, ${intAugID}, Attack]}			
+	    /varset intAvoidance		${Ini[goauger.ini, ${intAugID}, Avoidance]}		
+	    /varset intClairvoyance 	${Ini[goauger.ini, ${intAugID}, Clairvoyance]}	
+	    /varset intCombatEffects	${Ini[goauger.ini, ${intAugID}, CombatEffects]}	
+	    /varset intDamShield 		${Ini[goauger.ini, ${intAugID}, DamShield]}		
+	    /varset intDoTShielding 	${Ini[goauger.ini, ${intAugID}, DoTShielding]}	
+	    /varset intHealAmount 		${Ini[goauger.ini, ${intAugID}, HealAmount]}		
+	    /varset intShielding 		${Ini[goauger.ini, ${intAugID}, Shielding]}		
+	    /varset intSpellShield 		${Ini[goauger.ini, ${intAugID}, SpellShield]}		
+	    /varset intStunResist 		${Ini[goauger.ini, ${intAugID}, StunResist]}		
+	    /varset intStrikeThrough 	${Ini[goauger.ini, ${intAugID}, StrikeThrough]}			
+
+   	    /varset strSpell		 	${Ini[goauger.ini, ${intAugID}, Spell]}
+   	    
+		/varset intType1 		 	${Ini[goauger.ini, ${intAugID}, Type1]}
+		/varset intType2 		 	${Ini[goauger.ini, ${intAugID}, Type2]}
+		/varset intType3 		 	${Ini[goauger.ini, ${intAugID}, Type3]}
+		/varset intType4 		 	${Ini[goauger.ini, ${intAugID}, Type4]}
+		/varset intType5 		 	${Ini[goauger.ini, ${intAugID}, Type5]}
+		/varset intType6 		 	${Ini[goauger.ini, ${intAugID}, Type6]}
+		/varset intType7 		 	${Ini[goauger.ini, ${intAugID}, Type7]}
+		/varset intType8 		 	${Ini[goauger.ini, ${intAugID}, Type8]}
+		/varset intType9 		 	${Ini[goauger.ini, ${intAugID}, Type9]}
+		/varset intType10		 	${Ini[goauger.ini, ${intAugID}, Type10]}
+		/varset intType11		 	${Ini[goauger.ini, ${intAugID}, Type11]}
+		/varset intType12		 	${Ini[goauger.ini, ${intAugID}, Type12]}
+		/varset intType13		 	${Ini[goauger.ini, ${intAugID}, Type13]}
+		/varset intType14		 	${Ini[goauger.ini, ${intAugID}, Type14]}
+		/varset intType15		 	${Ini[goauger.ini, ${intAugID}, Type15]}
+		
+		/varset intLore		 		${Ini[goauger.ini, ${intAugID}, Lore]}
+		   	   
+	}
+	
+	/if (${intForce}) {
+		|/echo "force" parameter found - attempting to force update...
+		/varset intDataThere 0
+	}
+	
+	/if (!${intDataThere}) {
+		|Free Augs in Inventory:
+		/if (${strSlot.Left[4].Equal[Pack]}) {
+			|/echo Pack Item found...
+			/if (${strItem.Equal[none]}) {
+				|/echo - Item is free - getting details...
+				/if (${strBag.Equal[none]}) {
+					|/echo Not bagged...
+					/nomod /itemnotify ${strSlot} rightmouseheld
+				} else {
+					|/echo Item in a bag...
+					|/echo Slot: ${strBag.Right[${Math.Calc[${strBag.Length} - 3]}]}
+					/if (!${Window[${strSlot}]}) {
+						/nomod /itemnotify ${strSlot} rightmouseup
+						/delay 1s
+					}
+					/nomod /itemnotify in ${strSlot} ${strBag.Right[${Math.Calc[${strBag.Length} - 3]}]} rightmouseheld
+				}
+				/varset intSave 1
+			}
+		}
+		
+		|Free Augs in Bank:
+		/if (${Window[BigBankWnd]}) {
+			/if (${strSlot.Left[4].Equal[Bank]}) {
+				|/echo Bank Item found...
+				/if (${strItem.Equal[none]}) {
+					|/echo - Item is free - getting details...
+					/if (${strBag.Equal[none]}) {
+						|/echo Not bagged...
+						/nomod /itemnotify ${strSlot} rightmouseheld
+					} else {
+						|/echo Item in a bag...
+						|/echo Slot: ${strBag.Right[${Math.Calc[${strBag.Length} - 3]}]}
+						/if (!${Window[${strSlot}]}) {
+							/nomod /itemnotify ${strSlot} rightmouseup
+							/delay 1s
+						}
+						/nomod /itemnotify in ${strSlot} ${strBag.Right[${Math.Calc[${strBag.Length} - 3]}]} rightmouseheld
+					}
+					/varset intSave 1
+				}
+			}
+		}
+		
+		|ItemDisplayWindow for this item is open:
+		/if (${DisplayItem[${intAugID}].ID} == ${intAugID}) {
+			/varset intSave 1
+			/echo Display window showing ${DisplayItem[${intAugID}].Name}
+		}
+	
+		/if (${intSave}) {
+			/echo FOUND information for ${strAug} (${intAugID}).
+
+		|Set The Variables:
+		    /varset intAC 				${DisplayItem[${intAugID}].AC}				
+		    /varset intHP 				${DisplayItem[${intAugID}].HP}				
+		    /varset intMana 			${DisplayItem[${intAugID}].Mana}			
+		    /varset intEndurance 		${DisplayItem[${intAugID}].Endurance}		
+			
+		    /varset intSTR 				${DisplayItem[${intAugID}].STR}				
+		    /varset intSTA 				${DisplayItem[${intAugID}].STA}				
+		    /varset intINT 				${DisplayItem[${intAugID}].INT}				
+		    /varset intWIS 				${DisplayItem[${intAugID}].WIS}				
+		    /varset intAGI 				${DisplayItem[${intAugID}].AGI}				
+		    /varset intDEX 				${DisplayItem[${intAugID}].DEX}				
+		    /varset intCHA 				${DisplayItem[${intAugID}].CHA}				
+			
+		    /varset intHeroicSTR 		${DisplayItem[${intAugID}].HeroicSTR}		
+		    /varset intHeroicSTA 		${DisplayItem[${intAugID}].HeroicSTA}		
+		    /varset intHeroicINT 		${DisplayItem[${intAugID}].HeroicINT}		
+		    /varset intHeroicWIS 		${DisplayItem[${intAugID}].HeroicWIS}		
+		    /varset intHeroicAGI 		${DisplayItem[${intAugID}].HeroicAGI}		
+		    /varset intHeroicDEX 		${DisplayItem[${intAugID}].HeroicDEX}		
+		    /varset intHeroicCHA 		${DisplayItem[${intAugID}].HeroicCHA}		
+					
+		    /varset intsvMagic 			${DisplayItem[${intAugID}].svMagic}			
+		    /varset intsvFire 			${DisplayItem[${intAugID}].svFire}			
+		    /varset intsvCold 			${DisplayItem[${intAugID}].svCold}			
+		    /varset intsvDisease		${DisplayItem[${intAugID}].svDisease}	 	
+		    /varset intsvPoison 		${DisplayItem[${intAugID}].svPoison}		
+		    /varset intsvCorruption 	${DisplayItem[${intAugID}].svCorruption}	
+					
+		    /varset intHPRegen 			${DisplayItem[${intAugID}].HPRegen}			
+		    /varset intManaRegen 		${DisplayItem[${intAugID}].ManaRegen}		
+		    /varset intEnduranceRegen 	${DisplayItem[${intAugID}].EnduranceRegen}	
+			
+		    /varset intAttack 			${DisplayItem[${intAugID}].Attack}			
+		    /varset intAvoidance		${DisplayItem[${intAugID}].Avoidance}		
+		    /varset intClairvoyance 	${DisplayItem[${intAugID}].Clairvoyance}	
+		    /varset intCombatEffects	${DisplayItem[${intAugID}].CombatEffects}	
+		    /varset intDamShield 		${DisplayItem[${intAugID}].DamShield}		
+		    /varset intDoTShielding 	${DisplayItem[${intAugID}].DoTShielding}	
+		    /varset intHealAmount 		${DisplayItem[${intAugID}].HealAmount}		
+		    /varset intShielding 		${DisplayItem[${intAugID}].Shielding}		
+		    /varset intSpellShield 		${DisplayItem[${intAugID}].SpellShield}		
+		    /varset intStunResist 		${DisplayItem[${intAugID}].StunResist}		
+		    /varset intStrikeThrough 	${DisplayItem[${intAugID}].StrikeThrough}	
+		    
+		    /varset strSpell 			${DisplayItem[${intAugID}].Spell}
+
+		    |Figure out the Aug Types (BitMask):
+		    |1	2	3	4	5	6	7	8	9	10	11		12		13		14		15
+		    |1	2	4	8	16	32	64	128	256	512	1024	2048	4096	8192	16384
+		    /varset intType1			${DisplayItem[${intAugID}].AugType}
+		    /if (${intType1} >= 16348) {
+		    	/varset intType15 1
+		    	/varcalc intType1 ${intType1} - 16348
+		    }
+		    /if (${intType1} >= 8192) {
+		    	/varset intType14 1
+		    	/varcalc intType1 ${intType1} - 8192
+		    }
+		    /if (${intType1} >= 4096) {
+		    	/varset intType13 1
+		    	/varcalc intType1 ${intType1} - 4096
+		    }
+		    /if (${intType1} >= 2048) {
+		    	/varset intType12 1
+		    	/varcalc intType1 ${intType1} - 2048
+		    }
+		    /if (${intType1} >= 1024) {
+		    	/varset intType11 1
+		    	/varcalc intType1 ${intType1} - 1024
+		    }
+		    /if (${intType1} >= 512) {
+		    	/varset intType10 1
+		    	/varcalc intType1 ${intType1} - 512
+		    }
+		    /if (${intType1} >= 256) {
+		    	/varset intType9 1
+		    	/varcalc intType1 ${intType1} - 256
+		    }
+		    /if (${intType1} >= 128) {
+		    	/varset intType8 1
+		    	/varcalc intType1 ${intType1} - 128
+		    }
+		    /if (${intType1} >= 64) {
+		    	/varset intType7 1
+		    	/varcalc intType1 ${intType1} - 64
+		    }
+		    /if (${intType1} >= 32) {
+		    	/varset intType6 1
+		    	/varcalc intType1 ${intType1} - 32
+		    }
+		    /if (${intType1} >= 16) {
+		    	/varset intType5 1
+		    	/varcalc intType1 ${intType1} - 16
+		    }
+		    /if (${intType1} >= 8) {
+		    	/varset intType4 1
+		    	/varcalc intType1 ${intType1} - 8
+		    }
+		    /if (${intType1} >= 4) {
+		    	/varset intType3 1
+		    	/varcalc intType1 ${intType1} - 4
+		    }
+		    /if (${intType1} >= 2) {
+		    	/varset intType2 1
+		    	/varcalc intType1 ${intType1} - 2
+		    }
+
+		    /if  (${DisplayItem[${intAugID}].Lore}) /varset intLore 1
+		    		
+			|Add Aug Data to .ini file:
+
+			|General:
+			/ini "goAuger.ini" ${intAugID} "Name" "${strAug}"
+			/ini "goAuger.ini" ${intAugID} "AC" ${intAC}
+			/ini "goAuger.ini" ${intAugID} "HP" ${intHP}
+			/ini "goAuger.ini" ${intAugID} "Mana" ${intMana}
+			/ini "goAuger.ini" ${intAugID} "Endurance" ${intEndurance}
+	
+			|Stats:
+			/ini "goAuger.ini" ${intAugID} "STR" ${intSTR}
+			/ini "goAuger.ini" ${intAugID} "STA" ${intSTA}
+			/ini "goAuger.ini" ${intAugID} "INT" ${intINT}
+			/ini "goAuger.ini" ${intAugID} "WIS" ${intWIS}
+			/ini "goAuger.ini" ${intAugID} "AGI" ${intAGI}
+			/ini "goAuger.ini" ${intAugID} "DEX" ${intDEX}
+			/ini "goAuger.ini" ${intAugID} "CHA" ${intCHA}
+	
+			|Heroic Stats:
+			/ini "goAuger.ini" ${intAugID} "HeroicSTR" ${intHeroicSTR}
+			/ini "goAuger.ini" ${intAugID} "HeroicSTA" ${intHeroicSTA}
+			/ini "goAuger.ini" ${intAugID} "HeroicINT" ${intHeroicINT}
+			/ini "goAuger.ini" ${intAugID} "HeroicWIS" ${intHeroicWIS}
+			/ini "goAuger.ini" ${intAugID} "HeroicAGI" ${intHeroicAGI}
+			/ini "goAuger.ini" ${intAugID} "HeroicDEX" ${intHeroicDEX}
+			/ini "goAuger.ini" ${intAugID} "HeroicCHA" ${intHeroicCHA}
+			
+			|Saves:
+			/ini "goAuger.ini" ${intAugID} "svMagic" ${intsvMagic}
+			/ini "goAuger.ini" ${intAugID} "svFire" ${intsvFire}
+			/ini "goAuger.ini" ${intAugID} "svCold" ${intsvCold}
+			/ini "goAuger.ini" ${intAugID} "svDisease" ${intsvDisease}
+			/ini "goAuger.ini" ${intAugID} "svPoison" ${intsvPoison}
+			/ini "goAuger.ini" ${intAugID} "svCorruption" ${intsvCorruption}
+			
+			|Other:
+			/ini "goAuger.ini" ${intAugID} "HPRegen" ${intHPRegen}
+			/ini "goAuger.ini" ${intAugID} "ManaRegen" ${intManaRegen}
+			/ini "goAuger.ini" ${intAugID} "EnduranceRegen" ${intEnduranceRegen}
+	
+			/ini "goAuger.ini" ${intAugID} "Attack" ${intAttack}
+			/ini "goAuger.ini" ${intAugID} "Avoidance" ${intAvoidance}
+			/ini "goAuger.ini" ${intAugID} "Clairvoyance" ${intClairvoyance}
+			/ini "goAuger.ini" ${intAugID} "CombatEffects" ${intCombatEffects}
+			/ini "goAuger.ini" ${intAugID} "DamShield" ${intDamShield}
+			/ini "goAuger.ini" ${intAugID} "DoTShielding" ${intDoTShielding}
+			/ini "goAuger.ini" ${intAugID} "HealAmount" ${intHealAmount}
+			/ini "goAuger.ini" ${intAugID} "Shielding" ${intShielding}
+			/ini "goAuger.ini" ${intAugID} "SpellShield" ${intSpellShield}
+			/ini "goAuger.ini" ${intAugID} "StunResist" ${intStunResist}
+			/ini "goAuger.ini" ${intAugID} "StrikeThrough" ${intStrikeThrough}
+			
+			/ini "goAuger.ini" ${intAugID} "Spell" "${strSpell}"
+			
+			|Types:
+			/ini "goAuger.ini" ${intAugID} "Type1" ${intType1}
+			/ini "goAuger.ini" ${intAugID} "Type2" ${intType2}
+			/ini "goAuger.ini" ${intAugID} "Type3" ${intType3}
+			/ini "goAuger.ini" ${intAugID} "Type4" ${intType4}
+			/ini "goAuger.ini" ${intAugID} "Type5" ${intType5}
+			/ini "goAuger.ini" ${intAugID} "Type6" ${intType6}
+			/ini "goAuger.ini" ${intAugID} "Type7" ${intType7}
+			/ini "goAuger.ini" ${intAugID} "Type8" ${intType8}
+			/ini "goAuger.ini" ${intAugID} "Type9" ${intType9}
+			/ini "goAuger.ini" ${intAugID} "Type10" ${intType10}
+			/ini "goAuger.ini" ${intAugID} "Type11" ${intType11}
+			/ini "goAuger.ini" ${intAugID} "Type12" ${intType12}
+			/ini "goAuger.ini" ${intAugID} "Type13" ${intType13}
+			/ini "goAuger.ini" ${intAugID} "Type14" ${intType14}
+			/ini "goAuger.ini" ${intAugID} "Type15" ${intType15}
+		    		
+			/ini "goAuger.ini" ${intAugID} "Lore" ${intLore}
+
+		} else {
+			|Data not found in INI or in bags, etc.
+			/echo NO DATA found for ${strAug} (${intAugID}).
+			/echo Aug is in ${strSlot}, ${strBag}, ${strItem}.
+			/echo Please enter manually, or open the detail window for this aug and re-run (one at a time).
+		}
+	}
+	
+	/if (!${intALL}) {
+		|Check all uses for the aug and echo to screen:
+	    /echo Evaluating aug '${strAug}':
+	    /echo AC: ${intAC}; HP: ${intHP}; MANA: ${intMana}
+		|/echo Can be  worn in ${FindItem[${strAug}].WornSlots} slots.
+		
+		|Iterate through the slots that this aug can be worn in:
+		/for Iterations 1 to ${FindItem[${strAug}].WornSlots}
+			/varset intSlotNumber ${FindItem[${strAug}].WornSlot[${Iterations}]}
+			/varset intSlotName ${FindItem[${strAug}].WornSlot[${Iterations}].Name}
+			/echo ${strAug} fits in the '${intSlotName}' slot (${intSlotNumber}).
+			
+			|Verify that there is a slot type that is appropriate for this aug:
+			/for index 1 to 5
+				/if (${FindItem[${strAug}].WornSlot[${Iterations}].Item.AugSlot${index}}) {
+					|/echo Slot ${index} is type ${FindItem[${strAug}].WornSlot[${Iterations}].Item.AugSlot${index}}
+					|/echo intType${FindItem[${strAug}].WornSlot[${Iterations}].Item.AugSlot${index}}: ${intType${FindItem[${strAug}].WornSlot[${Iterations}].Item.AugSlot${index}}}
+					/if (${intType${FindItem[${strAug}].WornSlot[${Iterations}].Item.AugSlot${index}}}) {
+						/echo The aug can go in item ${FindItem[${strAug}].WornSlot[${Iterations}].Item.Name}
+						
+						|Look for empty aug slots first:
+						
+						|Compare the aug to the one in place already:
+					}
+					|/delay 1
+				}
+			/next index
+		/next Iterations
+	}
+		
+	/if (${intALL}) {
+		|Write the details to the log:
+		
+		|/itemnotify ${strSlot} rightmouseheld
+		/varset strMessage , ${strSlot}, ${strBag}, ${strItem}, ${strAug}, ${intAugID}
+		/varset strMessage ${strMessage}, "${strSpell}", ${intType1}, ${intType2}, ${intType3}, ${intType4}, ${intType5}, ${intType6}, ${intType7}, ${intType8}, ${intType9}, ${intType10}, ${intType11}, ${intType12}, ${intType13}, ${intType14}, ${intType15}, ${intLore}
+		/varset strMessage ${strMessage}, ${intAC}, ${intHP}, ${intMana}, ${intEndurance}, ${intSTR}, ${intSTA}, ${intINT}, ${intWIS}, ${intAGI}, ${intDEX}, ${intCHA}
+		/varset strMessage ${strMessage}, ${intHeroicSTR}, ${intHeroicSTA}, ${intHeroicINT}, ${intHeroicWIS}, ${intHeroicAGI}, ${intHeroicDEX}, ${intHeroicCHA}
+		/varset strMessage ${strMessage}, ${intsvMagic}, ${intsvFire}, ${intsvCold}, ${intsvDisease}, ${intsvPoison}, ${intsvCorruption}
+		/varset strMessage ${strMessage}, ${intHPRegen}, ${intManaRegen}, ${intEnduranceRegen}
+		/varset strMessage ${strMessage}, ${intAttack}, ${intAvoidance}, ${intClairvoyance}, ${intCombatEffects}, ${intDamShield}, ${intDoTShielding}, ${intHealAmount}, ${intShielding}, ${intSpellShield}, ${intStunResist}, ${intStrikeThrough}
+	
+		/mqlog ${strMessage}
+	}
+
+/return

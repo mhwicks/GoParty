@@ -1,0 +1,10 @@
+
+#turbo 40 
+#include spell_routines.inc
+
+Sub Main 
+/Declare MyRandom int outer
+
+/Varset MyRandom ${Math.Rand[9]}
+
+/echo ${MyRandom}

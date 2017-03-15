@@ -1,0 +1,49 @@
+Sub Main
+/echo ==============================
+/echo GoInfo Active.
+
+/if (${Target.ID} == 0) {
+	/echo No target
+	/end
+}
+
+/g ${Target.CleanName} is a [${Target.Level}] ${Target.Class} with ${Target.CurrentHPs}/${Target.MaxHPs} HP.
+
+/if (${Target.Type.Equal[NPC]}) {
+|NPC Section:
+
+} else {
+|PC Section:
+
+}
+
+/if (${Target.ID} == ${Me.ID}) {
+|Self Section:
+	/echo I am ${Me.CleanName}!
+	/g I have ${Me.AAPointsTotal} Total AAs!
+	|/g HP Bonuses:
+	/g HP: ${Me.HPBonus}
+	/g HP Regen: ${Me.HPRegen}
+	/g HP Regen Bonus: ${Me.HPRegenBonus}
+	|/g MANA Bonuses:
+	/g MANA: ${Me.ManaBonus}
+	/g MANA Regen: ${Me.ManaRegen}
+	/g MANA Regen Bonus: ${Me.ManaRegenBonus}
+	|/g ENDURANCE Bonuses:
+	/g Endurance Regen:${Me.EnduranceRegen}
+	/g Endurance Bonus: ${Me.EnduranceBonus}
+	|/g Other Bonuses:
+	/g Accuracy: ${Me.AccuracyBonus}
+	/g Attack: ${Me.AttackBonus}
+	/g Avoidance; ${Me.AvoidanceBonus}
+	/g Damage Shield: ${Me.DamageShieldBonus}
+	/g DOT Shielding: ${Me.DoTShieldBonus}
+	/g Shielding: ${Me.ShieldingBonus}
+	/g Spell Shield: ${Me.SpellShieldBonus}
+	/g Strikethrough: ${Me.StrikeThroughBonus}
+	/g Stun Resist: ${Me.StunResistBonus}
+	/g Leadership Points: ${Me.GroupLeaderPoints}
+	/g Attack Speed: ${Me.AttackSpeed}
+}
+
+/end

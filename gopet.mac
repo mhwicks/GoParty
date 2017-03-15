@@ -1,0 +1,257 @@
+#turbo
+#include spell_routines.inc
+
+|==================================================================================================|
+Sub Main
+
+/declare strTargetPet string outer
+
+|Prepare:
+
+/echo ==============================
+/echo GoPet Active.
+
+/if (!${Me.Class.ID} == 13) {
+	/echo You aren't even a mage.  How ya gonna make pet toys?
+	/end
+}
+
+
+/if (!${Target.Type.Equal[Pet]}) {
+	/echo Please target the pet you want to give toys to and rerun GoPet.
+	/end
+}
+/varset strTargetPet ${Target.CleanName}
+/target ${strTargetPet}
+/face
+
+|Clear out acceptable pack8 items first:
+/if (${Me.Inventory[pack8].ID} == 17306 || ${Me.Inventory[pack8].ID} == 17310 || ${Me.Inventory[pack8].ID} == 57261 || ${Me.Inventory[pack8].ID} == 57262) {
+	/nomod /itemnotify pack8 leftmouseup
+	/destroy
+}
+
+/if (${Me.Inventory[pack8](bool)}) {
+	/echo Clear out pack8 first!
+	/end
+}
+
+/echo Pet toys for ${strTargetPet}.
+|/gu Hang on a sec and I'll give %t some pet toys.
+
+/if (${Me.Book[Grant Enibik's Heirlooms]}) {
+	|Create a Jewelry Bag, give items to pet and delete bag:
+	/target myself
+	/call Cast "Grant Enibik's Heirlooms" gem3 0
+	/Delay 5s ${Cursor.ID}
+	/nomod /itemnotify pack8 leftmouseup
+	
+	|Open the pack (Or cast for new ones):
+	/nomod /itemnotify pack8 rightmouseup
+	/delay 1s ${Me.Casting.ID}
+	/if (${Me.Casting.ID}) {
+		|Stash new bag and open it:
+		/delay 5s !${Me.Casting.ID}
+		/delay 1s ${Cursor.ID}
+	}
+
+	/Delay 1s
+	/AutoInventory
+	/Target ${strTargetPet}
+	/Delay 1s
+	/nomod /itemnotify pack8 rightmouseup
+	/Delay 1s
+	/nomod /itemnotify in pack8 1 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 2 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 3 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 4 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+	/nomod /itemnotify in pack8 5 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 6 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+	
+	/nomod /itemnotify pack8 leftmouseup
+	/Destroy
+	/Delay 1s
+} else {
+	/echo If you had "Grant Ebinik's Heirlooms" You'd have given those items.
+}
+
+/if (${Me.Book[Grant Spectral Plate]}) {
+	|Create an Armor Bag, give items to pet and delete bag:
+	/target myself
+	/call Cast "Grant Spectral Plate" gem3 0
+	/Delay 5s ${Cursor.ID}
+	/nomod /itemnotify pack8 leftmouseup
+	
+	|Open the pack (Or cast for new ones):
+	/nomod /itemnotify pack8 rightmouseup
+	/delay 1s ${Me.Casting.ID}
+	/if (${Me.Casting.ID}) {
+		|Stash new bag and open it:
+		/delay 5s !${Me.Casting.ID}
+		/delay 1s ${Cursor.ID}
+	}
+
+	/Delay 1s
+	/AutoInventory
+	/Target ${strTargetPet}
+	/Delay 1s
+	/nomod /itemnotify pack8 rightmouseup
+	/Delay 1s
+	/nomod /itemnotify in pack8 1 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 2 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 3 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 4 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+	/nomod /itemnotify in pack8 5 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 6 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 7 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 8 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+	
+	/nomod /itemnotify pack8 leftmouseup
+	/Destroy
+	/Delay 1s
+} else {
+	/echo If you had "Grant Spectral Plate" You'd have given those items.
+}
+
+/if (${Me.Book[Grant Visor of Vabtik]}) {
+	/target myself
+	/Call Cast "Grant Visor of Vabtik" gem3 0
+	/Delay 1s
+	/Target ${strTargetPet}
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+} else {
+	/echo If you had "Grant Visor of Vabtik" You'd have given that item.
+}
+
+|Create some nice Armaments for pet:
+/if (${Me.Book[Grant Spectral Armaments]}) {
+	/target myself
+	/call Cast "Grant Spectral Armaments" gem3 0
+	/Delay 5s ${Cursor.ID}
+	/nomod /itemnotify pack8 leftmouseup
+	
+	/Target ${strTargetPet}
+	/Delay 1s ${Target.ID}
+	
+	|Open the pack (Or cast for new ones):
+	/nomod /itemnotify pack8 rightmouseup
+	/delay 1s ${Me.Casting.ID}
+	/if (${Me.Casting.ID}) {
+		|Stash new bag and open it:
+		/delay 5s !${Me.Casting.ID}
+		/delay 1s ${Cursor.ID}
+		/nomod /itemnotify pack8 leftmouseup
+		/delay 1s !${Cursor.ID}
+		/nomod /itemnotify pack8 rightmouseup
+		/delay 1s
+	}
+
+	|Get a weapon and hand it - twice for good measure:
+	/nomod /itemnotify in pack8 1 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s !${Cursor.ID}
+	/Click Left Target
+	/Delay 1s !${Cursor.ID}
+	
+	|Get a weapon and hand it - twice for good measure:
+	/nomod /itemnotify in pack8 2 leftmouseup
+	/Delay 1s ${Cursor.ID}
+	/Click Left Target
+	/Delay 1s !${Cursor.ID}
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s !${Cursor.ID}
+} else {
+	|Prime Armaments as a back up:
+	/Call Cast "Summon Ethereal Armaments" gem3 0
+	/Delay 1s
+	/AutoInventory
+	/Target ${strTargetPet}
+	/Delay 1s
+	/nomod /itemnotify pack8 rightmouseup
+	/Delay 1s
+	/nomod /itemnotify in pack8 3 leftmouseup
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/nomod /itemnotify in pack8 4 leftmouseup
+	/Delay 1s
+	/Click Left Target
+	/Delay 1s
+	/Notify GiveWnd GVW_Give_Button leftmouseup
+	/Delay 1s
+}
+
+/echo Okay.  Now ${strTargetPet} is twice the ${Target.Race} he used to be.
+
+|Clear Target and mem regular spells:
+/Target Clear
+/KeyPress esc
+/KeyPress esc
+
+/beep
+/beep
+
+|/MemSpellSet Fighting
+
+/Return

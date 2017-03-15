@@ -1,0 +1,2965 @@
+|**---------------------------------------------------------- 
+GoParty.mac 
+by BobWeaver!
+
+This macro will Automate your party members.
+
+Class ID List:
+Warrior (1)
+Cleric (2)
+Ranger (4)
+Druid (6)
+Monk (7)
+Bard (8)
+Shaman (10)
+Necro (11)
+Wizard (12)
+Magician (13)
+Enchanter (14)
+Berzerker (16)
+
+Usage: /mac goparty - Target "key" player.
+Parameters: Follow, Loot, Lootall, Pull, Lead
+
+----------------------------------------------------------**| 
+#event Help "#*#set help#*#"
+
+#event LessonON "#*#tells the you, 'please lesson#*#"
+#event LessonON "#*#tells the group, 'please lesson#*#"
+#event LessonON "#*#tells the guild, 'please lesson#*#"
+
+#event LootON "#*#tells you, 'please loot#*#"
+#event LootON "#*#tells the group, 'please loot#*#"
+#event LootOFF "#*#tells you, 'please no loot#*#"
+#event LootOFF "#*#tells the group, 'please no loot#*#"
+#event LootNope "You may not loot this corpse at this time#*#" 
+
+#event FollowON "#*#tells you, 'please follow#*#"
+#event FollowON "#*#tells the group, 'please follow#*#"
+#event FollowOFF "#*#tells you, 'please no follow#*#"
+#event FollowOFF "#*#tells the group, 'please no follow#*#"
+
+#event BuffON "#*#tells you, 'please buff#*#"
+#event BuffON "#*#tells the group, 'please buff#*#"
+#event BuffOFF "#*#tells you, 'please no buff#*#"
+#event BuffOFF "#*#tells the group, 'please no buff#*#"
+
+#event AEON "#*#tells you, 'please AE#*#"
+#event AEON "#*#tells the group, 'please AE#*#"
+#event AEOFF "#*#tells you, 'please no AE#*#"
+#event AEOFF "#*#tells the group, 'please no AE#*#"
+
+#event InvisON "#*#tells you, 'please invis#*#"
+#event InvisON "#*#tells the group, 'please invis#*#"
+#event InvisOFF "#*#tells you, 'please no invis#*#"
+#event InvisOFF "#*#tells the group, 'please no invis#*#"
+
+#event MeleeON "#*#tells you, 'please melee#*#"
+#event MeleeON "#*#tells the group, 'please melee#*#"
+#event MeleeOFF "#*#tells you, 'please no melee#*#"
+#event MeleeOFF "#*#tells the group, 'please no melee#*#"
+
+#event TankON "#*#tells you, 'please tank#*#"
+#event TankON "#*#tells the group, 'please tank#*#"
+#event TankOFF "#*#tells you, 'please no tank#*#"
+#event TankOFF "#*#tells the group, 'please no tank#*#"
+
+#event SnareON "#*#tells you, 'please snare#*#"
+#event SnareON "#*#tells the group, 'please snare#*#"
+#event SnareOFF "#*#tells you, 'please no snare#*#"
+#event SnareOFF "#*#tells the group, 'please no snare#*#"
+#event Snared "#*#has been ensnared#*#"
+#event SnareCant "Your target is immune to changes in its run speed."
+#event SnareResist "Your target resisted the Ensnare Spell."
+
+#event SlowON "#*#tells you, 'please slow#*#"
+#event SlowON "#*#tells the group, 'please slow#*#"
+#event SlowOFF "#*#tells you, 'please no slow#*#"
+#event SlowOFF "#*#tells the group, 'please no slow#*#"
+#event Slowed "#*#slows down.#*#"
+#event Slowed "#*# yawns#*#"
+#event SlowCant "#*#partially successful.#*#"
+#event SlowResist "Your target resisted the Forlorn#*#"
+
+#event MezON "#*#tells you, 'please mez#*#"
+#event MezON "#*#tells the group, 'please mez#*#"
+#event MezOFF "#*#tells you, 'please no mez#*#"
+#event MezOFF "#*#tells the group, 'please no mez#*#"
+#event Mezzed "#*#falls unconscious.#*#"
+#event Mezzed "#*#head nods, as they begin to twitch.#*#"
+#event Mezzed "#*#gazes happily into space.#*#"
+
+#event MezzBroke "Your #1# spell has worn off of #2#."
+
+#event HotON "#*#tells you, 'please hot#*#"
+#event HotON "#*#tells the group, 'please hot#*#"
+#event HotOFF "#*#tells you, 'please no hot#*#"
+#event HotOFF "#*#tells the group, 'please no hot#*#"
+
+#event Exp "You gain experience#*#" 
+#event Exp "You gain party#*#" 
+#event Exp "You gained raid#*#" 
+#event Lang "#*#repeat the text#*#" 
+#event Invite "#*#invite me#*#"
+#event Shield "#*#s YOU for#*#"
+#event See "You cannot see your target."
+#event BackPets "#*#tells the group, 'Let it come closer#*#"
+#event BackPets "'Let it come closer#*#"
+
+#event Duck "You must be standing#*#"
+|#event Archery "You can't hit them from here."
+#event Cramped "Your Target is too close#*#"
+#event Cramped "Your target is too close#*#"
+#event Invis "#*#invis please#*#"
+#event Invis "Biha begins to cast a spell.#*#"
+#event MyKill "You have slain #*#"
+#event Track "#*#track?#*#"
+#event Burn "#*#burn!#*#"
+#event Prepare "#*#tells the group, 'prepare#*#"
+#event Prepare "#*#tells the guild, 'prepare#*#"
+#event Prepare "#*#'prepare#*#"
+
+#event CampOut "#*#tells you, 'bitch camp#*#"
+#event AlreadyLooting "Someone is already looting that corpse."
+
+#event GroupCast "#1# begins to cast a spell. <#2#>"
+#event GroupMana "#1# tells the group, 'Low Mana.'"
+#event GroupMana "#1# tells#*#'Low Mana.'"
+
+#event MaxCrit "You deliver a critical blast! (#1#)"
+#event Indoors "You can not summon a mount here."
+#event Indoors "You can only cast this spell in the outdoors."
+
+#event Parvus "#1# says, 'Hail, Guard Captain Parvus'"
+
+#event PromisedRenewal "#1# is promised a divine restoration.#*#"
+#event PromisedRenewalSelf "You are promised a divine restoration.#*#"
+
+#event PreventCast "#1# begins casting Gate#*#"
+#event PreventCast "#1# begins casting Complete Heal#*#"
+
+#event TrackGuides "* #*#"
+#event DiseasedNag "#1# tell#*#'Diseased!'"
+#event HOTRequest "#1# tell#*#'hot me'"
+
+|#event Summoned "You have been summoned!"
+#event GoLowHit "You pierce#*#"
+
+|#event Reiteration "#*#is enveloped in reiterative energy."
+
+#turbo 40 
+#include spell_routines.inc
+#include iPrepare.inc
+|------------------------#include Znozone.inc
+#include ZZdeletions.inc
+#include iTracking.inc
+#include iBuffs.inc
+#include iSlows.inc
+#include iBurn.inc
+#include iAAPrepare.inc
+#include iHealing.inc
+#include iPromise.inc
+#include iFollow.inc
+#include iLoot.inc
+#include iMove.inc
+#include iMelee.inc
+#include iBardSongs.inc
+#include iMez.inc
+#include iTasks.inc
+#include iClickies.inc
+#include iGoLow.inc
+
+|Waypoint file:
+#include Zwaypoints.inc
+
+Sub Main 
+
+/echo ==============================
+/echo GoParty Active.
+/mqlog [${Me.CleanName}] ==============================
+/mqlog [${Me.CleanName}] GoParty Active.
+
+|Clear alert lists
+/alert clear 1
+/alert clear 2
+/alert clear 3
+
+/declare intDDMax 				int 	outer 	90
+/declare intDDMin 				int 	outer 	0
+/declare intFollow 				int 	outer 	0
+/declare intBuff 				int 	outer 	1
+/declare intAE 					int 	outer 	0
+/declare intInvis 				int 	outer 	1
+/declare intLesson				int		outer	1
+
+/declare intMelee 				int 	outer 	0
+/declare intTank				int		outer	0
+/declare intPlayerTank			int		outer	0
+|Bards, Berzerkers and Monks melee by default
+/if (${Me.Class.ID} == 16 || ${Me.Class.ID} == 7) {
+	|/varset intMelee 1
+	|Early Start for TANK!
+	/varset intDDMax 99
+}
+
+|Bards:
+/if (${Me.Class.ID} == 8) {
+	/varset intMelee 0
+	|Early Start for TANK!
+	/varset intDDMax 95
+}
+
+|==========================================================================
+|Late Start for PL:
+|/varset intDDMax 30
+|==========================================================================
+
+/declare intNextNukeTime 		int 	outer 	0
+
+/declare intJolt				int		outer	1
+/declare intSnare 				int 	outer 	0
+	|Rangers
+	/if (${Me.Class.ID} == 4) {
+		/varset intMelee 0
+		/if (${Zone.ID} == 418) {
+			|Atiiki Settings:
+			/varset intMelee 0
+			/varset intAE 1
+		}
+		/if (${Zone.ID} == 442) {
+			|Dragonscale Settings:
+			/varset intMelee 0
+			/varset intAE 1
+			/varset intSnare 0
+		}
+		/if (${Zone.ID} == 444) {
+			|Hills of Shade Settings:
+			/varset intMelee 1
+			/varset intAE 0
+			/varset intSnare 0
+			/varset intJolt 0
+		}
+		/if (${Zone.ID} == 475) {
+			|Hills of Shade Settings:
+			/varset intMelee 1
+			/varset intAE 0
+			/varset intSnare 0
+			/varset intJolt 0
+		}
+		/varset intDDMax 95
+	}
+/declare intSnaredMob 			int 	outer 	0
+
+/declare intPull 				int 	outer 	0
+/declare intPullTimer 			int 	outer 	0
+/declare intPulled				int		outer	0
+/declare intMobsInRange			int		outer	0
+/declare intLead 				int 	outer 	0
+/declare intStationary			int 	outer 	1
+
+/declare intSlow 				int 	outer 	0
+	|Slowers
+	|Chanters:
+	/If (${Me.Class.ID} == 14) {
+		/varset intSlow 0
+		|-Chanters Nuke later in the fight-
+		|/varset intDDMax 60
+	}
+	|Shaman:
+	/If (${Me.Class.ID} == 10) {
+		/varset intSlow 1
+	}
+
+|Wizards need to hold off DD longer:
+|/If (${Me.Class.ID} == 12) /varset intDDMax 85
+
+/declare announce 				int 	outer 	1 
+/declare autosit 				int 	outer 	1 
+/declare distancetosit 			int 	outer 	20 
+/declare autointerrupt 			int 	outer 	1	 
+/declare mychannel 				string 	outer 	brv9
+/declare intDiseasedNag			int		outer	0
+
+/declare strMyTank 				string 	outer
+
+/call DeclareFollow
+/call DeclareLoot
+/declare intLoot 				int 	outer 	0
+/declare intLootAll				int 	outer 	0
+
+|Monitoring the closest mob (Rangers):
+/declare intNearestSpawnID 		int 	outer 	0
+/declare intNearestSpawnDIS 	int 	outer 	0
+/declare intNearestTrackID 		int 	outer 	0
+
+/call DeclareBuffs
+/call DeclareSlow
+/call DeclareBurn
+/call DeclareAAPrepare
+/call DeclareHeal
+/call DeclarePromise
+/call DeclareMove
+/call DeclareMelee
+/call DeclareBardSongs
+/call DeclareMez
+/call DeclareGoLow
+
+/declare Counter 				int 	outer
+/declare WorkZone 				int 	outer
+/declare MyRandom 				int 	outer
+
+/declare Iterations 			int 	outer 	0
+/declare Languages 				int 	outer 	0
+/declare TotalKills 			int 	outer 	0
+/declare Combating 				int		outer 	0
+/declare intCurrentTarget		int		outer	0
+/declare CurrentTarget 			string 	outer
+/declare intGoodMark			int		outer	0
+/declare MobStart 				int 	outer 	0
+/declare MobStop 				int 	outer 	0
+/declare MobSeconds 			int 	outer 	0
+/declare MobName 				string 	outer
+/declare intKillRate 			int 	outer 	0
+/declare intLastKillIndex		int		outer	0
+/declare intLastKillTime		int		outer	${Macro.RunTime}
+/declare intLastKillTimeReport	int		outer	0
+/declare intMercSleep			int		outer	0
+/declare intMobHasDS			int		outer	0
+/declare intRuneLoop			int		outer	0
+/declare intRunedFolks			int		outer	0
+
+/declare intReportedLow int outer 0
+
+/declare intMaxCrit 			int 	outer 	30000
+/declare boolOutdoors 					outer 	TRUE
+
+/declare intLoopSafety			int		outer	0
+/declare intNukeTime			int		outer	0
+/declare intDotTime				int		outer	0
+
+|XP Tracking Variables:
+|--------------------------------
+/declare Exper 					float 	outer 
+/declare AAExp 					float 	outer
+
+/Varset Exper ${Me.PctExp} 
+/Varset AAExp ${Me.PctAAExp} 
+
+|MOB Tracking Variables:
+|--------------------------------
+/declare intTracking 			int 	outer 	1
+/declare intTrackNumber 		int 	outer 	0
+/declare intTrackReport 		int 	outer 	1
+
+/echo ==============================
+/mqlog [${Me.CleanName}] ==============================
+/leaveall
+/join ${mychannel} 
+|/filter target
+
+|Check all Parameters:
+/for Iterations 0 to 9
+	|Following?
+	/if (${Param${Iterations}.Equal[follow]}) {
+		/varset intFollow 1
+		/echo Follow mode is set ON.
+	}
+	|Looting?
+	/if (${Param${Iterations}.Equal[loot]}) {
+		/varset intLoot 1
+		/echo Loot mode is set ON.
+	}
+	|Looting ALL?
+	/if (${Param${Iterations}.Equal[lootall]}) {
+		/varset intLoot 1
+		/varset intLootAll 1
+		/echo Loot ALL mode is set ON.
+	}
+	|Pulling?
+	/if (${Param${Iterations}.Equal[pull]}) {
+		/varset intPull 1
+		/echo Pull mode is set ON.
+	}
+	|Leading?
+	/if (${Param${Iterations}.Equal[lead]}) {
+		/varset intLead 1
+		/varset intStationary 0
+		/echo Lead mode is set ON.
+	}
+	|Meleeing?
+	/if (${Param${Iterations}.Equal[melee]}) {
+		/varset intMelee 1
+		/echo Melee mode is set ON.
+	}
+	|Tanking?
+	/if (${Param${Iterations}.Equal[tank]}) {
+		/varset intMelee 1
+		/varset intTank 1
+		/echo Melee/TANK mode is set ON.
+		/varset autosit 0
+	}
+	|Area Effect Attacks (AE)?
+	/if (${Param${Iterations}.Equal[ae]}) {
+		/varset intAE 1
+		/echo Area Effect (AE) mode is set ON.
+	}
+	|Snare?
+	/if (${Param${Iterations}.Equal[snare]}) {
+		/varset intSnare 1
+		/echo Snaring mode is set ON.
+	}
+	|GoLow?
+	/if (${Param${Iterations}.Equal[golow]}) {
+		/varset intGoLow 1
+		/varset intLead 1
+		/echo GoLow (and Lead) mode is set ON.
+	}
+	|Stationary? - This is the default
+	/if (${Param${Iterations}.Equal[stationary]}) {
+		/varset intStationary 1
+		/varset intLead 1
+		/echo Stationary mode is set ON.
+	}
+
+/next Iterations
+
+/if (${intLead}) {
+	/if (!${intStationary}) /Call Locations
+
+	|Find Closest Waypoint for starting:
+	/if (${TotalLocs} > 1) {
+		/varset intStartingDistance ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${1}]},${LocY[${1}]},0]}
+		/for Iterations 1 to ${TotalLocs}
+			|/echo Checking ${Iterations}) ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]}.
+			/if (${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]} < ${intStartingDistance}) {
+				/varset intStartingDistance ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]}
+				|/echo Waypoint ${Iterations} is the closest waypoint now (${intStartingDistance} ft.).
+				/varset MoveIndex ${Iterations}
+			}
+		/next Iterations
+		/echo Closest waypoint is ${MoveIndex}: ${LocDesc[${MoveIndex}]}.
+		|/varcalc MoveIndex ${MoveIndex} -1
+	} else {
+		/varset intStationary 1
+	}
+	
+	|Leader intDDMax is high:
+	/varset intDDMax 100
+}
+ 
+/if (${intStationary}) {
+	/Varset TotalLocs 1
+	/Varset LocDesc[${TotalLocs}] "STATIONARY or FOLLOW"
+	/Varset LocY[${TotalLocs}] ${Me.Y}
+	/Varset LocX[${TotalLocs}] ${Me.X}
+	/Varset LocFace[${TotalLocs}] ${Me.Heading.DegreesCCW}
+	/Varset LocDur[${TotalLocs}] 4
+	/Varset LocRange[${TotalLocs}] 130
+	/Varset LocPullRange[${TotalLocs}] 200
+
+	|Set smaller ranges for some tight zones:
+	/if (${Zone.ID} == 454) /Varset LocRange[${TotalLocs}] 50
+	/if (${Zone.ID} == 724) /Varset LocRange[${TotalLocs}] 90
+}
+
+/varset WorkZone ${Zone.ID}
+/echo I am in ${Zone.ShortName} (Zone ${WorkZone}).
+/mqlog [${Me.CleanName}] I am in  ${Zone.ShortName} (Zone ${WorkZone}).
+/look 0
+
+/if (${intLead}) {
+	/echo Following ${TotalLocs} waypoints.
+	/mqlog [${Me.CleanName}] I'm leading through ${TotalLocs} Waypoints.
+
+	|/echo I'm leading.
+	/varset strMyTank ${Me.CleanName}
+	/varset intJolt 0
+} else {
+	|Check for a pet target:
+	/if (${Target.Master.ID}) {
+		/echo You targeted a pet.  Converting to it's master.
+		/target id ${Target.Master.ID}
+	}
+	
+	/varset strMyTank ${Target.CleanName}
+	/if (!${Target.ID}) {
+		/echo Need to target your 'key' player.
+		/end
+	} /else {
+		/echo Keying off ${strMyTank}
+		/squelch /target clear
+	}
+}
+
+|Add safe mob list to ALERT 1:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,SafeMobs,${Zone.Name}].Count[|]} + 1]}
+	|/echo ${Ini[iSafeMobs.ini,SafeMobs,${Zone.Name}].Arg[${Looper},|]}
+	/squelch /alert add 1 ${Ini[iSafeMobs.ini,SafeMobs,${Zone.Name}].Arg[${Looper},|]}
+/next Looper
+|All section of the SafeMobs.ini file:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,SafeMobs,All].Count[|]} + 1]}
+	|/echo ${Ini[iSafeMobs.ini,SafeMobs,All].Arg[${Looper},|]}
+	/squelch /alert add 1 ${Ini[iSafeMobs.ini,SafeMobs,All].Arg[${Looper},|]}
+/next Looper
+
+|Adding the spoiler names to ALERT 3:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,SafeMobs,Spoilers].Count[|]} + 1]}
+	|/echo - Spoiler: ${Ini[iSafeMobs.ini,SafeMobs,Spoilers].Arg[${Looper},|]}
+	/squelch /alert add 3 ${Ini[iSafeMobs.ini,SafeMobs,Spoilers].Arg[${Looper},|]}
+/next Looper
+
+/echo Using rules for a ${Me.Class} (ID:${Me.Class.ID}).
+
+|Count important Items
+|Enchanters need Peridots:
+/if (${Me.Class.ID} == 14) /echo I have ${FindItemCount[peridot]} peridots ready for group runes.
+
+/echo ==============================
+
+|Melee Position Marking:
+/if (${intMelee}) /call MeleeMark
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+:mainloop
+
+/Call GMCheck
+/Call ZoneCheck
+
+|Go to leader if follow mode is on:
+/if (${intFollow}) {
+	/varset strFollowTarget ${strMyTank}
+	/Call Follow
+}
+
+|Check for spoilers:
+/if (${SpawnCount[pc alert 3]}) {
+	/beep
+	/beep
+	/echo Spoiler in zone - holding steady!
+
+	/for Looper 1 to ${SpawnCount[pc alert 3]}
+		/echo Player ${NearestSpawn[${Looper}, pc alert 3].CleanName} (${NearestSpawn[${Looper}, pc alert 3].Class} - ${NearestSpawn[${Looper}, pc alert 3].Level}) is at ${NearestSpawn[${Looper}, pc alert 3].Distance} feet.
+		/mqlog [${Me.CleanName}] Player ${NearestSpawn[${Looper}, pc alert 3].CleanName} (${NearestSpawn[${Looper}, pc alert 3].Class} - ${NearestSpawn[${Looper}, pc alert 3].Level}) is at ${NearestSpawn[${Looper}, pc alert 3].Distance} feet.
+	/next Looper
+	
+	/if (!${Me.AFK}) /afk Eating
+
+	/delay 60s
+	/goto :mainloop
+}
+
+|/if (${Me.AFK}) /afk
+
+/if (${Me.Class.ID} == 13) {
+	|Pet here?
+	/if (!${Me.Pet.ID}) /Call Prepare
+
+	|Mages Healing:
+	/Call HealthCheck
+}
+
+|Healing:
+/if (${Me.Class.ID} == 2) /Call QuickHealSub
+/if (${Me.Class.ID} == 4) /Call QuickHealSub
+/if (${Me.Class.ID} == 6) /Call QuickHealSub
+/if (${Me.Class.ID} == 10) /Call QuickHealSub
+
+|Warriors 
+/if (${Me.Class.ID} == 1) {
+	/call AreaTaunting
+}
+
+|Jump to Combat Check at beginning:
+/if (!${strMyTank.Equal[${Me.CleanName}]}) {
+	/if (${Macro.RunTime} < 5) {
+		/goto :CombatCheck
+	}
+}
+
+|Mana Checking Buffs - Only if there are NO Extended Targets:
+/if (!${Me.XTarget}) {
+	/if (${intBuff}) {
+		|Clickies on Items:
+		/call Clickies
+		
+		|Standard buffs:
+		/if (${Me.Class.ID} == 2) /Call CLRBuffCheck
+		/if (${Me.Class.ID} == 4) /Call RNGBuffCheck
+		/if (${Me.Class.ID} == 6) /Call DRUBuffCheck
+		/if (${Me.Class.ID} == 8) /Call BardSongs
+		/if (${Me.Class.ID} == 10) /Call SHMBuffCheck
+		/if (${Me.Class.ID} == 12) /Call WizBuffCheck
+		/if (${Me.Class.ID} == 13) /Call MAGBuffCheck
+		/if (${Me.Class.ID} == 14) /Call ENCBuffCheck
+		/if (${Me.Class.ID} == 14) /Call ENCRuneCheck
+	}
+}
+
+|Early drop-out for self-targeted start:
+/if (!${intLead}) {
+	/if (${strMyTank.Equal[${Me.CleanName}]}) {
+		/delay 5s
+		/Call AutoSit
+		/beep
+		/beep
+		/beep
+		/end
+	}
+}
+
+|Group Leader Clear any Bad Marks:
+/if (${Me.GroupLeader}) {
+	/if (${Me.GroupMarkNPC[1].ID}) {
+		/varset intGoodMark 0
+		/for Looper 1 to ${Me.XTarget}
+			/if (${Me.GroupMarkNPC[1].ID} == ${Me.XTarget[${Looper}].ID}) /varset intGoodMark 1
+		/next Looper
+		/if (!${intGoodMark}) /clearmarks
+	}
+}
+
+|Rangers Tracking
+/If (${Me.Class.ID} == 4 || ${Me.Class.ID} == 13) {
+	/if (${intTracking}) {
+		/Call Tracking
+	}
+}
+
+|Mana Report (reduced yappiness):
+/if (${Me.Class.ID} != 16 && ${Me.Class.ID} != 1) {
+	/if (${Me.PctMana} < 50) {
+		/if (!${intReportedLow}) {
+			/if ((${Me.Class.ID} == 2) && (${Group.Members})) /g Low Mana.
+			|/g Mana at ${Me.PctMana}%.
+			/varset intReportedLow 1
+		}
+	} else {
+		/varset intReportedLow 0
+	}
+}
+
+|Trade Window Auto-Trade:
+/if (${Window[TradeWnd].HisTradeReady}) {
+	/notify TradeWnd TRDW_Trade_Button leftmouseup
+	/squelch /target clear
+}
+
+|Kill Time Reporting:
+/Varcalc intLastKillTime (${Macro.RunTime} - ${MobStop}) /60
+/if (${intLastKillTime} > 1) {
+	/if (${intLastKillTime} > ${intLastKillTimeReport}) {
+		/varset intLastKillTimeReport ${intLastKillTime}
+		/echo It's been ${intLastKillTime} minutes since I've gotten XP.
+		/if (${intLastKillTime} > 5) {
+			/varset intDifficultCorpse 0
+		}
+	}
+} else {
+	/varset intLastKillTimeReport 0
+}
+
+|Calm down the aggressive Warrior mercs:
+|/call MercenaryCalm
+
+|Mezzers:
+/if (${Me.XTarget} > 1) {
+	/if (${Me.Class.ID} == 8 || ${Me.Class.ID} == 14) {
+		/if (${intMez}) {
+			/Call MezCheck
+		}
+	}
+}
+
+:CombatCheck
+/doevents
+
+/if (!${Me.XTarget}) {
+	/if (${Me.GroupMarkNPC[1].ID}) {
+		/clearmarks
+	}
+}
+
+/Call TargetCheck
+
+|Leader can check for puller target Agressively:
+/if (${intLead}) {
+	/if (${Me.GroupMarkNPC[1].ID}) {
+		/doevents
+		/goto :CombatCheck
+	}
+}
+
+|/Echo Combating (main): ${Combating}
+/if (${Combating} > 0) {
+	/Echo Just finished combat, checking for more mobs.
+	/if (${SpawnCount[npc zradius 30 radius 30]} > 0) {
+		/delay 1s
+		/varcalc Combating ${Combating} + 1
+	}
+	|/varset Combating 0
+	/varcalc Combating ${Combating} - 2
+	
+	|Turn off Attack:
+	/if (${Me.Combat}) /attack off
+	
+	|-Reset Tracking Variables:
+	/Varset intTracking 1
+	/Varset intTrackReport 1
+	
+	|-Reset Burn Down Varaibles:
+	/if (${intBurn}) {
+		/varset intBurn 0
+		/varset intBurnTime ${intDefaultSpellDelay}
+		/varset intBurnNotice 0
+		|From iBurn.inc
+		/echo Burn down complete.
+	}
+
+	|-Reset Concussion Varaibles:
+	/if (${Me.Class.ID} == 12) /varset intWIZconc 0
+
+	|-Reset Low Mana Report:
+	/varset intReportedLow 0
+
+	/Goto :CombatCheck
+}
+
+:LootLoop
+/if (${intLoot} > 0) {
+	|/Echo Attempting to loot - Only if not in traffic!
+	/if (${SpawnCount[npc zradius 20 radius 30 noalert 1]} < 1) {
+		/call LootCheck
+	} else {
+		/echo Too many mobs close (${Spawn[npc zradius 20 radius 30 noalert 1].CleanName}) - Looting would be dangerous!
+	}
+	/if (${intJustLooted}) {
+		/ all gm
+		/varset intJustLooted 0
+	   	/varset Iterations 201
+		/varset intNextSinglesBuffTime 0
+
+ 		/if (!${intBackStep}) {
+			|Backstep one location to return to correct waypoint.
+ 			/varset intBackStep 1
+ 		}
+
+ 		|/echo Going back to CombatCheck.
+	   	|/goto :CombatCheck
+	   	/goto :LootLoop
+	}
+}
+
+|Should not be in combat now, so back the pet off if he's far away:
+|This helps if pet is fighting and I don't know it!
+/if (${Me.Pet.ID}) {
+	/if (${Me.Pet.Distance} > 30) {
+		/pet back
+	}
+}
+
+/doevents
+
+|Decrease wait time for long rest locations, where I did my last kill
+/if (${intLead}) {
+	/if (${MoveIndex} == ${intLastKillIndex}) {
+		/if (${LocDur[${MoveIndex}]} >=30) {
+			/if (${Iterations} < 100) {
+				/if (${Me.PctMana} >= 80) {
+					/varset Iterations 100
+					/varset intLastKillIndex 0
+					/echo My last kill was here at ${LocDesc[${MoveIndex}]}, decreasing wait time dramatically.
+				}
+			}
+		}
+	}
+}
+
+|Melee Return to Marked Spot:
+/if (${intMelee}) {
+	/if (!${intLead}) {
+		/if (${intFollow}) {
+			/Call Follow
+		} else {	
+			/call MeleeReturnToMark
+		}
+	}
+}
+
+|Move to new waypoint:
+/if (!${intFollow}) {
+	/doevents
+	/Call MoveCheck
+}
+
+/if (${Me.Class.ID} != 16) {
+	/Call AutoSit
+}
+
+|/For Languages 1 to 3
+	/Delay 1s
+	/doevents
+|/Next Languages
+
+|Disease nag:
+/if (!${intDiseasedNag}) {
+	/if (${Me.Buff[Wind of Tashanian].ID}) {
+		/g Diseased!
+		/varset intDiseasedNag 1
+	}
+}
+
+|Reloop:
+/goto :mainloop
+
+|==================================================================================================|
+Sub TargetCheck
+
+	|Drop out if player is targeted:
+	/if (${Target.Type.Equal[PC]}) /return
+
+	|Drop out if player pet is targeted (Clear pet too):
+	/if (${Target.Type.Equal[PET]}) {
+		/if (${Target.Master.Type.Equal[PC]}) {
+			/squelch /target clear
+			/return
+		}
+	}
+
+	/varcalc Iterations ${Iterations} + 1
+	/if (${NearestSpawn[NPC noalert 1].Distance} <= ${LocRange[${MoveIndex}]}) {
+		/if (${intLead}) {
+			|Leader can target fresh mobs:
+			/if (${intGoLow}) {
+				/call GoLow
+			} else {
+				|Pullers like to use their pull style first:
+				/if (!${intPull} || ${NearestSpawn[NPC].Distance} <= ${LocRange[${MoveIndex}]}) {
+					/if (${Me.XTarget}) {
+						| Choose the lowest HP of the XTargets:
+						/for Looper 1 to ${Me.XTarget}
+							/if (!${Target.ID}) /target id ${Me.XTarget[${Looper}].ID}
+							/if (${Spawn[ID ${Me.XTarget[${Looper}].ID}].PctHPs} < ${Target.PctHPs}) /target id ${Me.XTarget[${Looper}].ID}
+						/next Looper
+					} else {
+						| If no XTargets, then just grab a good npc nearby:
+						/target NPC zradius 25 noalert 1
+					}
+				}
+			}
+		} else {
+			|Non-Leaders assist leader:
+			/assist ${strMyTank}
+			/for Looper 1 to 10
+				/doevents
+				/if (${Target.ID}) /varset Looper 10
+				/delay 1
+			/next Looper
+		}
+	
+		/if (${Target.Distance} > ${LocRange[${MoveIndex}]}) {
+			/echo Clearing ${strMyTank}'s ${Target.Name} at ${Target.Distance} (${TotalKills}, ${Iterations}).
+	   		/squelch /target clear
+	   	}
+	   	
+	   	|Clear Corpses:
+	   	/if (${Target.Type.Equal[Corpse]}) /squelch /target clear
+	   	
+	   	|Non-Leader/Pullers Clear full health mobs:
+	   	/if (!${intLead} && !${intPull}) {
+			/for Looper 1 to 30
+				/doevents
+				|Pop out if the mob is under full health:
+				/if (${Target.PctHPs} <= 99) /varset Looper 30
+				
+				|Pop out if target matches marked NPC:
+				/if (${Target.ID} == ${Me.GroupMarkNPC[1].ID}) /varset Looper 30
+				/delay 1
+			/next Looper
+			
+	   		/if (${Target.PctHPs} > 99 && ${Target.ID} != ${Me.GroupMarkNPC[1].ID}) {
+	   			/squelch /target clear
+	   		}
+	   	}
+	}
+	
+   	|Clear non-mob mobs:
+   	/if (${Target.Name.Length} < 4) /squelch /target clear
+
+	|Clear safe mob list:
+	/if (${Spawn[id ${Target.ID} alert 1].ID}) /squelch /target clear
+
+	|Clearn non Line Of Sight mobs:
+	/if (!${Target.LineOfSight}) /squelch /target clear
+		
+   	/if (${Target.ID}!=0) {
+   		/call GotOne
+   	}
+   	
+	|Ranger target tracking:
+	/if (${Me.Class.ID} == 4) {
+		|/echo Tracking mob mode.
+		|New closest mob?
+		/if (${NearestSpawn[NPC noalert 1].ID} != ${intNearestTrackID}) {
+			/varset intNearestTrackID ${NearestSpawn[NPC noalert 1].ID}
+			/varset intNearestSpawnDIS ${Spawn[${intNearestTrackID}].Distance}
+			/if (${Spawn[${intNearestTrackID}].Name.Length} > 3) {
+				/echo The closest mob is now ${Spawn[${intNearestTrackID}].CleanName}, a level ${Spawn[${intNearestTrackID}].Level} ${Spawn[${intNearestTrackID}].Class} at ${intNearestSpawnDIS} feet.
+			}
+		} else {
+		|Closest mob Approaching?
+			|/echo Checking approach (${intNearestSpawnDIS} > ${Spawn[${intNearestSpawnID}].Distance})
+			/if (${intNearestSpawnDIS} - 10 > ${Spawn[${intNearestTrackID}].Distance}) {
+				/varset intNearestSpawnDIS ${Spawn[${intNearestTrackID}].Distance}
+				|/echo ${Spawn[${intNearestSpawnID}].CleanName} is now at ${intNearestSpawnDIS} feet.
+				|/beep
+				/if (${Spawn[${intNearestTrackID}].Name.Length} > 3) {
+					/echo ${Spawn[${intNearestTrackID}].CleanName} (${Spawn[${intNearestTrackID}].Level} ${Spawn[${intNearestTrackID}].Class}), is ${intNearestSpawnDIS} feet ${Spawn[${intNearestTrackID}].HeadingTo}.				
+				}
+			}
+		}
+	}
+	
+	/if (${intPull}) /Call Pulling
+
+/return
+
+
+|==================================================================================================|
+Sub Pulling
+
+|Don't pull if there is a target marked:
+/if (${Me.GroupMarkNPC[1].ID}) /return
+
+|Don't pull if there are targets in the Extended Target Window:
+/if (${Me.XTarget}) /return
+
+|/echo I'm ready to pull.
+/if (!${LocPullRange[${MoveIndex}]}) /varset LocPullRange[${MoveIndex}] 199
+/if (${SpawnCount[npc zradius 20 radius 40 noalert 1]} < 1) {
+	|/echo No mobs within 40 feet - camp is safe.
+	/if (${Me.PctHPs} > 85 && ${Me.PctMana} > 70) {
+		|/echo I'm healthy.
+		
+		|Target the closest mob that we have line of sight to:
+		/varset intMobsInRange ${SpawnCount[npc zradius 20 radius ${LocPullRange[${MoveIndex}]} noalert 1]}
+		/for Looper 1 to ${intMobsInRange}
+			/varset intNearestSpawnID ${NearestSpawn[${Looper}, npc zradius 20 radius ${LocPullRange[${MoveIndex}]} noalert 1].ID}
+			|/echo Checking on ${Spawn[${intNearestSpawnID}].CleanName} at ${Spawn[${intNearestSpawnID}].Distance} feet.
+			/if (${Spawn[${intNearestSpawnID}].LineOfSight} && ${Spawn[${intNearestSpawnID}].Name.Length} > 3) {
+				|/echo I can see ${Spawn[${intNearestSpawnID}].CleanName}, pulling...
+				/target id ${intNearestSpawnID}
+				/varset Looper ${intMobsInRange}
+			}
+		/next Looper
+		
+	 	/if (${Target.ID}) {
+		 	|/echo Distance check for ${Target.CleanName}.
+	 		|/if (${Target.Distance} > ${LocRange[${MoveIndex}]}) {
+	 		/if (${Target.Distance} > ${LocPullRange[${MoveIndex}]}) {
+	 			/echo ${Target.CleanName} is ${Target.Distance} away, a bit too far.
+	 			/squelch /target clear
+	 		}
+		 	/if (${Target.ID}) {
+				|Clear safe mob list:
+				/if (${Spawn[id ${Target.ID} alert 1].ID}) /squelch /target clear
+
+				/if (${Target.ID}) {
+					|Clear Mobs with no Line of Sight:
+					/face fast nolook
+			 		/if (!${Target.LineOfSight}) {
+			 			/echo I have no Line of Sight to ${Target.CleanName}.
+			 			/squelch /target clear
+			 			/delay 1
+			 		}
+	
+				 	/if (${Target.ID}) {
+				 		/face fast nolook
+				 		/varset intPullTimer 0
+				 		/varset Iterations 0
+				 		
+				 		/if (${Me.Class.ID} == 4) {
+				 			|Ranger Pull:
+					 		/if (${Target.Level} < 65) {
+					 			/echo A simple arrow should handle ${Target.CleanName}.
+		 						/if (!${Me.AutoFire} && !${Me.Casting.ID}) /AutoFire
+		 						/delay 4s
+		 						/varset intPulled 1
+					 		} else {
+								/if (${Me.AltAbilityReady[Harmonious Arrow]}) {
+									|/echo Harmonious Arrow is ready.
+							 		/echo Harmony pulling ${Target.CleanName}.
+						 			/call Cast "Harmonious Arrow" alt
+						 			/delay 4s
+						 			/varset intPulled 1
+						 		} else {
+						 			|/echo I need my pulling arrow!
+						 			/squelch /target clear
+						 		}
+ 							}
+ 						}
+ 						/if (${Me.Class.ID} == 8) {
+ 							|Bard Pull:
+ 							/stopsong
+ 							/delay 1
+ 							/call Cast BRDnuke gem7 0 CheckPull
+ 							|/echo I pulled.
+ 							/look 0
+ 							/varset intPulled 1
+ 						}
+ 						
+ 						/if (${Me.Class.ID} == 13) {
+ 							|Mage Pull:
+ 							/call Cast ${bolt} gem4 0 CheckPull
+ 							|/echo I pulled.
+ 							/look 0
+ 							/varset intPulled 1
+ 						}
+
+							/if (${intPulled}) {
+								/if (${Target.ID}) {
+									/echo Incoming ${Spawn[${intNearestSpawnID}].CleanName}!
+									/if (${Me.LAMarkNPC}) /gmarknpc 1
+								/delay 5
+							}
+							/varset intPulled 0
+						}
+					}
+				}
+			}
+		}
+	} else {
+		|/echo I need more mana or health before I pull.
+	}
+}
+
+/Return
+
+|==================================================================================================| 
+Sub GotOne
+
+|Drop out if player is targeted:
+/if (${Target.Type.Equal[PC]}) /return
+
+|Drop out if player pet is targeted:
+/if (${Target.Type.Equal[PET]}) {
+	/if (${Target.Master.Type.Equal[PC]}) /return
+}
+
+|Stand up for fights:
+/stand
+
+/varset MobStart ${Macro.RunTime}
+/varset intKillRate 0
+
+/echo I found ${Target.Name} at range ${Target.Distance}.
+/echo Level ${Target.Level} ${Target.Class}
+/varset CurrentTarget ${Target.Name}
+
+|Let the guild know what leaders are up to:
+/if (${intLead}) {
+	|/gu ${Zone.Name} has provided ${Target.CleanName} (${Target.Level} ${Target.Class}).
+	/gu Engaging ${Target.CleanName}.
+}
+
+|Log fight start:
+/mqlog [${Me.CleanName}] Starting combat with: ${Target.CleanName}, a level ${Target.Level} ${Target.Class}.
+
+|Log nearby players (bad intent?):
+|/echo There are ${SpawnCount[pc]} players in this zone.
+/for Looper 1 to ${SpawnCount[pc]}
+	|/echo Player ${NearestSpawn[${Looper}, pc].CleanName} is ${NearestSpawn[${Looper}, pc].ID}
+	/if (${NearestSpawn[${Looper}, pc].ID} != ${Me.ID}) {
+		|/echo Player ${NearestSpawn[${Looper}, pc].CleanName} is not me.
+		/if (!${NearestSpawn[${Looper}, pc].CleanName.Equal[${Group.Member[${NearestSpawn[${Looper}, pc].CleanName}]}]}) {
+			/echo Player ${NearestSpawn[${Looper}, pc].CleanName} (${NearestSpawn[${Looper}, pc].Class} - ${NearestSpawn[${Looper}, pc].Level}) is at ${NearestSpawn[${Looper}, pc].Distance} feet.
+			/mqlog [${Me.CleanName}] Player ${NearestSpawn[${Looper}, pc].CleanName} (${NearestSpawn[${Looper}, pc].Class} - ${NearestSpawn[${Looper}, pc].Level}) is at ${NearestSpawn[${Looper}, pc].Distance} feet.
+		}
+	}
+/next Looper
+
+|/Beep
+/varset Iterations 0
+/varset Combating 5
+
+/if (${intLead}) {
+	/if (${Macro.RunTime} > ${intPrepareNag}) {
+		/varcalc intPrepareNag ${Macro.RunTime} + ${Math.Calc[60*10]}
+		/g Prepare for battle.
+		/call AAPrepare
+	}
+}
+
+|------------------------------------------------------------------------------|
+:KeepAtIt
+
+|Assist the main tank
+/if (!${intLead}) {
+	/if (!${Me.GroupMarkNPC[1].ID}) {
+		/if (${Me.GroupLeader}) {
+			/squelch /target clear
+			/assist ${strMyTank}
+			/for Looper 1 to 10
+				/doevents
+				/if (${Target.ID}) /varset Looper 10
+				/delay 1
+			/next Looper
+			
+			|Group Leader Try to Mark the NPC:
+			/if (${Group.Members} >= 2) {
+				/if (${Target.ID}) {
+					/if (${Target.ID} != ${Me.GroupMarkNPC[1].ID}) {
+						/if (${Me.LAMarkNPC}) /gmarknpc 1
+						/delay 5
+					}
+				}
+			}
+		}
+	} else {
+		/target ID ${Me.GroupMarkNPC[1].ID}
+		|De-target if there is a pulling problem and we don't have aggro on this target:
+		/if (!${Me.XTarget} && ${Iterations} > 20) {
+			/echo Clearing target because there are no XTargets after ${Iterations} iterations.
+			/squelch /target clear
+		}
+	}
+
+} else {
+	|If GoParty Leader & GroupLeader & Not Marked then Mark the NPC:
+	/if (${Me.GroupMarkNPC[1].ID} != ${Target.ID}) {
+		/if (${Me.GroupLeader}) {
+			/if (${Group.Members} >= 2) {
+				/if (${Target.ID}) {
+					/if (${Me.LAMarkNPC}) /gmarknpc 1
+					/delay 5
+				}
+			}
+		}
+	}
+}
+
+/if (!${Target.ID}) {
+	|/echo No target at beginning of routine...
+	/goto :FightEnded
+} else {
+	/face nolook
+}
+
+|Calculate Kill Rate:
+/varcalc intKillRate (100 - ${Target.PctHPs} + 1) / (${Macro.RunTime} - ${MobStart} + 1) * 100
+|/echo Kill rate: ${intKillRate} PctHPs per 100 seconds.
+
+|Check for Burn Down:
+/if (${intBurn}) {
+	/call BurnDown
+}
+	
+|Slowers:
+/if (${Me.Class.ID} == 14 || ${Me.Class.ID} == 10) {
+	/if (${intSlow} && !${intJustHealed}) {
+		/Call SlowCheck
+	}
+}
+
+|Mezzers:
+|Bard/Enchanter:
+/if (${Me.Class.ID} == 8 || ${Me.Class.ID} == 14) {
+	/if (${intMez}) {
+		/Call MezCheck
+	}
+}
+
+|Mob over 95% Health - Leader action:
+|-------------------
+/if (${intLead}) {
+	/if (${Target.PctHPs} >= 95) {
+		/stand
+		/if (${Target.ID}) /face nolook
+		
+		|Clerics Make Pets:
+		/if (${Me.Class.ID} == 2) {
+			/if (!${Me.Pet.ID}) {
+				/call Cast ${CLRpet} gem10 0
+			}
+		}
+
+		|Activate the pets!
+		/if (!${Me.Pet.Following.ID}) /pet attack
+
+		|Melee if instructed:
+		/if (${intMelee}) /call Melee
+
+		/delay 5
+		|See how long it takes:
+		/Varcalc Iterations ${Iterations} + 2
+		
+	}
+}
+
+|Priority Checks - Healing and HOTs:
+|Healing:
+/If (${Me.Class.ID} == 2) /Call QuickHealSub
+/If (${Me.Class.ID} == 4) /Call QuickHealSub
+/If (${Me.Class.ID} == 6) /Call QuickHealSub
+/If (${Me.Class.ID} == 10) /Call QuickHealSub
+/If (${Me.Class.ID} == 13) /Call HealthCheck
+
+| HOTing:
+/if (${Me.Class.ID} == 2) /Call HOTSub
+
+|Mob Under 99% Health
+|-------------------
+
+/if (${Target.PctHPs} <= 99 || ${intLead}) {
+
+	|All pet classes - send in the clowns, baby!!!
+	/if (${Me.Pet.ID}) {
+		/if (!${Target.Moving} && !${Target.Casting}) {
+			/stand
+			/if (!${Me.Pet.Following.ID}) {
+				/pet attack
+			} else {
+				|Turn off pets for high DS mobs:
+				/if (${intMobHasDS}) {
+					/echo No pet because of DS.
+					/pet back
+					/delay 5
+				}
+			}
+		} else {
+			/delay 2
+		}
+	}
+	
+	|Activate Warrior mercs:
+	|/call MercenaryEngage
+	
+	|Melee if instructed:
+	/doevents
+	/if (${intMelee}) /call Melee
+	
+	|Rangers archery:
+	/If (${Me.Class.ID} == 4) {
+		/if (!${intMelee}) {
+			|Autofire!
+			/stand
+			/if (${Target.ID}) /face fast nolook
+			/if (!${Me.AutoFire} && !${Me.Casting.ID}) /AutoFire
+		}
+	}
+	
+	|Bards
+	/if (${Me.Class.ID} == 8) {
+		/call BardSongsCombat
+	}
+
+}
+
+|Mob WITHIN DD Health Range
+|--------------------------
+
+/if (${Target.PctHPs} >= ${intDDMin} && ${Target.PctHPs} <= ${intDDMax}) {
+	/stand
+	/if (${Target.ID}) /face nolook
+	
+	|Melee if instructed:
+	/if (${intMelee}) /call Melee
+	
+	|Everyone can Banestrike (except Bards)!
+	/if (${Me.Class.ID} != 8) {
+		/if (${Me.AltAbilityReady[Banestrike]}) {
+			|/echo Banestrike!
+			/call Cast Banestrike alt
+			/delay 1s
+		}
+	}
+
+	|-----------------------------
+	|Mages
+	/If (${Me.Class.ID} == 13) {
+
+		|Servant Addition if it's ready and Mana is reasonable:
+		/if (${Me.Book[${MAGservant}]}) {
+			|/echo * ${MAGservant} is in my book.
+			:SpellsRecharge
+			/if (!${Me.Gem[${nuke}]}) {
+				/memspell 7 ${nuke}
+				/delay 5s
+				/goto :SpellsRecharge
+			}
+	
+			/if (${Me.SpellReady[${MAGservant}]}) {
+				|/echo * ${MAGservant} is ready.
+				/if (${Me.PctMana} > 65) {
+					|/echo * Mana is ${Me.PctMana}.
+					/if (${Target.PctHPs} > 20) {
+						/if (!${Me.Song["Flames of Power"].ID}) {
+							|No Servant if Bolt is ready:
+							/if ((${Target.Level} * 2) > ${Me.Level}) {
+								/call Cast ${MAGservant} gem9 0
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		|Malosinete!
+		/if (${Me.LAInspectBuffs} > 1) {
+			/if (!${Target.Buff[Malosinete].ID}) {
+				|/echo No Malo on this guy!
+				/if (${Me.AltAbilityReady[Malosinete]}) {
+					|/echo My Malo is ready, casting!
+					/call Cast "Malosinete" alt
+				}
+			}
+		}
+
+		|Pet Control! - Relocate Pet if we need the mob's back!
+		|/echo ${Target.AggroHolder.ID}
+		|/echo ${Me.Pet.ID}
+		/if (${Target.AggroHolder.ID} == ${Me.Pet.ID}) {
+			|/echo ${Target.Distance}
+			|/echo ${Me.Pet.Distance}
+			/if (${Target.Distance} > ${Me.Pet.Distance}) {
+				/if (${Me.AltAbilityReady[Companion's Relocation]}) {
+					/echo Relocating!
+					/call Cast "Companion's Relocation" alt
+				}
+			}
+		}
+		
+		|Nuke!
+		/if (${Me.Song["Flames of Power"].ID}) {
+			/if (${Me.SpellReady[${bolt}]}) {
+				/call Cast ${bolt} gem4 0
+			}
+		}
+		/if (${intBurn}) {
+			/varset intNextNukeTime 0
+			/if (${Me.SpellReady[${MAGmany}]}) {
+				/call Cast ${MAGmany} gem11 0
+			}
+		}
+		
+		/if (${Macro.RunTime} > ${intNextNukeTime}) {
+			/if (${Me.SpellReady[${nuke}]}) {
+				/call Cast ${nuke} gem7 0
+				/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${nuke}].RecastTime.Float} * 2)
+			} else {
+				|Force of Elements:
+				/if (${Me.AltAbilityReady[Force of Elements]}) {
+					/call Cast "Force of Elements" alt
+				}
+			}
+		}
+	}
+	
+	|-----------------------------
+	|Rangers
+	/if (${Me.Class.ID} == 4) {
+		|Snares:
+		/if ((${intSnare} > 0) && (${intSnaredMob} != ${Target.ID})) {
+			/if ((${Me.SpellReady[${RNGSnare}]})&&(!${Me.Casting.ID})) {
+				/if (!${Target.Buff[${RNGSnare}].ID}) {
+					/call Cast ${RNGSnare} gem6 0
+				}
+			}
+		} else {
+		
+			| Called Shots:
+			/if (${Macro.RunTime} > ${intNextNukeTime}) {
+				/if (!${Target.Buff[${RNGCalled}].ID} && ${Group.Members} >= 2 && ${Me.LAInspectBuffs} > 1) {
+					/if (${Me.SpellReady[${RNGCalled}]}) {
+						/call Cast ${RNGCalled} gem9
+						/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${RNGCalled}].CastTime.Float})
+					}
+				}
+			}
+			
+			| Focused Arrows:
+			/if (${Macro.RunTime} > ${intNextNukeTime}) {
+				/if (${Me.SpellReady[${RNGHailFocus}]}) {
+					/call Cast ${RNGHailFocus} gem7
+					/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${RNGHailFocus}].CastTime.Float})
+				}
+			}
+			
+			|Hail of Arrows:
+			/if ((${intAE} > 0) && (!${Target.Type.Equal[Pet]})) {
+				|/echo Prolly can HAIL!
+				/if (${Me.SpellReady[${RNGHail}]}) {
+					|/echo HAIL ready!
+					/if (!${Me.Casting.ID}) {
+						|/echo HAILING!
+						/if (${Target.ID}) /face fast nolook
+						/call Cast ${RNGHail} gem3
+						/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${RNGHail}].CastTime.Float})
+						|/varcalc intNextNukeTime ${Macro.RunTime} + ${Math.Calc[${intBurnTime}]}
+					}
+				}
+			}
+
+			|Summer's Dew:
+			/if (${Macro.RunTime} > ${intNextNukeTime} + 2) {
+				|/echo Summer's Dew NextNuke ready...
+				/if (${Me.SpellReady[${RNGNuke}]}) {
+					|/echo Summer's Dew SpellReady...
+					/call Cast ${RNGNuke} gem3
+					|/varcalc intNextNukeTime ${Macro.RunTime} + ${intBurnTime}
+					/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${RNGNuke}].CastTime.Float})
+				}
+			}
+					
+			|Jolt on long fights:
+			/if (${intKillRate} < 100) {
+				/if (${intJolt}) {
+					/echo This mob is going down slow (only ${intKillRate}% per 100 seconds).
+					/if (!${intTank}) /call Cast ${RNGJolt} gem10
+				}
+			}
+			
+			|Jolt Close Mobs:
+			/if (${Me.SpellReady[${intJolt}]}) {
+				/if (!${intTank}) {
+					/if (${Me.LAHoTT} > 0) {
+						|/if (${Me.TargetOfTarget.ID}) {
+						/if (${Me.TargetOfTarget.ID} == ${Me.ID}) {
+							/echo I am the target, need to fix that.
+							/call Cast ${RNGJoltMelee} gem10
+						}
+						|}
+					} else {
+						/if (${Target.Distance} < 30) {
+							/call Cast ${RNGJoltMelee} gem10
+						}
+					}
+				}
+			}				
+		}
+	}
+	
+	|-----------------------------
+	|Druids
+	/if (${Me.Class.ID} == 6) {
+
+		|Snares:
+		/if ((${intSnare} > 0) && (${intSnaredMob} != ${Target.ID})) {
+			/if ((${Me.SpellReady[${DRUsnare}]})&&(!${Me.Casting.ID})) {
+				/if (!${Target.Buff[${DRUsnare}].ID}) {
+					/call Cast ${DRUsnare} gem1 0
+				}
+			}
+		}
+
+		|Dots:	
+		/call DOTHandler ${DRUdotHorde}
+		/call DOTHandler ${DRUdotWrath}
+		/call DOTHandler ${DRUdotCurse}
+
+		|Nuke!
+		/if (${intJustHealed} < 1) {
+			/if (${intNukeTime} < ${Macro.RunTime}) {
+				/if (${Me.SpellReady[${DRUnukeFire}]}) {
+					/call Cast ${DRUnukeFire} gem4 0
+					/varcalc intNukeTime ${Macro.RunTime} + ${Math.Calc[${Spell[${DRUnukeFire}].MyCastTime.Float}]}
+				} else {
+					/if (${Me.SpellReady[${DRUnukeCold}]}) {
+						/call Cast ${DRUnukeCold} gem3 0
+						/varcalc intNukeTime ${Macro.RunTime} + ${Math.Calc[${Spell[${DRUnukeCold}].MyCastTime.Float}]}
+					}
+				}
+			}
+		}
+	}
+
+	|-----------------------------
+	|Enchanters
+	/If (${Me.Class.ID} == 14) {
+		/if (!${intMez} || ${Me.XTarget} < 2) {
+			| Non-Mezzing duties:
+			
+			| Debuff:
+			/if (${Macro.RunTime} > ${intNextNukeTime}) {
+				/if (${Me.SpellReady[${ENCdebuff}]}) {
+					/if (!${Target.Buff[${ENCdebuff}].ID} && ${Group.Members} >= 2 && ${Me.LAInspectBuffs} > 1) {
+						/if (${Spell[${ENCdebuff}].Mana} < ${Me.CurrentMana}) {
+							/call Cast ${ENCdebuff} gem8 0
+							/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${ENCdebuff}].RecastTime.Float} * 2)
+						}
+					}
+				}
+			}
+			
+			| DOT!
+
+			| Nuke!
+			/if (${Macro.RunTime} > ${intNextNukeTime}) {
+				/if (${Spell[${ENCnuke}].Mana} < ${Me.CurrentMana}) {
+					/call Cast ${ENCnuke} gem7 0
+					/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${ENCnuke}].RecastTime.Float} * 2)
+				}
+			}
+			
+		}
+	}
+
+	|-----------------------------
+	|Clerics (high mana only)
+	/If (${Me.Class.ID} == 2) {
+		|Nuke! (Only use heal nukes?)
+		/if ((${Me.PctMana} >= 90) && (${intJustHealed} < 1)) {
+			/if (${Macro.RunTime} > ${intNextNukeTime}) {
+				/if (${Me.SpellReady[${CLRnuke}]}) {
+					|Nuke!
+					/call Cast ${CLRnuke} gem7 0 CheckHP
+					/varcalc intNextNukeTime ${Macro.RunTime} + (${Spell[${CLRnuke}].RecastTime.Float} * 3)
+				}
+			}
+		}
+		|Reverse Damage Shield:
+		/if ((${Me.PctMana} >= 80) && (${intJustHealed} < 1)) {
+		 	|/echo Gonna try to Mark....
+			/if (!${Target.Buff[${CLRmark}].ID} && ${Group.Members} >= 2 && ${Me.LAInspectBuffs} > 1) {
+				|/echo Target not Marked yet...
+				/call Cast ${CLRmark} gem1 0 CheckHP
+			}
+		}
+	}
+	
+	|-----------------------------
+	|Wizards
+	|Only jump in if less than 300 mobs close:
+	/If (${Me.Class.ID} == 12 && ${SpawnCount[npc radius 60]} < 300) {
+		
+		|Avoid double-concussion effect:
+		/if (${Me.Song["Concussive Flames"].ID} || ${Me.Song["Concussive Flame"].ID} || ${Me.Song["Concussive Magic"].ID} || ${Me.Song["Concussive Chill"].ID})  /varcalc intWIZconc ${intWIZconc} + 1
+		
+		|Don't try to concussion if you don't have it:
+		/if (!${Me.Book[${WIZconc}]}) /varset intWIZconc 1
+		
+		/if (${intWIZconc} < 1) {
+			|Concussion!
+			/call Cast ${WIZconc} gem4 0
+			/varcalc intWIZconc ${intWIZconc} + 1
+			
+			|Pause for delay
+			/for intDelayLoop 1 to ${Math.Calc[${intBurnTime}*1.0]}
+				/delay 1
+				/doevents
+			/next intDelayLoop
+		} else {
+			|Avoid regular Nuking when AE is engaged:
+			|/echo Checking for AE instead of single damage...
+			/if (${SpawnCount[npc zradius 50 radius ${Spell[${WIZAE}].AERange}]} < 2 || !${intAE}) {
+				|/echo Not AE - Nuking singles engaged...
+	
+				|Nuke - While taking into account any Concussive effects:
+				/if (${Me.Song["Concussive Flame"].ID} || ${Me.Song["Concussive Flames"].ID}) {
+					|/g Major safe Wizzy fire incoming!
+					
+					|=====================================================================================
+					|Pyromancy:
+					/if (!${Me.Buff[Pyromancy].ID}) {
+						/notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
+						/notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
+						
+						/call Cast "Pyromancy" alt
+						/delay 2
+					}
+					|/if (!${Me.Buff[Pyromancy].ID}) /g Pyromantic not good.
+	
+					|Ro's Familiar:
+					/if (!${Me.Buff[Ro's Flaming Familiar].ID}) {
+						/if (${Me.AltAbilityReady[Ro's Flaming Familiar]}) {
+							/if (${Me.Buff[Druzzil's Mystical Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Druzzil's Mystical Familiar].ID}-1]}]} leftmouseup
+							/if (${Me.Buff[E'ci's Icy Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[E'ci's Icy Familiar].ID}-1]}]} leftmouseup
+							/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
+							
+							/call Cast "Ro's Flaming Familiar" alt
+						}
+					}
+					
+					|Fury of Ro:
+					/if (!${Me.Buff[Fury of Ro].ID}) {
+						/if (${Me.AltAbilityReady[Fury of Ro]}) {
+							/if (${Me.Buff[Fury of Druzzil].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Druzzil].ID}-1]}]} leftmouseup
+							/if (${Me.Buff[Fury of E'ci].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of E'ci].ID}-1]}]} leftmouseup
+
+							/call Cast "Fury of Ro" alt
+						}
+					}
+					
+					|Cast Fire Spell:
+					/call Cast ${WIZblast} gem6 0
+				} else {
+					/if (${Me.Song["Concussive Magic"].ID}) {
+						|/g Major safe Wizzy magic incoming!
+	
+						|====================================================================================
+						|Arcomancy:
+						/if (!${Me.Buff[Arcomancy ].ID}) {
+							/if (${Me.Buff[Cryomancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
+							/if (${Me.Buff[Pyromancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Pyromancy].ID}-1]}]} leftmouseup
+							
+							/call Cast "Arcomancy" alt
+							/delay 2
+						}
+						|/if (!${Me.Buff[Arcomancy ].ID}) /g Arcomantic not good.
+	
+						|Druzzil's Familiar:
+						/if (!${Me.Buff[Druzzil's Mystical Familiar].ID}) {
+							/if (${Me.AltAbilityReady[Druzzil's Mystical Familiar]}) {
+								/if (${Me.Buff[E'ci's Icy Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[E'ci's Icy Familiar].ID}-1]}]} leftmouseup
+								/if (${Me.Buff[Ro's Flaming Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Ro's Flaming Familiar].ID}-1]}]} leftmouseup
+								/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
+								
+								/call Cast "Druzzil's Mystical Familiar" alt
+							}
+						}
+				
+						|Fury of Druzzil:
+						/if (!${Me.Buff[Fury of Druzzil].ID}) {
+							/if (${Me.AltAbilityReady[Fury of Ro]}) {
+								/if (${Me.Buff[Fury of Ro].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Ro].ID}-1]}]} leftmouseup
+								/if (${Me.Buff[Fury of E'ci].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of E'ci].ID}-1]}]} leftmouseup
+	
+								/call Cast "Fury of Druzzil" alt
+							}
+						}
+					
+						|Cast Magic Spell:
+						/call Cast ${WIZlightning} gem8 0
+						|/g Lightning bang.
+					} else {
+						/if (${Me.Song["Concussive Chill"].ID}) {
+							|/g Major safe Wizzy cold incoming!
+	
+							|=============================================================================================
+							|Cryomancy:
+							/if (!${Me.Buff[Cryomancy].ID}) {
+								/if (${Me.Buff[Pyromancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Pyromancy].ID}-1]}]} leftmouseup
+								/if (${Me.Buff[Arcomancy ].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
+								
+								/call Cast "Cryomancy" alt
+								/delay 2
+							}
+							|/if (!${Me.Buff[Cryomancy].ID}) /g Cryomantic not good.
+	
+							|E'ci's Familiar:
+							/if (!${Me.Buff[E'ci's Icy Familiar].ID}) {
+								/if (${Me.AltAbilityReady[E'ci's Icy Familiar]}) {
+									/if (${Me.Buff[Druzzil's Mystical Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Druzzil's Mystical Familiar].ID}-1]}]} leftmouseup
+									/if (${Me.Buff[Ro's Flaming Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Ro's Flaming Familiar].ID}-1]}]} leftmouseup
+									/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
+									
+									/call Cast "E'ci's Icy Familiar" alt
+								}
+							}
+				
+							|Fury of E'ci:
+							/if (!${Me.Buff[Fury of E'ci].ID}) {
+								/if (${Me.AltAbilityReady[Fury of Ro]}) {
+									/if (${Me.Buff[Fury of Ro].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Ro].ID}-1]}]} leftmouseup
+									/if (${Me.Buff[Fury of Druzzil].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Druzzil].ID}-1]}]} leftmouseup
+		
+									/call Cast "Fury of E'ci" alt
+								}
+							}
+
+							|Cast Cold Spell:
+							/call Cast ${WIZcold} gem5 0
+						} else {
+							|Regular Wizzy Nukes (No concussion effects):
+							
+							|Pyromancy:
+							/if (!${Me.Buff[Pyromancy].ID}) {
+								/if (${Me.Buff[Cryomancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
+								/if (${Me.Buff[Arcomancy ].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
+								
+								/call Cast "Pyromancy" alt
+								/delay 2
+							}
+	
+							|/echo Regular Wiz Nuke...
+							/call Cast ${WIZnuke} gem7 0
+							/varset intWIZconc 0
+						}
+					}
+				}
+			}
+		}
+	}
+
+	|-----------------------------
+	|Necros
+	/if (${Me.Class.ID} == 11) {
+		|Nuke:
+		/if (${intNukeTime} < ${Macro.RunTime}) {
+			/call Cast ${NECnuke} gem7 0
+			/varcalc intNukeTime ${Macro.RunTime} + 15
+		}
+		
+		|Dot:
+		/if (${intDotTime} < ${Macro.RunTime}) {\
+			/if (!${Target.Buff[${NECdot1}].ID}) {
+				/if (${Me.SpellReady[${NECdot1}]}) {
+					/call Cast ${NECdot1} gem8 0
+					/varcalc intDotTime ${Macro.RunTime} + 15
+				}
+			}
+		}
+		
+	}
+
+	|-----------------------------
+	|Shaman
+	/if (${Me.Class.ID} == 10) {
+	
+		/call DOTHandler ${SHMdotBlood}
+		/call DOTHandler ${SHMdotNectar}
+		/call DOTHandler ${SHMdotVenom}
+		/call DOTHandler ${SHMdotCurse}
+	
+		/if ((${Me.PctMana} >= 50) && (${intJustHealed} < 1)) {
+			|Nuke!
+			/if (${Me.SpellReady[${SHMnuke}]}) {
+				/if (${intNukeTime} < ${Macro.RunTime}) {
+					/call Cast ${SHMnuke} gem6 0
+					/varcalc intNukeTime ${Macro.RunTime} + 9
+					/for intDelayLoop 1 to 3
+						/delay 1s
+						/doevents
+					/next intDelayLoop
+				}
+			}
+			
+			|Proc Spell:
+			/if (!${intJustHealed}) {
+				/if (${Spell[${SHMproc}].Stacks[1]}) {
+					/if (${Spell[${SHMproc}].Mana} < ${Me.CurrentMana}) {
+						/if (${Me.PctMana} >= 70) {
+							/if (${Target.Level} >= 70) {
+								/if (${Me.SpellReady[${SHMproc}]}) {
+									/varset intRealMobID ${Target.ID}
+								   	/target myself
+								   	/call Cast ${SHMproc} gem1 0
+								   	/target id ${intRealMobID}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
+|Mob UNDER DD Health Range
+|--------------------------
+
+/if (${Target.PctHPs} < 25) {
+
+	|Kick Lesson if available:
+	/if (${intLesson}) {
+		/if (${Me.AltAbilityReady[Lesson of the Devoted]}) {
+			/echo Kicking lesson.
+	    	/call Cast "Lesson of the Devoted" alt
+	    }
+	}
+
+	|Cleric Tanks - Clank burn down for runners!
+	/if (${Me.Class.ID} == 2) {
+		/if (${strMyTank.Equal[${Me.CleanName}]}) {
+			/if (${intJustHealed} < 1) {
+				/if (${Macro.RunTime} > ${intNextNukeTime}) {
+					/if (${Me.SpellReady[${CLRnuke}]}) {
+						|Nuke!
+						/call Cast ${CLRnuke} gem7 0 CheckHP
+						/varcalc intNextNukeTime ${Macro.RunTime} + ${Spell[${CLRnuke}].RecastTime.Float}
+					}
+				}
+			}
+		}
+	}
+}
+
+|Always check these things
+|--------------------------
+
+|Clerics
+/If (${Me.Class.ID} == 2) {
+	|Melee Clerics:
+	/if (${intMelee}) {
+		/call BuffHandler ${CLRvow} 4
+	} else {
+		|Remove Vow Buff in healer mode:
+		/if (${Me.Buff[${CLRvow}].ID}) {
+			/notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${CLRvow}].ID}-1]}]} leftmouseup
+		}
+	}
+	
+	| Cleric pets:
+	/if (${Me.Class.ID} == 2) {
+		/if (${intMelee}) {
+			/if (${intJustHealed} < 1) {
+				/if (${Me.PctMana} > 50) {
+					/if (!${Me.Pet.ID}) {
+						/if (${Spell[${CLRpet}].Mana} < ${Me.CurrentMana}) {
+							/call Cast ${CLRpet} gem6 0
+							|/echo casted ${CLRpet}
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
+|Warriors
+/if (${Me.Class.ID} == 1) {
+	/call AreaTaunting
+}
+
+|Enchanters
+/if (${Me.Class.ID} == 14) {
+	|Group rune for named! - ENCgrouprune
+	/call GroupRune
+}
+
+|Mages
+/if (${Me.Class.ID} == 13) {
+	|Pet here?
+	/if (!${Me.Pet.ID}) /Call Prepare
+}
+
+|AE if there are enough mobs near
+/if (${intAE}) {
+	/if (${SpawnCount[npc zradius 50 radius ${Spell[${MAGAE}].AERange}]} > 1) {
+		/if (${Me.Class.ID} == 13) /call Cast ${MAGAE} gem1 0
+		/if (${Me.Class.ID} == 12) /call Cast ${WIZAE} gem1 0
+	}
+}
+
+|Automatically Burn Down Named mobs!
+/if (${intLead}) {
+	/if (!${intBurn}) {
+		/if (${Target.Named}) {
+			/if (!${Target.Type.Equal[PC]}) {
+				/varset intBurn 1
+				/mqlog [${Me.CleanName}] Starting a burn for named: ${Target.CleanName}.
+				/g I think we should make ${Target.CleanName} burn!
+			}
+		}
+	}
+}
+
+|Verify that Mage Leaders and pet are on same page after a bit
+/if (${intLead} && ${Me.Class.ID} == 13) {
+	/if (${Me.Pet.ID}) {
+		/if (${Iterations} > 4) {
+			/Assist ${Me.Pet.CleanName}
+			|/echo Asisting pet at ${Iterations} iterations.
+			/Delay 1s
+			/if (${Target.Type.Equal[Corpse]}) /squelch /target clear
+		}
+	}
+}
+
+|Clear safe mob list:
+/if (${Spawn[id ${Target.ID} alert 1].ID}) {
+	/squelch /target clear
+}
+
+|Track intMobHasDS big damage shield mobs:
+/varset intMobHasDS 0
+
+/if (${Me.LAInspectBuffs} > 1) {
+	/if (${Target.Buff[XXXWhipping Retort].ID}) /varset intMobHasDS 1
+	/if (${Target.Buff[XXXMalosinete].ID}) /varset intMobHasDS 1
+}
+		
+	
+
+|Pop out if WAY too long:
+/Varcalc Iterations ${Iterations} + 1
+/if (${Iterations} > 5000) {
+	/echo Iterations at ${Iterations}; Dropping out.
+	/squelch /target clear
+} else {
+	|Pop out if target is dead, but did not know it:
+	/if (${Target.PctHPs} < 1) {
+		/echo Mob HP < 1; Droppping Out.
+		/squelch /target clear
+	}
+}
+
+|Verify that Corpses are not targeted:
+/if (${Target.Type.Equal[Corpse]}) {
+	/echo Mob is a corpse; Droppping Out.
+	/squelch /target clear
+}
+
+|Sometimes they get away:
+/if (${Target.Distance} > 300) {
+	/if (!${Me.XTarget}) /squelch /target clear
+}
+
+|Repat this subroutine until the mob dies:
+/if (${Target.ID}) {
+	/Goto :KeepAtIt
+}
+
+:FightEnded
+
+|Group Leader Clear all Marks:
+/if (${Me.GroupLeader}) {
+	/clearmarks
+}
+
+/Varset Iterations 0
+/varset intNukeTime 0
+/varset intDiseasedNag 0
+/look 0
+/varset intBackStep 1
+
+/varset strDOTList ""
+
+/return
+
+|==================================================================================================|
+Sub CheckHP 
+	|This got Jacked near Seeds of Destruction time.  Nevermind, I'm a genius.
+	|Genius?  No - this fucked up Cleric soloing!  Added some code to see if a group is even present!
+	/if (${Group.Members}) {
+		/if (${Spawn[${Group.Leader.Name}].PctHPs} < 85 ) /call Interrupt 
+	}
+/return 
+
+|==================================================================================================|
+Sub CheckPull
+	|While pulling with songs - this will break out when the pull works:
+	|/echo Checking pull...
+	/if (${NearestSpawn[NPC].Distance} <= ${Math.Calc[${LocRange[${MoveIndex}]} / 4]}) /call Interrupt
+	
+	/varcalc intPullTimer ${intPullTimer} + 1
+	|/echo ${intPullTimer}
+	/if (${intPullTimer} > 200) /call Interrupt
+
+	/return 
+
+|==================================================================================================|
+Sub AutoSit
+|AutoSit code:
+/if (!${autosit}==1) /return
+/if ((${Me.PctMana}<=90) && (!${Me.Casting.ID})) { 
+	/if (${Bool[${Me.Standing}]}) {
+		|/echo Sit? ${NearestSpawn[NPC zradius 30].Distance} >= ${Math.Calc[${NearestSpawn[NPC zradius 30].MaxRange} + ${distancetosit} / 4]}
+		/if (${NearestSpawn[NPC zradius 30 noalert 1].Distance} >= ${Math.Calc[${NearestSpawn[NPC zradius 30 noalert 1].MaxRange} + ${distancetosit} / 4]}) {
+			/if (!${Bool[${Me.Moving}]}) {
+				/sit
+			} 
+		}
+	}
+	|Auto Stand:
+	/if ((${Bool[${Me.Sitting}]})&&(!${Window[SpellBookWnd].Open})) {
+		/if ((${NearestSpawn[NPC zradius 30 noalert 1].Distance}) <= (${Math.Calc[${NearestSpawn[NPC zradius 30 noalert 1].MaxRange}+${Math.Calc[${distancetosit}/4]}]})) /stand 
+	}
+} Else {
+	|/Stand
+} 
+/Return
+
+|==================================================================================================|
+Sub GMCheck 
+
+/if (${Spawn[gm].ID}) { 
+   /beep 
+   /beep 
+   /beep 
+   /beep 
+      
+   /echo GM has entered the zone! 
+   /echo Ending the macro... 
+   
+   /mqlog [${Me.CleanName}] Logging because of GM check.
+
+   /keypress forward 
+   /keypress back 
+
+   /quit
+   /endmacro 
+} 
+    
+/return 
+
+|==================================================================================================|
+Sub ZoneCheck 
+
+/if (${WorkZone} != ${Zone.ID}) { 
+      
+	/echo I Zoned! 
+	/echo Ending the macro... 
+	
+	/if (${intLead}) {
+		|Track death on Web Page:
+	 	/ini "magego.ini" ${TotalKills} "MobName" ${CurrentTarget}
+		/ini "magego.ini" ${TotalKills} "Iterations" ${Iterations}
+		/ini "magego.ini" ${TotalKills} "Seconds" ${MobSeconds}
+		/ini "magego.ini" ${TotalKills} "Waypoint" ${MoveIndex}
+		/ini "magego.ini" ${TotalKills} "Mana" ${Me.PctMana}
+		/ini "magego.ini" ${TotalKills} "XP" 0
+		/ini "magego.ini" ${TotalKills} "AA" 0
+		/ini "magego.ini" ${TotalKills} "Total XP" 0
+		/ini "magego.ini" ${TotalKills} "Total AA" 0
+		/ini "magego.ini" ${TotalKills} "Total Minutes" ${Math.Calc[${Macro.RunTime}/60]}
+		/ini "magego.ini" ${TotalKills} "ZoneName" "${Zone.Name}"
+	}
+
+	| MQ Log the situation:
+	/mqlog ====================
+	/mqlog [${Me.CleanName}] 
+	/mqlog Logging a ZoneCheck:
+	/mqlog Current Target: ${CurrentTarget}
+	/mqlog XTargets: ${Me.XTarget}
+	/mqlog NPC Mobs in 50 feet: ${SpawnCount[NPC radius 50]}
+	/mqlog ====================
+
+	/For Iterations 1 to 60
+   		|/Beep 
+   		|/Beep
+  		/Delay 1s
+
+   		|/Beep 
+	   	|/Beep 
+	   	/Delay 2s
+	   	
+	   	/echo Shut down timer ${Iterations} of 60.
+	   	
+	   	/target clear
+	   	/clearmarks
+	   	
+	/Next Iterations
+
+	/mqlog [${Me.CleanName}] Logging because of Zone check.
+
+	/keypress forward 
+	/keypress back 
+ 
+	/quit
+	/endmacro 
+} 
+    
+/return
+
+|==================================================================================================|
+Sub HealthCheck 
+
+|Back pet off if the target has enough HP and the pet is out of range:
+/if (${Me.Pet.ID}) {
+	/if (${Me.Pet.Distance} > 120) {
+		/if (${Target.PctHPs} > 20) {
+			/pet back
+		}
+	}
+
+|Mages can heal their pet only:
+	/if (${Me.Pet.PctHPs} < 35) {
+		/target id ${Me.Pet.ID} 
+    	/Echo ${Me.Pet.CleanName} is VERY low health!
+		/call Cast "Replenish Companion" alt
+		|/Target clear
+   		/Assist ${Me.Pet.CleanName}
+   		/delay 1s
+	}
+
+	/if (${Me.Pet.PctHPs} < 70) {
+	   	/target id ${Me.Pet.ID} 
+    	/call Cast ${heal} gem8 0
+    	/echo ${Me.Pet.CleanName} is low health!
+    	/squelch /target clear
+    	/Assist ${Me.Pet.CleanName}
+    	/delay 6s
+   }
+   
+	/if (${Me.Pet.PctHPs} < 85) {
+		/if (${Me.AltAbilityReady[Companion's Blessing]}) {
+	    	/call Cast "Companion's Blessing" alt
+	    	/assist ${Me.Pet.CleanName}
+    	}
+   }
+}
+
+/return
+
+
+|==================================================================================================|
+Sub MercenaryCalm
+|Calm down the aggressive Warrior mercs:
+	/if (!${Me.Mercenary.State.Equal[Active]}) /return
+	|/echo There is an active merc.
+	
+	|/echo Class is ${Group.Member[1].Class.ID}.
+	/if (${Group.Member[1].Class.ID} != 1) /return
+	|/echo That merc is a warrior.
+	
+	/if (${intMercSleep}) /return
+	|/echo Sleep is not set.
+	
+	/echo Calm down, ${Group.Member[1].CleanName}.
+	/stance passive
+	/varset intMercSleep 1
+	
+/return			
+	
+
+|==================================================================================================|
+Sub MercenaryEngage
+|Activate a mercenary:
+	/if (!${Me.Mercenary.State.Equal[Active]}) /return
+	/if (${Group.Member[1].Class.ID} != 1) /return
+	/if (!${intMercSleep}) /return
+	
+	/if (!${Target.Moving} && !${Target.Casting}) {
+		/echo Get them, ${Group.Member[1].CleanName}.
+		/stance assist
+		/varset intMercSleep 0
+	} else {
+		/delay 2
+	}
+
+/return
+
+
+|==================================================================================================|
+Sub AreaTaunting
+	|Boop some noses if there are enough of them:
+	/if (${Me.XTarget} < 2) /return
+	|/echo There are ${Me.XTarget} XTargets.
+	
+	/if (${SpawnCount[npc zradius 50 radius 50]} < 2) /return
+	|/echo There are ${SpawnCount[npc zradius 50 radius 50]} mobs within 50 feet.
+	
+	/if (${Me.CombatAbilityReady[Stormstrike Blades]}) {
+		/echo Wheeling Blades!
+		/doability "Stormstrike Blades"
+		/delay 3
+	} else {
+		/if (${SpawnCount[npc zradius 50 radius 30]} > 1) {
+			|/echo There are ${SpawnCount[npc zradius 50 radius 30]} mobs within 30 feet.
+			/if (${Me.CombatAbilityReady[Rallying Roar]}) {
+				/echo Rallying Roar!
+				/doability "Rallying Roar"
+				/delay 3
+			}
+		}
+	}
+
+/return
+
+
+|==================================================================================================|
+|Events:
+|==================================================================================================|
+
+|==================================================================================================|
+|XP Message and Logging code:
+|---------------------------------------------------
+Sub Event_Exp 
+
+	|Get finish time and do math:
+	/Varset MobStop ${Macro.RunTime}
+	/Varcalc MobSeconds ${MobStop} - ${MobStart}
+
+	|/beep
+	|/beep
+
+	/Varcalc TotalKills ${TotalKills} + 1
+	/Echo That makes ${TotalKills} kills.
+	/Echo ${CurrentTarget} took ${MobSeconds} seconds.
+	
+	/mqlog [${Me.CleanName}] ${CurrentTarget} took ${MobSeconds} seconds, making ${TotalKills} total kills.
+	
+	|XP Calc
+	|------------------------------------------------
+	/varset Exper ${Math.Calc[${Me.PctExp}-${Exper}]}
+	/varset AAExp ${Math.Calc[${Me.PctAAExp}-${AAExp}]} 
+	/if (${AAExp} < 0) /varcalc AAExp ${AAExp} + 100
+	/echo XP: ${Exper} : ${Me.PctExp}% ; AAXP: ${AAExp} : ${Me.PctAAExp}% ; ${Math.Calc[${Macro.RunTime}/60]} minutes
+
+	|INI File Writing:
+	/if (${intLead}) {
+		/ini "magego.ini" ${TotalKills} "MobName" ${CurrentTarget}
+		/ini "magego.ini" ${TotalKills} "Iterations" ${Iterations}
+		/ini "magego.ini" ${TotalKills} "Seconds" ${MobSeconds}
+		/ini "magego.ini" ${TotalKills} "Waypoint" ${MoveIndex}
+		/ini "magego.ini" ${TotalKills} "Mana" ${Me.PctMana}
+		/ini "magego.ini" ${TotalKills} "XP" ${Exper}
+		/ini "magego.ini" ${TotalKills} "AA" ${AAExp}
+		/ini "magego.ini" ${TotalKills} "Total XP" ${Me.PctExp}
+		/ini "magego.ini" ${TotalKills} "Total AA" ${Me.PctAAExp}
+		/ini "magego.ini" ${TotalKills} "Total Minutes" ${Math.Calc[${Macro.RunTime}/60]}
+		/ini "magego.ini" ${TotalKills} "ZoneName" "${Zone.Name}"
+	}
+	
+	/varset Exper ${Me.PctExp} 
+	/varset AAExp ${Me.PctAAExp}
+	
+	/squelch /target clear
+
+	/varset intLastKillIndex ${MoveIndex}
+	/varset Iterations 0
+	/varset Combating 5
+	/varset intSnaredMob 0
+	/squelch /target clear
+	/varset intDifficultCorpse 0
+
+	|/Echo Combating (gotone): ${Combating}
+	
+/Return
+
+|==================================================================================================|
+|Language Training Code:
+|---------------------------------------------------
+Sub Event_Lang
+	/Keypress 1
+/Return
+
+|==================================================================================================|
+|Invites Code:
+|---------------------------------------------------
+Sub Event_Invite
+	/if (1==1) {
+		/Invite Arei
+		/Invite Baiylee
+		/Invite Baygan
+		/Invite Biha
+		/Invite Bihajr
+		/Invite Biho
+		/Invite Bloodraven
+		/Invite Bodybags
+		/Invite Cnote
+		/Invite Darcru
+		/Invite Derailer
+		/Invite Dontcare
+		/Invite Drak
+		/Invite Frakkin
+		/Invite Heffex
+		/Invite Inattentive
+		/Invite Kamdara
+		/Invite Leisah
+		/Invite Logs
+		/Invite Online
+		/Invite Ripp
+		/Invite Shawdow
+		/Invite Tinksa
+		/Invite Tinkso
+		/Invite Tyrannasaurus
+	} else {
+		/g Sorry baked beans are off tonight.  I'm farming no XP items.
+	}
+/Return
+
+|==================================================================================================|
+|Sheiding (when you are hit) code:
+|---------------------------------------------------
+Sub Event_Shield 
+
+	|If you are here, you are getting hit:
+	/if (!${intMelee}) {
+		/mqlog [${Me.CleanName}] Event_Shield activated from getting hit.
+		/if (!${intBurn}) /g I'm getting hit!  Make them Burn!
+		/varset intBurn 1
+		/varset intBurnTime 0
+
+		|See if there is a good player tank in the group:
+		/if (!${intPlayerTank}) {
+			/if (${Me.Grouped}) {
+				/for Loops 1 to ${Group.Members}
+					|Player tanks are Warrior, SK, Pally, Monk
+					/if (${Group.Member[${Loops}].Class.ID} == 1) /varset intPlayerTank 1
+					/if (${Group.Member[${Loops}].Class.ID} == 7) /varset intPlayerTank 1
+				/next Loops
+			}
+		}
+		
+		/if (!${intPlayerTank}) {
+			|Backup from the mob a bit:
+			/mqlog [${Me.CleanName}] Backing up from a hitter!
+			/stand
+			/keypress back hold
+			/delay 5
+			/keypress back
+			/delay 2
+			/doevents flush
+		}
+	 	
+		|Enchanters
+		/if (${Me.Class.ID} == 14) /call ENCRuneCheck
+		
+		|Mages
+		/if (${Me.Class.ID} == 13) /call Cast "Shared Health" alt
+	
+		|Wizards
+		/if (${Me.Class.ID} == 12) /varset intWIZconc 0
+	
+		/doevents
+		
+		|Verify that we are not crazy far from the main tank:
+		/if (${intFollow}) {
+			/if (${NearestSpawn[PC ${strFollowTarget}].Distance} > 100) {
+				/varset strFollowTarget ${strMyTank}
+				/doevents flush
+				/Call Follow
+			}
+		}
+	}
+		
+/Return
+
+|==================================================================================================|
+|See (when you cannot see your target) code:
+|---------------------------------------------------
+Sub Event_See 
+
+	|Meelee guys need to keep fighting!:
+	/if (${intMelee}) {
+		/if (${Target.ID}) /face fast nolook
+		/return
+	}
+
+	|Get a little closer to the follow target:
+	/if (${intFollow}) {
+		/varset strFollowTarget ${strMyTank}
+		/Call Follow
+	} else {
+	 	|Allow the mob to approach if its healthy enough, and has been damaged:
+	 	/g Let it come closer.
+	 	/if (${Target.PctHPs} > 20 && ${Target.PctHPs} < 100) {
+	 		|If we are too close (to the pet), back up a little too:
+	 		|If we are too close (to the TARGET), back up a little too:
+	 		/if (${Me.Pet.ID}) {
+		 		/if  (${Math.Distance[${Me.X},${Me.Y},0:${Target.X},${Target.Y},0]} < 50) {
+		 			/echo Backing up so my pet can.
+		 			/keypress back hold
+					/for intDelayLoop 1 to 3
+						/delay 1
+						/doevents
+					/next intDelayLoop
+					/keypress back
+					/keypress forward
+		 		}
+		 	}
+	 		
+	 		|Back Pets up:
+			/For Loops 1 to 6
+				/delay 2
+	 			/pet back off
+			/Next Loops
+			/delay 2
+		}
+	}
+
+/return
+
+|==================================================================================================|
+|Back Pets (when your leader cannot see your target) code:
+|---------------------------------------------------
+Sub Event_BackPets 
+
+ 	|Allow the mob to approach if its healthy enough:
+ 	/if (${Target.PctHPs} > 20) {
+		/For Loops 1 to 6
+ 			/pet back off
+			/delay 2
+		/Next Loops
+		/delay 2
+		
+		|Back off toward main assist, if you are Melee:
+		/if (${intMelee}) {
+			/echo Main Assist can't see target - Backing off.
+			/varset strFollowTarget ${strMyTank}
+			/Call Follow
+		}		
+		
+		|Calm down the aggressive Warrior mercs:
+		|/call MercenaryCalm
+	}
+	
+	/doevents
+	
+ /Return
+
+|==================================================================================================|
+|Duck (when you are stuck under something) code:
+|---------------------------------------------------
+Sub Event_Duck 
+
+	|If you are here, you are not standing upright:
+	/Echo Moving back a little...
+	/KeyPress Back
+	
+	/doevents
+
+/Return
+
+|==================================================================================================|
+|Archery (when you cannot see your target) code:
+|---------------------------------------------------
+Sub Event_Archery 
+
+	|Get a little closer to the mob:
+	/keypress forward hold
+	/delay 4
+	/keypress back
+	|/delay 2
+	
+	/doevents
+	
+ /Return
+
+|==================================================================================================|
+|Cramped (when you are too close to your target) code:
+|---------------------------------------------------
+Sub Event_Cramped 
+
+	|Get a little closer to the mob:
+	|/echo Backing off a bit.
+	/keypress back hold
+	/delay 4
+	/keypress forward
+	|/delay 2
+	
+	|Verify that we are not crazy far from the main tank:
+	/if (${intFollow}) {
+		/if (${NearestSpawn[PC ${strFollowTarget}].Distance} > 100) {
+			/varset strFollowTarget ${strMyTank}
+			/Call Follow
+		}
+	}
+	
+	/doevents flush
+	
+ /Return
+
+|==================================================================================================|
+Sub Event_Help 
+	/g Loot: ${intLoot}.
+	/g Follow: ${intFollow}.
+	/g AE: ${intAE}.
+	/g Snare: ${intSnare}.
+	/g Invis: ${intInvis}.
+	/g Slow: ${intSlow}.
+	/g Melee: ${intMelee}.
+	/g Buffing: ${intBuff}.
+/Return
+|==================================================================================================|
+Sub Event_LessonON 
+	/varset intLesson 1
+	/g I will lesson.
+/Return
+|==================================================================================================|
+Sub Event_LootON 
+	/varset intLoot 1
+	/g I will loot.
+/Return
+|==================================================================================================|
+Sub Event_LootOFF 
+	/varset intLoot 0
+	/g I will NOT loot.
+/Return
+|==================================================================================================|
+Sub Event_LootNope
+	/echo Marking ${Target.CleanName} (${Target.ID}) as a difficult corpse.
+	/varset intDifficultCorpse ${Target.ID}
+/Return
+|==================================================================================================|
+Sub Event_FollowON 
+	/varset intFollow 1
+	/g I will be following ${strMyTank}.
+/Return
+|==================================================================================================|
+Sub Event_FollowOFF 
+	/varset intFollow 0
+	/g This is base, I'm not following.
+	
+	|Set the return waypoint:
+	/Varset LocY[${TotalLocs}] ${Me.Y}
+	/Varset LocX[${TotalLocs}] ${Me.X}
+	/Varset LocFace[${TotalLocs}] ${Me.Heading.DegreesCCW}
+
+/Return
+|==================================================================================================|
+Sub Event_BuffON 
+	/varset intBuff 1
+	/g I will be buffing as needed.
+/Return
+|==================================================================================================|
+Sub Event_BuffOFF 
+	/varset intBuff 0
+	/g I will not be buffing.
+/Return
+|==================================================================================================|
+Sub Event_AEON 
+	/varset intAE 1
+	/g I will use area effect attacks.
+/Return
+|==================================================================================================|
+Sub Event_AEOFF 
+	/varset intAE 0
+	/g I will NOT use area effect attacks.
+/Return
+|==================================================================================================|
+Sub Event_SnareON 
+	|Rangers
+	/If (${Me.Class.ID} == 4 || ${Me.Class.ID} == 6) {
+		/varset intSnare 1
+		/g I will handle snares.
+	}
+/Return
+|==================================================================================================|
+Sub Event_SnareOFF 
+	/varset intSnare 0
+	/g I will NOT be snaring.
+/Return
+|==================================================================================================|
+Sub Event_Snared
+ 	/if (${intSnare} > 0) {
+		/varset intSnaredMob ${Target.ID}
+		|/g %t has been SNARED.
+	}
+/Return
+|==================================================================================================|
+Sub Event_SnareCant
+ 	/if (${intSnare} > 0) {
+		/varset intSnaredMob ${Target.ID}
+		/g %t cannot be snared.
+	}
+/Return
+|==================================================================================================|
+Sub Event_SnareResist
+ 	/if (${intSnare} > 0) {
+		|/g %t RESISTED my snare.
+	}
+/Return
+|==================================================================================================|
+Sub Event_SlowON 
+	|Slowers
+	/If (${Me.Class.ID} == 14 || ${Me.Class.ID} == 10) {
+		/varset intSlow 1
+		/g I will handle slows.
+		/varset intDDMax 60
+	}
+/Return
+|==================================================================================================|
+Sub Event_SlowOFF 
+	/varset intSlow 0
+	/g I will NOT be slowing.
+	/varset intDDMax 90
+/Return
+|==================================================================================================|
+Sub Event_Slowed
+ 	/if (${intSlow} > 0) {
+		|/g ${Spawn[${intLastMobSlowedID}].CleanName} has been SLOWED.
+		/call SlowList
+	}
+/Return
+|==================================================================================================|
+Sub Event_SlowPartial
+ 	/if (${intSlow} > 0) {
+		/g ${Spawn[${intLastMobSlowedID}].CleanName} was partially SLOWED.
+		/call SlowList
+	}
+/Return
+|==================================================================================================|
+Sub Event_SlowResist
+ 	/if (${intSlow} > 0) {
+		/g ${Spawn[${intLastMobSlowedID}].CleanName} RESISTED my slow.
+	}
+/Return
+
+|==================================================================================================|
+Sub Event_MezON 
+	|Mezzers:
+	/If (${Me.Class.ID} == 8 || ${Me.Class.ID} == 14) {
+		/varset intMez 1
+		/g I will handle mezzes.
+		|/varset intDDMax 60
+	}
+/Return
+|==================================================================================================|
+Sub Event_MezOFF 
+	/varset intMez 0
+	/g I will NOT be mezzing.
+	|/varset intDDMax 90
+/Return
+|==================================================================================================|
+Sub Event_Mezzed
+ 	/if (${intMez} > 0) {
+		/call MezList
+	}
+/Return
+
+|==================================================================================================|
+Sub Event_MezzBroke(EntireMessage, string MezSpell, string MezTarget)
+ 	/if (${intMez} > 0) {
+		/call MezBroke "${MezSpell}" "${MezTarget}"
+	}
+/Return
+
+|==================================================================================================|
+Sub Event_Invis
+	|Rangers
+	/If (${Me.Class.ID} == 4) {
+		/if (${intInvis}) /keypress 1
+	}
+/Return
+
+|==================================================================================================|
+Sub Event_MyKill
+	/echo ${Me.Class} kill.
+/Return
+
+|==================================================================================================|
+Sub Event_Track
+	|Rangers Tracking
+	/echo Ranger Track Sub...
+	/If (${Me.Class.ID} == 4 && ${intTracking}) {
+		/Varset intTracking 1
+		/Varset intTrackReport 1
+		/Call Tracking
+		/Varset intTracking 0
+	}
+/Return
+
+|==================================================================================================|
+Sub Event_Burn
+
+	/varset intBurn 1
+	/varset intBurnTime 0
+	/varset Combating 5
+	/echo BURNING DOWN THE HOUSE!
+	/doevents
+
+/Return
+
+|==================================================================================================|
+Sub Event_Prepare
+
+	/call AAPrepare
+
+/Return
+
+|==================================================================================================|
+Sub Event_CampOut
+
+	/r Camping to Desktop...
+	/keypress back
+	/keypress back
+	/camp desktop
+	/delay 35s
+
+/Return
+
+|==================================================================================================|
+Sub Event_AlreadyLooting
+
+	/varset intDifficultCorpse 0
+
+/Return
+
+|==================================================================================================|
+|Max Crit code:
+|---------------------------------------------------
+Sub Event_MaxCrit(EntireMessage, CritAmount)
+
+	/if (${CritAmount} > ${intMaxCrit}) {
+		/varset intMaxCrit ${CritAmount}
+		/echo Critical blast for ${intMaxCrit}!
+	}
+	
+ /Return
+
+|==================================================================================================|
+|Outdoor/Indoor Realization code:
+|---------------------------------------------------
+Sub Event_Indoors
+
+	/echo This is an Indoor zone, not trying to mount up anymore.
+	/varset boolOutdoors FALSE
+	
+ /Return
+
+|==================================================================================================|
+Sub Event_InvisON 
+	/varset intInvis 1
+	/g I will automatically invis.
+/Return
+|==================================================================================================|
+Sub Event_InvisOFF 
+	/varset intInvis 0
+	/g I will NOT automatically invis.
+/Return
+
+|==================================================================================================|
+Sub Event_MeleeON 
+	/varset intMelee 1
+	/varset intTank 0
+	/g I will use melee attacks.
+	/call MeleeMark
+/Return
+|==================================================================================================|
+Sub Event_MeleeOFF 
+	/varset intMelee 0
+	/varset intTank 0
+	/g I will NOT use melee attacks.
+/Return
+|==================================================================================================|
+Sub Event_TankON 
+	/varset intTank 1
+	/varset intMelee 1
+	/g I will use melee attacks and tank.
+	/call MeleeMark
+/Return
+|==================================================================================================|
+Sub Event_TankOFF 
+	/varset intTank 0
+	/varset intMelee 1
+	/g I will NOT tank, but I'll use melee attacks.
+/Return
+|==================================================================================================|
+Sub Event_HotON 
+	/varset intHot 1
+	/g I will use HOT heals.
+/Return
+|==================================================================================================|
+Sub Event_HotOFF 
+	/varset intHot 0
+	/g I will NOT use HOT heals.
+/Return
+|==================================================================================================|
+|Group Cast code:
+|---------------------------------------------------
+Sub Event_GroupCast(SpellMessage, SpellCaster, SpellName)
+	/if (${intLead}) {
+		/for Loops 1 to ${Group.Members}
+			/if (${Group.Member[${Loops}].Name.Equal[${SpellCaster}]}) {
+				/if (${Macro.RunTime} + ${Spell[${SpellName}].CastTime.Float} > ${intFreeToMoveTime}) {
+					/varcalc intFreeToMoveTime ${Macro.RunTime} + ${Spell[${SpellName}].CastTime.Float}
+				}
+				/if (${SpellName.Equal[Harmonious Arrow]}) /varcalc intFreeToMoveTime ${Macro.RunTime} + 10
+				|/echo ${SpellCaster} is casting ${SpellName}.
+			}
+		/next Loops
+	}
+	
+ /Return
+|==================================================================================================|
+|Group MANA code:
+|---------------------------------------------------
+Sub Event_GroupMana(ManaMessage, ManaCaster)
+	/if (${intLead}) {
+		/if (${Macro.RunTime} + 60 > ${intFreeToMoveTime}) {
+			/varcalc intFreeToMoveTime ${Macro.RunTime} + 60
+		}
+		/g ${ManaCaster} is Low Mana.  I'll give you about 1 minute.
+	}
+	
+ /Return
+
+|==================================================================================================|
+|Promised Renewal code:
+|---------------------------------------------------
+Sub Event_PromisedRenewal(EntireMessage, PRTarget)
+
+	|/echo Promise Heal just buffed ${PRTarget}!
+	
+	/for Looper 1 to 2
+		|Check for outdated timers:
+		/if (${intPRTime[${Looper}]} + 2 < ${Macro.RunTime}) {
+			/varset strPRTarget[${Looper}] NONE
+			/varset intPRTime[${Looper}] 0
+		}
+	/next Looper
+
+	/if (${PRTarget.Equal[${strPRTarget[1]}]} || ${strPRTarget[1].Equal[NONE]}) {
+		/varset strPRTarget[1] ${PRTarget}
+		/varcalc intPRTime[1] ${Macro.RunTime} + 16
+		|/echo PR1: ${Macro.RunTime} : ${intPRTime[1]}
+	} else {
+		/if (${PRTarget.Equal[${strPRTarget[2]}]} || ${strPRTarget[2].Equal[NONE]}) {
+			/varset strPRTarget[2] ${PRTarget}
+			/varcalc intPRTime[2] ${Macro.RunTime} + 16
+			|/echo PR2: ${Macro.RunTime} : ${intPRTime[2]}
+		}
+	}
+	
+/Return
+
+|==================================================================================================|
+|PreventCast code:
+|---------------------------------------------------
+Sub Event_PreventCast(EntireMessage, PreventTarget)
+
+	/echo ${PreventTarget} is casting a spell we hate!
+	
+	/if (${PreventTarget.Equal[${Target.CleanName}]} {
+		/echo Stop the caster!
+		/if (${Me.Class.ID} == 8) {
+			/cast BRDmez
+		}
+	}
+/Return
+
+|==================================================================================================|
+|Track Guides code:
+|---------------------------------------------------
+Sub Event_TrackGuides(EntireMessage)
+
+	/echo ${EntireMessage}
+	/mqlog [${Me.CleanName}] ${EntireMessage}
+
+/Return
+
+|==================================================================================================|
+|DiseasedNag code:
+|---------------------------------------------------
+Sub Event_DiseasedNag(EntireMessage, string CureTarget)
+
+	|Bard Cure:
+	/if (${Me.Class.ID} == 8 && ${Me.Book[${BRDcure}]}) {
+
+		/if (${CureTarget.Mid[2,1].Equal[1]}) {
+			|/echo Trimming CureTarget.
+			/varset CureTarget ${CureTarget.Right[-2].Left[-1]} 
+		}
+		/echo I see a cure needed for [${CureTarget}].
+		/if (${CureTarget.Equal[You]}) {
+			/target myself
+			/g I need to cure myself.
+		} else {
+			|/echo Cure Target Length: ${CureTarget.Length}
+			|/for Looper 1 to ${CureTarget.Length}
+			|	/echo ${Looper}: ${CureTarget.Mid[${Looper}, 1]}
+			|/next Looper
+			|/target pc ${CureTarget.Right[-2].Left[-1]} 
+			/target pc ${CureTarget}
+			/g Hey ${CureTarget}, I hear you.  I'll sing to ya.
+		}
+	
+		/stopsong
+		/keypress forward
+		/cast ${BRDcure}
+		/mqlog [${Me.CleanName}] Curing ${CureTarget} using ${BRDCure]}.
+		/delay 4s
+		/squelch /target clear
+	}
+	
+	|Cleric Cure:
+	/if (${Me.Class.ID} == 2) {
+		/if (${CureTarget.Mid[2,1].Equal[1]}) {
+			|/echo Trimming CureTarget.
+			/varset CureTarget ${CureTarget.Right[-2].Left[-1]} 
+		}
+		/echo I see a cure needed for [${CureTarget}].
+		/if (${CureTarget.Equal[You]}) {
+			/target myself
+			/g I need to cure myself.
+		} else {
+			/target pc ${CureTarget}
+			/g Hey ${CureTarget}, I hear you.  I'll cure ya.
+		}
+	
+		/keypress forward
+		/target myself
+		/if (${Me.AltAbilityReady[${CLRradiant}]}) {
+			|/g Incoming Radiant Cure.
+			/call Cast ${CLRradiant} alt
+			/delay 1
+			/for intDelayLoop 1 to ${Math.Calc[${Spell[${CLRradiant}].MyCastTime.Float} * 10]}
+				/delay 1
+				/doevents
+			/next intDelayLoop
+			/delay 1
+		} else {
+			/if (${Spell[${CLRcure}].Mana} < ${Me.CurrentMana}) {
+		    	/call Cast ${CLRcure} gem10
+		    }
+		}
+		/mqlog [${Me.CleanName}] Curing ${CureTarget} using ${CLRcure}.
+		/squelch /target clear
+		/doevents
+	}
+	
+		
+/Return
+
+|==================================================================================================|
+|DiseasedNag code:
+|---------------------------------------------------
+Sub Event_HOTRequest(EntireMessage, string CureTarget)
+
+	/if (${Me.Class.ID} == 2) {
+
+		/if (${CureTarget.Mid[2,1].Equal[1]}) {
+			|/echo Trimming CureTarget.
+			/varset CureTarget ${CureTarget.Right[-2].Left[-1]} 
+		}
+		/echo I see a HOT needed for [${CureTarget}].
+		/if (${CureTarget.Equal[You]}) {
+			/target myself
+			/g I need to HOT myself.
+		} else {
+			/target pc ${CureTarget}
+			/g Hey ${CureTarget}, I hear you.  I'll HOT you.
+		}
+	
+		/cast ${HOTHeal}
+		/mqlog [${Me.CleanName}] HOTing ${CureTarget} using ${HOTHeal}.
+		/squelch /target clear
+	}
+		
+/Return
+
+
+|==================================================================================================|
+|Summoned code:
+|---------------------------------------------------
+Sub Event_Summoned()
+
+	/varset intFollow 0
+	/g This is base, I'm not following.
+	
+	|Set the return waypoint:
+	/Varset LocY[${TotalLocs}] ${Me.Y}
+	/Varset LocX[${TotalLocs}] ${Me.X}
+	/Varset LocFace[${TotalLocs}] ${Me.Heading.DegreesCCW}
+		
+/Return
+
+
+|==================================================================================================|
+|GoLow Hit one code:
+|---------------------------------------------------
+Sub Event_GoLowHit()
+
+	/if (${intGoLow}) {
+		/call GoLowLister
+	}
+	
+/return
+
+
+|==================================================================================================|
+|Reiter Hit one code:
+|---------------------------------------------------
+Sub Event_Reiteration()
+
+		/if (${Me.Class.ID} == 14) {
+			/g Someone scored a reiteration!
+		}
+		
+/return

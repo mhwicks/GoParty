@@ -1,0 +1,39 @@
+|**---------------------------------------------------------- 
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare 	Iterations 			int 		outer 	0
+/declare	intLockPicks		int			outer	0
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Pick! ===>>
+
+/if (${Int[${Param0}]}) {
+	/varset intLockPicks ${Int[${Param0}]}
+} else {
+	/varset intLockPicks 100
+}
+/echo Picking the lock directly in front of me ${intLockPicks} times.
+
+/for Iterations 1 to ${intLockPicks}
+	|/look 0
+	/delay 1
+	/click left center
+/next Iterations
+
+/varcalc Iterations ${Iterations} -1
+
+/echo Clicked ${Iterations} times.
+		
+/end 
+	

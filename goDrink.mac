@@ -1,0 +1,139 @@
+|---------------------------------------------------------------------------------
+| Alcohol Training Macro
+|
+| This macro will max out your Alcohol Tolerance.  You need a
+| fisherman's companion on you for this macro to work properly.
+|---------------------------------------------------------------------------------
+
+#turbo 10
+
+#include spell_routines.inc
+
+#event SkillUp "You have become better at #1#! (#2#)"
+
+Sub Main
+
+   /echo Starting up ${Macro}
+   /echo --------------------------------------------
+   /echo Your Alcohol Tolerance is ${Me.Skill[Alcohol Tolerance]}.
+   
+   :Start
+      /call GMCheck
+      /delay 2s
+      /call GoDrink
+      
+      /doevents
+   /goto :Start
+/return
+
+
+|--------------------------------------------------------------------------------
+|SUB: Actual Drinking:
+|--------------------------------------------------------------------------------
+Sub GoDrink
+
+/if (${Me.Skill[alcohol tolerance]} == ${Skill[alcohol tolerance].SkillCap}) {
+	/echo  You are already a pro drinker (${Me.Skill[alcohol tolerance]}/${Skill[alcohol tolerance].SkillCap})!
+	/endmacro
+}
+
+/if (${FindItemCount[=Summoned: Ale]}) {
+	/if (${Me.Drunk} < 200) {
+	
+		/echo I'm this drunk: ${Me.Drunk}, I tolerate ${Me.Skill[alcohol tolerance]} / ${Skill[alcohol tolerance].SkillCap}, and I have ${FindItemCount[=Summoned: Ale]} Ales left.
+		
+		|empty your hands		
+		/autoinventory 
+		|Old Slot ID: ${FindItem[=Mead].InvSlot.ID}
+		
+		/if ( ${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack} ) { 
+			:open_pack
+			|/echo Opening the pack...
+			/nomodkey /itemnotify ${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack} rightmouseup 
+			/if ( !${Window[${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack.Name}].Open} ) /goto :open_pack 
+		} 
+		:pick_up_item 
+		|/echo Picking up the mead...
+		/if ( ${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack} && !!${Window[${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack.Name}].Open} ) {
+			/nomodkey /itemnotify ${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}].Pack} rightmouseup 
+		}
+		/ctrlkey /itemnotify ${InvSlot[${FindItem[=Summoned: Ale].InvSlot.ID}]} leftmouseup 
+		/if ( !${Cursor.Name.Equal[Summoned: Ale]} ) /goto :pick_up_item 
+		:exchange_items 
+		/nomodkey /itemnotify 30 leftmouseup 
+		/if ( !${Me.Inventory[30].Name.Equal[Summoned: Ale]} ) /goto :exchange_items 
+		
+		|Click the mead:
+		/nomodkey /itemnotify 30 rightmouseup
+		/delay 5
+		/nomodkey /itemnotify 30 leftmouseup 
+		/delay 5
+		/autoinv
+
+		/call CastWait
+	}
+} else {
+	/call MakeDrinks
+}
+
+/return
+
+|--------------------------------------------------------------------------------
+|SUB: Check for GM's in zone.
+|--------------------------------------------------------------------------------
+Sub GMCheck
+
+   /if (${Spawn[gm].ID}) {
+      /beep
+      /beep
+      /beep
+      /echo GM entered the zone!
+      /echo For safty reasons ending the macro...
+      /endmacro
+   }
+
+/return
+
+
+|--------------------------------------------------------------------------------
+|SUB: Make some Drinks:
+|--------------------------------------------------------------------------------
+Sub MakeDrinks
+
+	/if (${FindItemCount[=Brell's Fishin' Pole]}) {
+		:MakeMoreAle
+		/call cast "Brell's Fishin' Pole" item
+		|/delay 12s
+		/autoinventory
+		/popup Now I have ${FindItemCount[=Summoned: Ale]}/200 Ales.
+		/if (${FindItemCount[=Summoned: Ale]} < 200) /goto :MakeMoreAle
+	} else {
+		/call cast "Fisherman's Companion" item
+		|/delay 12s
+		/autoinventory
+	}
+
+/return
+
+
+|==================================================================================================|
+Sub CastWait
+|-------------------------------------------------------
+
+|Cast Wait:
+:CastWait
+|/echo Casting!
+/delay 1
+/if (${Me.Casting.ID}) /goto :CastWait
+
+/return
+
+|--------------------------------------------------------------------------------
+|SUB: Event subroutines.
+|--------------------------------------------------------------------------------
+
+Sub Event_SkillUp(SkillUpText,Skill,int Amount)
+   /popup Alcool Tolerance increased to ${Amount}.
+   /echo Alcohol Tolerance increased to ${Amount}.
+/return
+|--------------------------------------------------------------------------------

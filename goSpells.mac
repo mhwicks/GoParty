@@ -1,0 +1,55 @@
+
+| goSpells helps you make sure you have all of the spells you need.
+
+Sub Main(int LevelMin, int LevelMax)
+
+	/echo ==============================
+	/echo GoSpells Active!
+	
+	/declare		intLevelMin		int		outer
+	/declare		intLevelMax		int		outer
+	
+
+	| Set min Level:
+	/if (${LevelMin}) {
+		/varset intLevelMin ${LevelMin}
+	} else {
+		/varcalc intLevelMin ${Me.Level} - 4
+	}
+	/if (${intLevelMin} < 1) /varset intLevelMin 1
+	
+	| Set max Level:
+	/if (${LevelMax}) {
+		/varset intLevelMax ${LevelMax}
+	} else {
+		/varset intLevelMax ${Me.Level}
+	}
+	
+	/echo Finding ${Me.Class.ShortName} spells level ${intLevelMin} to ${intLevelMax}.
+	/echo Please be patient, I have a shitload of work to do here...
+
+	/echo ID, Spell, Level, Book
+	
+	/declare 		intLooper 		int
+	
+	/varset intLooper 1
+	:SpellsLoop
+
+	/call EvaluateSpell ${intLooper}
+	
+	/varcalc intLooper ${intLooper} + 1
+	/if (${intLooper} > 27999) /end
+	/if (${Spell[${intLooper}].Level}) /goto :SpellsLoop
+
+/end
+
+
+Sub EvaluateSpell(int intLooper)
+
+	| Drop out if not my class:
+	/if (${Spell[${intLooper}].Level} > ${intLevelMax}) /return
+	/if (${Spell[${intLooper}].Level} < ${intLevelMin}) /return
+
+	/echo ${intLooper}, ${Spell[${intLooper}]}, ${Spell[${intLooper}].Level}, ${Me.Book[${Spell[${intLooper}]}]}
+	
+/return

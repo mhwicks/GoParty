@@ -1,0 +1,131 @@
+#turbo
+#include spell_routines.inc
+
+|==================================================================================================|
+Sub Main
+
+/declare Iterations int outer
+/declare Participant int outer
+/declare intFoodStacks int outer
+
+|Prepare:
+
+/echo ==============================
+/echo GoFood Active.
+
+|Determine how many loops:
+|Following?
+/if (${Int[${Param0}]}) {
+	/varset intFoodStacks ${Int[${Param0}]}
+	/echo Making ${intFoodStacks} stack(s) of food for each group member within 20 feet of me.
+} else {
+	/varset intFoodStacks 2
+	/echo Using the default number of stacks of food: ${intFoodStacks}.
+}
+
+/if (!${Me.Gem["Gift of Xev"]}) {
+	/delay 1
+	/memspell 3 "Gift of Xev"
+	/delay 5s
+}
+
+:EmptyMyHands
+/if (${Cursor.ID}) /AutoInventory
+/if (${Cursor.ID}) /goto :EmptyHands
+
+|Create Food and give it to ME:
+/for Iterations 1 to ${intFoodStacks}
+	:MyFeedReady
+	/delay 1
+	/if (!${Me.SpellReady["Gift of Xev"]}) /goto :MyFeedReady
+	
+	/Call Cast "Gift of Xev" gem3 0
+	/delay 5s ${Cursor.ID}
+	|/echo Pack ID: ${Cursor.ID}
+	/if (!${Me.Inventory[pack8](bool)}) {
+		/autoinv
+	} else {
+		/Destroy
+	}
+	
+	|Handle the food:
+	/delay 5s (${Cursor.ID} == 13078)
+	|/echo Food ID: ${Cursor.ID}
+	/delay 1
+	/autoinv
+	
+	|Handle the Water:
+	/delay 5s (${Cursor.ID} == 13079)
+	|/echo Water ID: ${Cursor.ID}
+	/delay 1
+	/autoinv
+	
+	|Handle the bag:
+	/delay 5s (${Cursor.ID} == 13081)
+	|/echo Bandage ID: ${Cursor.ID}
+	/Destroy
+	/delay 5s (!${Cursor.ID})
+	
+	/echo ${Iterations} of ${intFoodStacks} done.
+/next Iterations
+
+|Handle Group Memebers:
+/for Participant 1 to ${Group}
+	/if (${Group.Member[${Participant}].Type.Equal[pc]}) {
+		/if (${Group.Member[${Participant}].Distance} < 20) {
+		
+			/echo Feeding ${Group.Member[${Participant}]}
+			
+			/for Iterations 1 to ${intFoodStacks}
+				:GroupFeedReady
+				/delay 1
+				/if (!${Me.SpellReady["Gift of Xev"]}) /goto :GroupFeedReady
+				
+				|Cast the spell:
+				/Call Cast "Gift of Xev" gem3 0
+				
+				|Handle the bag:
+				/Delay 1s ${Cursor.ID}
+				/if (!${Me.Inventory[pack8](bool)}) {
+					/AutoInventory
+				} else {
+					/Destroy
+				}
+				
+				|Handle the food:
+				/delay 1s (${Cursor.ID} == 13078)
+				:GiveFood
+				/target id ${Group.Member[${Participant}].ID}
+				/click Left Target
+				/delay 5 (!${Cursor.ID} == 13078)
+				/if (${Cursor.ID} == 13078) /goto :GiveFood
+				
+				|Handle the water:
+				/Delay 1s (${Cursor.ID} == 13079)
+				:GiveWater
+				/target id ${Group.Member[${Participant}].ID}
+				/click Left Target
+				/delay 5 (!${Cursor.ID} == 13079)
+				/if (${Cursor.ID} == 13079) /goto :GiveFood
+
+				|Trade!
+				/notify TradeWnd TRDW_Trade_Button leftmouseup
+
+				|Handle the bandages:
+				/delay 1s (${Cursor.ID} == 13081)
+				/Destroy
+				/delay 1s (!${Cursor.ID})
+				
+				|Give the trade window some time:
+				/delay 5s (!${Window[TradeWnd]})
+
+				/echo ${Iterations} of ${intFoodStacks} done.
+			/next Iterations
+		}
+	}
+/next Participant
+
+/echo Food Creation Complete.
+/beep
+
+/end

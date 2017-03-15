@@ -1,0 +1,184 @@
+|**---------------------------------------------------------- 
+GoPrac.mac 
+by Dadda!
+
+This macro will Automate skill practice (Spells)
+If you are summoning an item with a practice spell - use a lore item, make one and put it in inventory before starting.
+
+Usage: /mac goprac
+Currently no parameters.
+
+11/01/2006 v1.0
+Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+#include spell_routines.inc
+
+Sub Main 
+
+|Spell Declaration Section:
+/declare SpellCrack string outer "Voice of Intuition"
+
+/declare SpellAbj string outer "Minor Shielding"
+/declare SpellAlt string outer "Burnout"
+/declare SpellCon string outer "Summon Wisp"
+/declare SpellDiv string outer "Invisibility"
+/declare SpellDiv2 string outer "Invisibility"
+
+|Mage Practice Spells:
+/if (${Me.Class.ID} == 13) {
+	/varset SpellAbj "Minor Shielding"
+	/varset SpellAlt "Burnout"
+	/varset SpellCon "Summon Wisp"
+	/varset SpellDiv "Invisibility"
+}
+
+|Cleric Practice Spells:
+	/if (${Me.Class.ID} == 2) {
+	/varset SpellAbj "Yaulp"
+	/varset SpellAlt "Minor Healing"
+	/varset SpellCon "Summon Drink"
+	/varset SpellDiv "True North"
+	/varset SpellDiv2 "Sense the Dead"
+}
+
+|Enchanter Practice Spells:
+	/if (${Me.Class.ID} == 14) {
+	/varset SpellAbj "Minor Shielding"
+	/varset SpellAlt "Intellectual Superiority"
+	/varset SpellCon "Calming Visage"
+	/varset SpellDiv "Illusion: Fire Elemental"
+	/varset SpellDiv2 "Illusion: Human"
+}
+
+/declare MySkillMax int outer
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Practice! ===>>
+
+|/echo Loading up practice spells - single cast each.
+|/call Cast ${SpellAbj} gem1
+|/call Cast ${SpellAlt} gem2
+|/call Cast ${SpellCon} gem3
+|/call Cast ${SpellDiv} gem4
+
+/varcalc MySkillMax ${Me.Level} * 5 + 4
+/if (${MySkillMax} > 230) /varset MySkillMax 230
+/if (${Skill[Abjuration].SkillCap} > ${MySkillMax}) /varset MySkillMax ${Skill[Abjuration].SkillCap}
+/if (${Skill[Alteration].SkillCap} > ${MySkillMax}) /varset MySkillMax ${Skill[Alteration].SkillCap}
+/if (${Skill[Conjuration].SkillCap} > ${MySkillMax}) /varset MySkillMax ${Skill[Conjuration].SkillCap}
+/if (${Skill[Divination].SkillCap} > ${MySkillMax}) /varset MySkillMax ${Skill[Divination].SkillCap}
+
+/echo I've determined that your maximum possible skill level is ${MySkillMax}.
+
+:mainloop
+
+/target ${Me.Name}
+
+/call CrackAddict
+
+|Abjuration:
+/if (${Me.Skill[Abjuration]} < ${MySkillMax}) {
+	/call Cast ${SpellAbj} gem1
+	/delay ${Spell[${SpellAbj}].CastTime}
+} else {
+	|/echo Abjuration Maxed (${Me.Skill[Abjuration]} of ${MySkillMax})!
+}
+
+|Alteration:
+/if (${Me.Skill[Alteration]} < ${MySkillMax}) {
+	/call Cast ${SpellAlt} gem2
+	/delay ${Spell[${SpellAlt}].CastTime}
+} else {
+	|/echo Alteration Maxed (${Me.Skill[Alteration]} of ${MySkillMax})!
+}
+
+|Conjuration:
+/if (${Me.Skill[Conjuration]} < ${MySkillMax}) {
+	/call Cast ${SpellCon} gem3
+	/delay ${Spell[${SpellCon}].CastTime}
+} else {
+	|/echo Conjuration Maxed (${Me.Skill[Conjuration]} of ${MySkillMax})!
+}
+
+|Divination:
+/if (${Me.Skill[Divination]} < ${MySkillMax}) {
+	/call Cast ${SpellDiv} gem4
+	/delay ${Spell[${SpellDiv}].CastTime}
+} else {
+	|/echo Divination Maxed (${Me.Skill[Divination]} of ${MySkillMax})!
+}
+
+|Divination2:
+|Divination is usually the hardest to max, so if it's lagging, check++ for second DIV spell:
+/if (${Me.Skill[Abjuration]} == ${MySkillMax} && ${Me.Skill[Alteration]} == ${MySkillMax} && ${Me.Skill[Conjuration]} == ${MySkillMax}) {
+	/if (${Me.Skill[Divination]} < ${MySkillMax}) {
+		|/echo Divination is lacking, let's do bonus spell!
+		/call Cast ${SpellDiv2} gem5
+		/delay ${Spell[${SpellDiv2}].CastTime}
+	}
+}
+
+|Verify that we are not totally done:
+/if (${Me.Skill[Abjuration]} == ${MySkillMax} && ${Me.Skill[Alteration]} == ${MySkillMax} && ${Me.Skill[Conjuration]} == ${MySkillMax} && ${Me.Skill[Divination]} == ${MySkillMax}) {
+	/echo All skills appear to be maxed out!
+	/end
+}
+
+|Check for mana problems:
+/if (${Me.PctMana} < 20) {
+	/Call MedToFull
+}
+
+/DoEvents
+
+|Reloop:
+/delay 1s
+
+|Check Cursor
+/autoinventory
+
+/goto :mainloop
+
+/end
+|==================================================================================================|
+Sub MedToFull
+	/echo Medding to full...
+	:MedLoop
+	/if (!${Me.Sitting}) /sit on
+	/doevents
+	/delay 1s
+	
+	/call CrackAddict
+	
+	/if (${Me.PctMana} < 90) /goto :MedLoop
+/Return
+
+|==================================================================================================|
+
+Sub CrackAddict
+
+	|Chanters gotta crack!
+	/if (!${Me.Class.ID} == 14) /return
+	
+	/if (${Me.Buff[${SpellCrack}].ID}) /return
+	
+	/if (!${Me.Gem[${SpellCrack}]}) {
+		/if (${Me.Book[${SpellCrack}]}) {
+			/memspell 8 ${SpellCrack}
+			/delay 5s
+		}
+	}
+
+	/delay 5s 
+	/if (${Me.SpellReady[${SpellCrack}]}) {
+		/if (${Me.CurrentMana} > ${Spell[${SpellCrack}].Mana}) {
+			/call cast ${SpellCrack}
+		}
+	}
+
+/return

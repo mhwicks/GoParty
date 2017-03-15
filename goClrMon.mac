@@ -1,0 +1,113 @@
+|**---------------------------------------------------------- 
+GoClrMon.mac 
+by Dadda!
+
+This macro will Help your Cleric's spell timing.
+
+Usage: /mac goclrmon
+
+----------------------------------------------------------**| 
+#event PromisedRenewal "#1# is promised a divine restoration.#*#"
+#event FinishedRenewal "Your Promised Restoration Spell has worn off of #1#.
+
+#event PromisedRenewalSelf "You are promised a divine restoration.#*#"
+#event FinishedRenewalSelf "The promise of divine restoration is fulfilled.
+
+#turbo 40 
+
+Sub Main
+/echo Cleric Monitoring Enabled.
+
+/declare strPRTarget1 string outer NONE
+/declare strPRTarget2 string outer NONE
+/declare intPRTime1 int outer 0
+/declare intPRTime2	int outer 0
+
+:mainloop
+
+/doevents
+/call CheckTimers
+/delay 1
+
+/goto :mainloop
+/end
+
+CheckTimers
+|==================================================================================================|
+|CheckTimers code:
+|---------------------------------------------------
+Sub CheckTimers
+
+	|/echo Running: ${Macro.RunTime}; PRTime1: ${intPRTime1}; PRTime2: ${intPRTime2}
+	
+	/if (${Macro.RunTime} > ${intPRTime1} && ${intPRTime1} > 0) {
+		/echo ${strPRTarget1} - Past Remedy Deadline.
+		/varset intPRTime1 0
+	}
+	
+	/if (${Macro.RunTime} > ${intPRTime2} && ${intPRTime2} > 0) {
+		/echo ${strPRTarget2} - Past Remedy Deadline.
+		/varset intPRTime2 0
+	}
+
+/Return
+
+|==================================================================================================|
+|Promised Renewal code:
+|---------------------------------------------------
+Sub Event_PromisedRenewal(EntireMessage, PRTarget)
+
+	/echo ${PRTarget} - Monitoring.
+	|/echo PRTarget1: ${strPRTarget1}
+	
+	/if (${PRTarget.Equal[${strPRTarget1}]} || ${strPRTarget1.Equal[NONE]}) {
+		/varset strPRTarget1 ${PRTarget}
+		/varcalc intPRTime1 ${Macro.RunTime} + 16
+		|/echo PR1: ${Macro.RunTime} : ${intPRTime1}
+	} else {
+		/if (${PRTarget.Equal[${strPRTarget2}]} || ${strPRTarget2.Equal[NONE]}) {
+			/varset strPRTarget2 ${PRTarget}
+			/varcalc intPRTime2 ${Macro.RunTime} + 16
+			|/echo PR2: ${Macro.RunTime} : ${intPRTime2}
+		}
+	}
+	
+/Return
+
+|==================================================================================================|
+|Finished Renewal code:
+|---------------------------------------------------
+Sub Event_FinishedRenewal(EntireMessage, PRTarget)
+
+	/echo ${PRTarget} - Done with Promised Restoration.
+	/echo =======================
+	
+	/if (${PRTarget.Equal[${strPRTarget1}]}) {
+		/varset strPRTarget1 NONE
+		/varset intPRTime1 0
+	} else {
+		/if (${PRTarget.Equal[${strPRTarget2}]}) {
+			/varset strPRTarget2 NONE
+			/varset intPRTime2 0
+		}
+	}
+/Return
+
+|==================================================================================================|
+|Promised Renewal code:
+|---------------------------------------------------
+Sub Event_PromisedRenewalSelf
+
+	/echo ${Me.CleanName} - Monitoring.
+	
+/Return
+
+|==================================================================================================|
+|Finished Renewal code:
+|---------------------------------------------------
+Sub Event_FinishedRenewalSelf
+
+	/echo ${Me.CleanName} - Done with Promised Restoration.
+	/echo =======================
+	
+/Return

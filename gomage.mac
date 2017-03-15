@@ -1,0 +1,858 @@
+|**---------------------------------------------------------- 
+MageGo.mac 
+by Dadda!
+
+This macro will Automate your Mage and his pet
+
+Usage: /mac magego
+Currently no parameters.
+
+06/27/2004 v1.0
+Basic Creation.
+
+11/26/2004 v2.0
+Converted *Chanter*Cycle to *Ranger*Cycle
+
+04/14/2006 v3.0
+Converted *Ranger*Cycle to MageGo
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#event Exp "You gain party#*#" 
+#event Lang "#*#repeat the text#*#" 
+#event Invite "#*#invite me#*#"
+#event Shield "#*#s YOU for#*#"
+#event See "You cannot see your target."
+#event Duck "You must be standing#*#"
+#event Range "Your target is out of range,#*#"
+#event GroupCast "#1# begins to cast a spell. <#2#>"
+#event Burn "#*#burn!#*#"
+#event LootON "#*#please loot#*#"
+#event LootOFF "#*#please don't loot#*#"
+#event AEON "#*#please ae#*#"
+#event AEOFF "#*#please don't ae#*#"
+#event GroupMana "#1# tells the group, 'Low Mana.'"
+
+#turbo 40 
+#include spell_routines.inc
+#include prepare.inc
+#include ZZdeletions.inc
+#include iBurn.inc
+#include iLoot.inc
+#include iBuffs.inc
+#include iMove.inc
+
+|#include Zupperguk.inc
+|Farming Braziers of Elemental Summoning
+
+|#include Zpermafrost.inc
+|Gargolye Eyes in Mistmoore, and Crystals in Permafrost!
+
+|#include Zkatta3.inc
+|Snakes for Combine Empire Merchant Faction (Parvus Quests)
+
+#include Zatiiki.inc
+|Efreeti - Circle the Pyramid
+
+|#include Zdragonscale1.inc
+|Doombugs!
+
+|#include Zvalor2.inc
+| Frogs and Worms - Good til 79!
+
+|#include Zcauseway.inc
+|#include Zcauseway2.inc
+
+|#include Zcauseway3.inc
+| Dragorn Armsmen
+
+|#include Zthedeep.inc
+| Yttrium Ore Farming
+
+|#include ZRoost.inc
+| Single Room
+
+|#include ZRoost2.inc
+| Long Trip - Good til 80!
+
+|#include zTirranum.inc
+|#include zBroodlands.inc
+| Scale Ore!
+
+|#include Znurga.inc
+|Remember this place?
+
+Sub Main 
+
+|-------------------------------------------------------------| 
+
+/declare announce int outer 1 
+/declare autosit int outer 1 
+/declare distancetosit int outer 40 
+/declare autointerrupt int outer 1 
+/declare mychannel string outer brv
+
+/declare intDDMax int outer 90
+/declare intDDMin int outer 10
+
+/call DeclareMove
+/call DeclareLoot
+/declare intLoot int outer 1
+/declare intAE int outer 0
+
+/declare Counter int outer
+/declare WorkZone int outer
+/declare MyRandom int outer
+
+/declare Iterations 			int 	outer 	0
+/declare Languages 				int 	outer 	0
+/declare TotalKills 			int 	outer 	0
+/declare Combating 				int 	outer 	0
+/declare CurrentTarget 			string 	outer
+/declare MobStart 				int 	outer 	0
+/declare MobStop 				int 	outer 	0
+/declare MobSeconds 			int 	outer 	0
+/declare MobName 				string 	outer
+/declare intLastKillIndex		int		outer	0
+
+/declare LastDistance float outer 1000
+/declare LocDiff float outer 0
+/declare StuckCounter int outer 0
+/declare BigStuckCounter int outer 0
+/declare Looper int outer 0
+
+/declare intLoopSafety		int		outer	0
+
+/call DeclareBuffs
+
+|XP Tracking Variables:
+|--------------------------------
+/declare Exper float outer 
+/declare AAExp float outer
+    
+/Varset Exper ${Me.PctExp} 
+/Varset AAExp ${Me.PctAAExp} 
+
+/call DeclareBurn
+
+/echo ==============================
+/echo GoMage Active.
+
+|-Verify that player is a MAGE:
+/If (${Me.Class.ID} != 13) {
+	/echo This macro is intended for mages only; try GoParty instead.
+	/end
+}
+  
+/join ${mychannel} 
+|/filter target
+
+/Call Locations
+
+|Looting?
+/If ((${Param0.Equal[loot]})||(${Param1.Equal[loot]})) {
+	/varset intLoot 1
+	/echo Loot mode is set ON.
+} else {
+	/varset intLoot 0
+	/echo Loot mode is set OFF.
+}
+
+|============================================================================================
+|Code for stationary MAGE:
+/if (${Zone.ID} != ${LocationID}) {
+	/echo STATIONARY RULES APPLY!
+	/Varset TotalLocs 1
+	/Varset LocDesc[${TotalLocs}] "Camp"
+	/Varset LocY[${TotalLocs}] ${Me.Y}
+	/Varset LocX[${TotalLocs}] ${Me.X}
+	/Varset LocFace[${TotalLocs}] ${Me.Heading.DegreesCCW}
+	/Varset LocDur[${TotalLocs}] 200
+	/Varset LocRange[${TotalLocs}] 80
+	/echo X:${LocX[${TotalLocs}]}, Y:${LocY[${TotalLocs}]}, F:${LocFace[${TotalLocs}]}
+	
+	/if (${Zone.ID} == 444) {
+		|Hills of Shave Radius:
+		|/Varset LocRange[${TotalLocs}] 50
+	}
+		
+}
+|============================================================================================
+
+|Find Closest Waypoint for starting:
+/if (${TotalLocs} > 1) {
+	/varset intStartingDistance ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${1}]},${LocY[${1}]},0]}
+	/for Iterations 1 to ${TotalLocs}
+		|/echo Checking ${Iterations}) ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]}.
+		/if (${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]} < ${intStartingDistance}) {
+			/varset intStartingDistance ${Math.Distance[${Me.X},${Me.Y},0:${LocX[${Iterations}]},${LocY[${Iterations}]},0]}
+			|/echo Waypoint ${Iterations} is the closest waypoint now (${intStartingDistance} ft.).
+			/varset MoveIndex ${Iterations}
+		}
+	/next Iterations
+	/echo Closest waypoint is ${MoveIndex}: ${LocDesc[${MoveIndex}]}.
+	|/varcalc MoveIndex ${MoveIndex} -1
+}
+
+/varset WorkZone ${Zone.ID}
+/echo I am in ${Zone.ShortName} (Zone ${WorkZone}).
+/echo Following ${TotalLocs} waypoints.
+/echo Searching for mobs...
+/squelch /target clear
+
+/If (!${Me.Pet.ID}) {
+	/if (${Me.Inventory[pack8](bool)}) {
+		/echo Clear out pack8 first!
+		/end
+	}
+	/Call Prepare
+}
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+:mainloop
+/Call HealthCheck
+
+/if (${Me.PctMana}>=20) {
+	/if (${Me.Class.ID} == 13) /Call MAGBuffCheck
+}
+
+:CombatCheck
+/DoEvents
+
+/Call GMCheck
+/Call ZoneCheck
+
+/Call TargetCheck
+|/Echo Combating (main): ${Combating}
+/If (${Combating} > 0) {
+	/Echo Just finished combat, checking for more mobs.
+	/Varset Combating 0
+	/Goto :CombatCheck
+}
+
+|-Reset Burn Down Varaibles:
+/if (${intBurn}) {
+	/varset intBurn 0
+	/varset intBurnTime 4
+	/echo Burn down complete.
+}
+
+:JustLootCheck
+/If (${intLoot} > 0) {
+	|/Echo Attempting to loot...
+	/if ((${NearestSpawn[NPC zradius 25].Distance} > ${LocRange[${MoveIndex}]}/2)) {
+		/Call LootCheck
+		|/Call CoinCheck
+	}
+	/if (${intJustLooted}) {
+		/varset intJustLooted 0
+		/varset intBackStep 1
+	   	/varset Iterations 201
+		|/goto :CombatCheck
+		/goto :JustLootCheck
+	}
+}
+
+|Should not be in combat now, so back the pet off if he's far away:
+|This helps if pet is fighting and I don't know it!
+/if (${Me.Pet.Distance} > 30) {
+	/pet back
+}
+
+/DoEvents
+/Call AutoSit
+
+|Decrease wait time for long rest locations, where I did my last kill
+/if (${MoveIndex} == ${intLastKillIndex}) {
+	/if (${LocDur[${MoveIndex}]} >=30) {
+		/if (${Iterations} < 100) {
+			/if (${Me.PctMana} >= 80) {
+				/varset Iterations 100
+				/varset intLastKillIndex 0
+				/echo My last kill was here at ${LocDesc[${MoveIndex}]}, decreasing wait time dramatically.
+			}
+		}
+	}
+}
+
+/Call MoveCheck
+
+|/For Languages 1 to 3
+	/Delay 1s
+	/DoEvents
+|/Next Languages
+
+|Reloop:
+/goto :mainloop
+
+|==================================================================================================|
+Sub TargetCheck
+|TargetCheck:
+/if (${NearestSpawn[NPC].Distance} <= ${LocRange[${MoveIndex}]}) {
+	|/Target NPC zradius 50
+	/Target NPC zradius 25
+	/if (${Target.Distance} > ${LocRange[${MoveIndex}]}) {
+	   /echo Clearing ${Target.Name} at ${Target.Distance} (${TotalKills}, ${Iterations}).
+	   /squelch /target clear
+	   |/Varcalc Iterations ${Iterations} + 1
+	}
+}
+/Varcalc Iterations ${Iterations} + 1
+
+|Clear PCs and my Pet and Corpses:
+|/echo Type: ${Target.Type}
+/if (${Target.Type.Equal[PC]}) /squelch /target clear
+/if (${Target.ID} == ${Me.Pet.ID}) /squelch /target clear
+/if (${Target.Type.Equal[Corpse]}) /squelch /target clear
+
+|Clear known NPCs - use iSafeMobs.ini to designate safe mobs in each zone:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini, SafeMobs, ${Zone.Name}].Count[|]} + 1]}
+	|/echo Checking ${Ini[iSafeMobs.ini, SafeMobs, ${Zone.Name}].Arg[${Looper},|]}.
+	/if (${Target.CleanName.Equal[${Ini[iSafeMobs.ini, SafeMobs, ${Zone.Name}].Arg[${Looper},|]}]}) {
+		/squelch /target clear
+	}
+/next Looper
+
+/if (${Target.ID}!=0) {
+   /Call GotOne
+}
+/Return
+
+|==================================================================================================|
+Sub AutoSit
+|AutoSit code:
+/if ((${autosit}==1)&&(${Me.PctMana}<=90)&&(!${Me.Casting.ID})) { 
+	/if ((${Bool[${Me.Standing}]})&&(${NearestSpawn[NPC zradius 30].Distance}>=${Math.Calc[${NearestSpawn[NPC zradius 30].MaxRange}+${distancetosit}/4]})) /sit 
+	/if ((${Bool[${Me.Sitting}]})&&(!${Window[SpellBookWnd].Open})&&(${NearestSpawn[NPC zradius 30].Distance}<=${Math.Calc[${NearestSpawn[NPC zradius 30].MaxRange}+${Math.Calc[${distancetosit}/4]}]})) /stand 
+} Else {
+	|/Stand
+} 
+/Return
+
+|==================================================================================================| 
+Sub GotOne
+
+|/Beep
+/Varset Iterations 0
+/Varset Combating 1
+
+/Varset MobStart ${Macro.RunTime}
+
+/echo I found ${Target.Name} at range ${Target.Distance}.
+|/g Incoming %t (${MoveIndex}).
+/Varset CurrentTarget ${Target.Name}
+
+:KeepAtIt
+
+/Call HealthCheck
+
+|Check for Burn Down:
+/if (${intBurn}) {
+	/call BurnDown
+}
+
+|Mob over 95% Health
+|-------------------
+
+/if (${Target.PctHPs} >= 95) {
+	/stand
+	/face
+	|Activate the pets!
+	/if (${Iterations} < 3) {
+		/pet attack
+		|/hail
+	}
+	/delay 5
+	|See how long it takes:
+	/Varcalc Iterations ${Iterations} + 2
+}
+
+|Mob WITHIN DD Health Range
+|--------------------------
+
+|/if (${Target.PctHPs} >= ${intDDMin} && ${Target.PctHPs} < ${intDDMax}) {
+/if (${Target.PctHPs} < ${intDDMax}) {
+
+	/stand
+	/face
+	|Nuke!
+	
+	/if (${Me.Pet.PctHPs} < 60) {
+		/target id ${Me.Pet.ID} 
+    	/Echo ${Me.Pet.CleanName} gets a NO DD heal!
+		/call Cast ${heal} gem8 0
+    	/squelch /target clear
+    	/Assist ${Me.Pet.CleanName}
+   		/delay 1s
+	} else {
+		|Only if not AE:
+		/if (${SpawnCount[npc zradius 50 radius ${Spell[${MAGAE}].AERange}]} < 2 || !${intAE}) {
+			/if (${Me.Song["Flames of Power"].ID}) {
+				/call Cast ${bolt} gem4 0
+				/delay 1s
+			} else {
+				/call Cast ${nuke} gem7 0
+				/delay 1s
+			}
+		}
+	}
+	/Varcalc Iterations ${Iterations} + 5
+}
+
+|Mob UNDER DD Health Range
+|--------------------------
+
+/if (${Target.PctHPs} < ${intDDMin}) {
+	/delay 2s
+	|See how long it takes:
+	/Varcalc Iterations ${Iterations} + 2
+}
+
+/if (${Target.PctHPs} < 25) {
+	|Kick Lesson if available:
+	/if (${Me.AltAbilityReady[Lesson of the Devoted]}) {
+		/echo Kicking lesson.
+    	/call Cast "Lesson of the Devoted" alt
+    }
+}
+
+|Always check these things
+|--------------------------
+
+|Hills of Shade close pets - keep it tight:
+|/if (${Zone.ID} == 444) {
+|	/if (${Target.Distance} > 40) {
+|		/pet back off
+|	}
+|}
+		
+|AE if there are enough mobs near
+/if (${intAE}) {
+	/if (${SpawnCount[npc zradius 50 radius ${Spell[${MAGAE}].AERange}]} > 1) {
+		/call cast ${MAGAE} gem1 0
+	}
+}
+
+|Servant Addition if it's ready and Mana is reasonable:
+|/echo *********************************
+|/echo Checking for servant validity:
+
+/if (${Me.Book[${MAGservant}]}) {
+	|/echo * ${MAGservant} is in my book.
+	/varset intLoopSafety 0
+	:SpellsRecharge
+	/if (!${Me.SpellReady[${nuke}]}) {
+		/delay 1
+		/varcalc intLoopSafety ${intLoopSafety} + 1
+		/if (${intLoopSafety} < 100) {
+			/goto :SpellsRecharge
+		}
+	}
+
+	/if (${Me.SpellReady[${MAGservant}]}) {
+		|/echo * ${MAGservant} is ready.
+		/if (${Me.PctMana} > 65) {
+			|/echo * Mana is ${Me.PctMana}.
+			/if (${Target.Level} > 50) {
+				/call Cast ${MAGservant} gem9 0
+			}
+		}
+	}
+}
+
+|Automatically Burn Down Named mobs!
+/if (!${intBurn}) {
+	/if (${Target.Named}) {
+		/if (!${Target.Type.Equal[PC]}) {
+			/varset intBurn 1
+			/mqlog Starting a burn for named: ${Target.CleanName}.
+			/g I think we should make ${Target.CleanName} burn!
+		}
+	}
+}
+
+|Verify that you and pet are on same page after a bit
+/if (${Iterations} > 4) {
+	/Assist ${Me.Pet.CleanName}
+	|/echo Asisting pet at ${Iterations} iterations.
+	/Delay 1s
+	/if (${Target.Type.Equal[Corpse]}) /squelch /target clear
+}
+
+|Pop out if WAY too long:
+/if (${Iterations} > 150) {
+	/squelch /target clear
+}
+
+|Pop out if target is dead, but did not know it:
+/if (${Target.PctHPs} < 1) {
+	/squelch /target clear
+}
+
+/DoEvents
+/DoEvents Flush
+
+/if (${Iterations} < 5) /pet attack
+/pet attack
+ 
+|Repat this subroutine until the mob dies:
+/if (${Target.ID}!=0) {
+	/Goto :KeepAtIt
+}
+
+/Varset Iterations 0
+
+/return
+
+|==================================================================================================|
+Sub GMCheck 
+
+/if (${Spawn[gm].ID}) { 
+   /beep 
+   /beep 
+   /beep 
+   /beep 
+      
+   /echo GM has entered the zone! 
+   /echo Ending the macro... 
+   
+   	|Track GM:
+ 	/ini "magego.ini" ${TotalKills} "MobName" "GM in ZONE!"
+	/ini "magego.ini" ${TotalKills} "Iterations" 0
+	/ini "magego.ini" ${TotalKills} "Seconds" 0
+	/ini "magego.ini" ${TotalKills} "Waypoint" ${MoveIndex}
+	/ini "magego.ini" ${TotalKills} "Mana" ${Me.PctMana}
+	/ini "magego.ini" ${TotalKills} "XP" 0
+	/ini "magego.ini" ${TotalKills} "AA" 0
+	/ini "magego.ini" ${TotalKills} "Total XP" 0
+	/ini "magego.ini" ${TotalKills} "Total AA" 0
+	/ini "magego.ini" ${TotalKills} "Total Minutes" ${Math.Calc[${Macro.RunTime}/60]}
+
+
+   /keypress forward 
+   /keypress back 
+
+   /quit 
+   /endmacro 
+} 
+    
+/return 
+
+|==================================================================================================|
+Sub ZoneCheck 
+
+/if (${WorkZone} != ${Zone.ID}) { 
+      
+	/echo I Zoned! 
+	/echo Ending the macro...
+	
+	|Track death on Web Page:
+ 	/ini "magego.ini" ${TotalKills} "MobName" ${CurrentTarget}
+	/ini "magego.ini" ${TotalKills} "Iterations" ${Iterations}
+	/ini "magego.ini" ${TotalKills} "Seconds" ${MobSeconds}
+	/ini "magego.ini" ${TotalKills} "Waypoint" ${MoveIndex}
+	/ini "magego.ini" ${TotalKills} "Mana" ${Me.PctMana}
+	/ini "magego.ini" ${TotalKills} "XP" 0
+	/ini "magego.ini" ${TotalKills} "AA" 0
+	/ini "magego.ini" ${TotalKills} "Total XP" 0
+	/ini "magego.ini" ${TotalKills} "Total AA" 0
+	/ini "magego.ini" ${TotalKills} "Total Minutes" ${Math.Calc[${Macro.RunTime}/60]}
+
+	/For Iterations 1 to 5
+   		/Beep 
+   		/Beep
+  		/Delay 1s
+
+   		/Beep 
+	   	/Beep 
+	   	/Delay 2s
+	/Next Iterations
+
+	/mqlog Logging because of Zone check.
+
+	/keypress forward 
+	/keypress back 
+ 
+	/quit
+	/endmacro 
+} 
+    
+/return
+
+|==================================================================================================|
+Sub HealthCheck 
+
+|Check for pet:
+/If (!${Me.Pet.ID}) {
+	/Call Prepare
+} else {
+|Mages can heal their pet only:
+	/if (${Me.Pet.PctHPs} < 35) {
+		/target id ${Me.Pet.ID} 
+    	/Echo ${Me.Pet.CleanName} is VERY low health!
+		/call cast "Replenish Companion" alt
+		|/Target clear
+   		/Assist ${Me.Pet.CleanName}
+   		/delay 1s
+	}
+	
+	/if (${Me.Pet.PctHPs} < 65) {
+	  /target id ${Me.Pet.ID} 
+      /Echo ${Me.Pet.CleanName} is low health!
+      /call Cast ${heal} gem8 0
+      /squelch /target clear
+      /Assist ${Me.Pet.CleanName}
+      /delay 1s
+   }
+}
+/return
+
+|==================================================================================================|
+|XP Message and Logging code:
+|---------------------------------------------------
+Sub Event_Exp 
+
+	|Get finish time and do math:
+	/Varset MobStop ${Macro.RunTime}
+	/Varcalc MobSeconds ${MobStop} - ${MobStart}
+
+	|/beep
+	|/beep
+
+	/Varcalc TotalKills ${TotalKills} + 1
+	/Echo That makes ${TotalKills} kills.
+	/Echo ${CurrentTarget} took ${MobSeconds} seconds.
+
+	|XP Calc
+	|------------------------------------------------
+	/varset Exper ${Math.Calc[${Me.PctExp}-${Exper}]}
+	/varset AAExp ${Math.Calc[${Me.PctAAExp}-${AAExp}]} 
+	/echo XP: ${Exper} : ${Me.PctExp}% ; AAXP: ${AAExp} : ${Me.PctAAExp}% ; ${Math.Calc[${Macro.RunTime}/60]} minutes
+
+	/ini "magego.ini" ${TotalKills} "MobName" ${CurrentTarget}
+	/ini "magego.ini" ${TotalKills} "Iterations" ${Iterations}
+	/ini "magego.ini" ${TotalKills} "Seconds" ${MobSeconds}
+	/ini "magego.ini" ${TotalKills} "Waypoint" ${MoveIndex}
+	/ini "magego.ini" ${TotalKills} "Mana" ${Me.PctMana}
+	/ini "magego.ini" ${TotalKills} "XP" ${Exper}
+	/ini "magego.ini" ${TotalKills} "AA" ${AAExp}
+	/ini "magego.ini" ${TotalKills} "Total XP" ${Me.PctExp}
+	/ini "magego.ini" ${TotalKills} "Total AA" ${Me.PctAAExp}
+	/ini "magego.ini" ${TotalKills} "Total Minutes" ${Math.Calc[${Macro.RunTime}/60]}
+
+	/varset Exper ${Me.PctExp} 
+	/varset AAExp ${Me.PctAAExp}
+
+	/varset intLastKillIndex ${MoveIndex}
+	/Varset Iterations 0
+	/Varset Combating 1
+	/squelch /target clear
+	|/Echo Combating (gotone): ${Combating}
+
+/Return
+
+|==================================================================================================|
+|Language Training Code:
+|---------------------------------------------------
+Sub Event_Lang
+	/Keypress 1
+/Return
+
+|==================================================================================================|
+|Invites Code:
+|---------------------------------------------------
+Sub Event_Invite
+	/if (1==1) {
+		/Invite Arei
+		/Invite Baiylee
+		/Invite Baygan
+		/Invite Biha
+		/Invite Biho
+		/Invite Bloodraven
+		/Invite Bodybags
+		/Invite Cnote
+		/Invite Darcru
+		/Invite Derailer
+		/Invite Dontcare
+		/Invite Drak
+		/Invite Heffex
+		/Invite Inattentive
+		/Invite Kamdara
+		/Invite Leisah
+		/Invite Logs
+		/Invite Online
+		/Invite Ripp
+		/Invite Shawdow
+		/Invite Tinksa
+		/Invite Tinkso
+		/Invite Tyrannasaurus
+	} else {
+		/gu Sorry baked beans are off tonight.  I'm farming no XP items.
+	}
+/Return
+
+|==================================================================================================|
+|Sheiding (when you are hit) code:
+|---------------------------------------------------
+Sub Event_Shield 
+
+	|If you are here, you are getting hit:
+	
+	|Activate "Shared Health" for your pet to sheild you:
+	/Alt Activate 265
+	
+	|Backup from the mob a bit:
+	/stand
+	/keypress back hold
+	/delay 6
+	/keypress back
+	/delay 6
+	
+	|Get others in on the burn!
+	/if (!${intBurn}) /g I'm getting hit!  Make them Burn!
+	/mqlog Starting a burn because I took damage from ${Target.CleanName}.
+ 	
+	|Initiate Burn:
+	/varset intBurn 1
+	/varset intBurnTime 0
+	/echo BURNING DOWN THE HOUSE!
+	/doevents flush
+	   	
+	/doevents flush
+	
+/Return
+
+|==================================================================================================|
+|See (when you cannot see your target) code:
+|---------------------------------------------------
+Sub Event_See 
+
+	|Get a little closer to the mob:
+	|/keypress forward hold
+	|/delay 2
+	|/keypress back
+	|/delay 2
+ 
+ 	|Allow the mob to approach if its healthy enough:
+ 	/g Let it come closer.
+ 	/if (${Target.PctHPs} > 20) {
+ 		|If we are too close, back up a little too:
+ 		/if  (${Math.Distance[${Me.X},${Me.Y},0:${Target.X},${Target.Y},0]} < 30) {
+ 			/echo Backing up so my pet can.
+ 			/keypress back hold
+			/for intDelayLoop 1 to 3
+				/delay 1
+				/doevents
+			/next intDelayLoop
+			/keypress back
+
+ 		}
+ 		
+ 		|Back Pets up:
+		/For Loops 1 to 6
+			/delay 2
+ 			/pet back off
+		/Next Loops
+		/delay 2
+		/pet attack
+	}
+	
+ /Return
+
+|==================================================================================================|
+|Duck (when you are stuck under something) code:
+|---------------------------------------------------
+Sub Event_Duck 
+
+	|If you are here, you are not standing upright:
+	|/Echo Moving forward a little...
+	/keypress forward hold
+	/delay 4
+	/keypress back
+	/delay 1
+
+	/doevents flush
+
+/Return
+
+
+|==================================================================================================|
+|Range code:
+|---------------------------------------------------
+Sub Event_Range 
+
+ 	|Allow the mob to approach if its healthy enough:
+ 	/if (${Target.PctHPs} > 20) {
+		/For Loops 1 to 6
+ 			/pet back off
+			/delay 2
+		/Next Loops
+		/delay 2
+		/pet attack
+	}
+	
+	/doevents flush
+	
+ /Return
+
+|==================================================================================================|
+|Group Cast code:
+|---------------------------------------------------
+Sub Event_GroupCast(SpellMessage, SpellCaster, SpellName)
+
+	/for Loops 1 to ${Group.Members}
+		/if (${Group.Member[${Loops}].Name.Equal[${SpellCaster}]}) {
+			/if (${Macro.RunTime} + ${Spell[${SpellName}].CastTime} > ${intFreeToMoveTime}) {
+				/varcalc intFreeToMoveTime ${Macro.RunTime} + ${Spell[${SpellName}].CastTime}
+			}
+			/echo ${SpellCaster} is casting ${SpellName}.
+		}
+	/next Loops
+	
+ /Return
+
+|==================================================================================================|
+Sub Event_Burn
+
+	/varset intBurn 1
+	/varset intBurnTime 0
+	/echo BURNING DOWN THE HOUSE!
+	/doevents flush
+
+/Return
+|==================================================================================================|
+Sub Event_LootON 
+	/varset intLoot 1
+	/g I will loot.
+/Return
+|==================================================================================================|
+Sub Event_LootOFF 
+	/varset intLoot 0
+	/g I will NOT loot.
+/Return
+
+|==================================================================================================|
+Sub Event_AEON 
+	/varset intAE 1
+	/g I will use Area Effect spells.
+/Return
+|==================================================================================================|
+Sub Event_AEOFF 
+	/varset intAE 0
+	/g I will NOT use Area Effect spells.
+/Return
+
+|==================================================================================================|
+|Group MANA code:
+|---------------------------------------------------
+Sub Event_GroupMana(ManaMessage, ManaCaster)
+
+	/if (${Macro.RunTime} + 60 > ${intFreeToMoveTime}) {
+		/varcalc intFreeToMoveTime ${Macro.RunTime} + 60
+	}
+	/g ${ManaCaster} is Low Mana.  I'll give you about 1 minute.
+	
+ /Return
+

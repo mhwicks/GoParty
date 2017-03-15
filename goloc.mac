@@ -1,0 +1,11 @@
+
+sub main 
+	/declare intReverseFace int outer 0
+	/if (${Me.Heading.DegreesCCW} > 180) {
+		/varcalc intReverseFace ${Me.Heading.DegreesCCW} -180
+	} else {
+		/varcalc intReverseFace ${Me.Heading.DegreesCCW} +180
+	}
+	/echo Y: ${Me.Y}  X: ${Me.X}  Face: ${Me.Heading.DegreesCCW}  Reverse: ${intReverseFace}
+	/return 
+

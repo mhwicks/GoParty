@@ -1,0 +1,53 @@
+|**---------------------------------------------------------- 
+GoDis.mac 
+by Dadda!
+
+This macro will tell you the distance to your target,
+useful tool for setting up autmation.
+
+Usage: /mac godis
+Currently no parameters.
+
+03/13/2007 v1.0
+Basic Creation.
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare strTarget1 string outer 
+/declare strTarget2 string outer 
+/declare Iterations int outer 0
+/declare LocDistance float outer
+/declare LastDistance float outer
+/declare LocDiff float outer
+/declare MobX int outer 0
+/declare MobY int outer 0
+/declare Looper int outer 0
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go Dis! ===>>
+
+:mainloop
+/if (${Target.ID}) {
+	/echo ${Target.Name} is at range ${Target.Distance}, ${Target.DistanceZ} On the Z axis.
+	/echo I'm facing ${Me.Heading.DegreesCCW} at X: ${Me.X}, Y: ${Me.Y}.
+}
+
+/doevents
+/delay 1s
+/goto :mainloop
+
+/end
+
+|==================================================================================================|
+
+

@@ -1,0 +1,55 @@
+|**---------------------------------------------------------- 
+
+All updates by Dadda
+----------------------------------------------------------**| 
+#turbo 40 
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+/declare 	Iterations 			int 		outer 	0
+/declare	intZoneNPCs			int			outer	0
+/declare	intPullReady		int			outer	0
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== Go PullHelper! ===>>
+
+/echo Helping ${Me.CleanName} be alert for pulls.
+
+/varset intZoneNPCs ${Spawncount[npc]}
+/echo I see ${intZoneNPCs} in the zone.
+
+:PullStart
+
+|Check the number of NPCs on Track:
+/if (${SpawnCount[npc]} != ${intZoneNPCs}) {
+	/echo Count is off!
+	/beep
+	/squelch /mapshow npc
+	/varset intZoneNPCs ${Spawncount[npc]}
+} 
+
+|Check the status of Pulling Tool:
+/if (${Me.AltAbilityReady[Harmonious Arrow]}) {
+	/if (!${intPullReady}) {
+		/echo I'm ready to pull!
+		/beep
+		/beep
+		/varset intPullReady 1
+	}
+} else {
+	/varset intPullReady 0
+}
+	
+
+/delay 1
+
+|Rinse and repeat:
+/if (${Target.ID} != ${Me.ID}) /goto :PullStart
+	
+/end 

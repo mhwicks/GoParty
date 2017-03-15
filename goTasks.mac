@@ -1,0 +1,174 @@
+#turbo
+#include spell_routines.inc
+
+#event Snakes "Your task 'The Serpent Slayer' has been updated."
+#event CombineFaction "Your faction standing with Combine Empire Merchants got better."
+#event Doombugs "Your task 'Farm Clean Up - Doombugs' has been updated."
+
+|==================================================================================================|
+Sub Main
+	
+	/declare intSnakesCount			int		outer	0
+	/declare intDoombugsCount		int		outer	0
+	/declare intSigglikTime			int		outer	300
+	/declare intSigglikActive		int		outer	1
+
+	/echo GoTasks Running - Waiting for quest updates...
+	
+	:MainLoop
+	/doevents
+	/delay 1
+	
+	/if	(${intSigglikActive}) {
+		/if (${intSigglikTime} < ${Macro.RunTime}) /call UpdateSigglik
+	}
+	
+	/goto :MainLoop
+		
+/end
+
+|==================================================================================================|
+Sub Event_Doombugs
+
+	|Add 300 seconds (5 minutes) to the timer:	
+	|Add 60 seconds (1 minute) to the timer:	
+	/varcalc intSigglikTime ${Macro.RunTime} + 300
+	/varset intSigglikActive 1
+	/varcalc intDoombugsCount ${intDoombugsCount} + 1
+	
+	/echo Doombugs: (${intDoombugsCount}/20); Timer: (${Macro.RunTime}/${intSigglikTime}).
+
+	/if (${intDoombugsCount} > 19) {
+		/varset intSigglikTime 0
+	}
+
+	|Check Faction with Banking Unit:
+	/target Banking
+	/c
+	/delay 5
+
+/return
+	
+|==================================================================================================|
+Sub UpdateSigglik
+
+	|Handle Sigglik Quests:
+	/varset intDoombugsCount -1
+	|/echo Total Doombugs This Session: ${intDoombugsCount}.
+	
+	/echo Talking to Sigglik.
+		
+	|Remove Invis:
+	/if (${Me.Buff[Shared Camouflage].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Shared Camouflage].ID}-1]}]} leftmouseup
+	/if (${Me.Buff[Perfected Invisibility].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Perfected Invisibility].ID}-1]}]} leftmouseup
+	
+	|Hail Parvus:
+	/target Sigglik
+	/hail
+		
+	|Get missions:
+	/say Willing
+	/delay 5
+	/notify TaskSelectWnd AcceptButton leftmouseup
+	/delay 5
+
+	|Check Faction with Banking Unit:
+	/target Banking
+	/c
+	/delay 5
+
+	|Retarget Sigglik:
+	/target Sigglik
+	
+	|Invis
+	|GAR:
+	/if (${Me.Class.ID} == 4) {
+		/delay 5
+		/keypress 1
+	}
+	|MAGE:
+	/if (${Me.Class.ID} == 13) {
+		/delay 5
+		/call cast "Perfected Invisibility" alt
+	}
+
+	/varset intSigglikActive 0
+		
+/return
+	
+|==================================================================================================|
+Sub Event_Snakes
+
+	|Handle Parvus Quests:
+	/varcalc intSnakesCount ${intSnakesCount} + 1
+	/echo Total Snakes This Session: ${intSnakesCount}.
+	
+	|/if (${intSnakesCount} < 5) /return
+	
+	|Reset Snakes Count:
+	|/varset intSnakesCount 0
+	/echo Talking to Parvus.
+		
+	|Remove Invis:
+	/if (${Me.Buff[Shared Camouflage].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Shared Camouflage].ID}-1]}]} leftmouseup
+	
+	|Hail Parvus:
+	/target Parvus
+	/hail
+		
+	|Get missions:
+	/say Serpents
+	/delay 5
+	/say Prepared
+	/delay 5
+
+	|Check Faction with Msater Pokk:
+	/target Pokk
+	/c
+	/delay 5
+
+	|Retarget Parvus:
+	/target Parvus
+		
+/return
+
+|==================================================================================================|
+Sub Event_CombineFaction
+
+	|Check Faction with Master Pokk:
+	/target Pokk
+	/c
+		
+/return
+
+|==================================================================================================|
+Sub OldParvus
+
+	|Handle Parvus Quests:
+	/echo Parvus Quest Engaged!
+	
+	|Remove Invis:
+	/if (${Me.Buff[Shared Camouflage].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Shared Camouflage].ID}-1]}]} leftmouseup
+	
+	|Hail Parvus:
+	/target Parvus
+	/delay 10
+
+	/hail
+	/delay 5
+	
+	|Get missions:
+	/say Serpents
+	/delay 5
+	/say Prepared
+	/delay 5
+	
+	/hail
+	/delay 5
+	
+	|Use Fire:
+	/call cast "Fellowship Registration Insignia" item
+	
+	|End Macro:
+	/end
+/return

@@ -1,0 +1,240 @@
+|
+|GoB2B.mac 
+|by Dadda!
+
+|This macro will compare Bazaar prices to Barter prices to find quick cash options.
+|It uses bazaar.inc from don't_know_at_all.
+
+|Usage: /mac GoB2B
+
+|The "verbose" switch will include detailed information.
+
+|v0.1 -- 06/01/2008 -- Basic Creation.
+| 12/13/2009 -- Changed functionality to only look up items on traders instead of using static list.
+
+|All updates by Dadda
+|---------------------------------------------------------**| 
+#turbo 40 
+#include bazaar.inc
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+
+/declare 	intI				int 	outer 	0
+/declare 	intJ				int 	outer 	0
+/declare 	intMainLoop			int		outer 	0
+/declare 	intSlot 			int 	outer 	0
+/declare 	strItem 			string 	outer
+/declare 	intMyPrice 			int 	outer 	0
+/declare 	intVendPrice 		int 	outer 	0
+/declare 	intCompPrice 		int 	outer 	0
+/declare 	intMinPrice 		int 	outer 	0
+/declare 	intMaxPrice 		int 	outer 	0
+/declare	intMinVendorAmount	int		outer	0
+/declare	strMinVendorName	string	outer	
+/declare	intMinVendorPrice	int		outer	0
+
+/declare	strBarterName		string	outer
+/declare	intBarterPrice		int		outer	0
+/declare	strBarterQTY		string	outer
+/declare	intBarterQTY		int		outer	0
+
+/declare 	intVerbose 			int 	outer 	0
+/declare 	intDetailed 		int 	outer 	0
+
+/declare 	intID	 			int 	outer	0
+/declare 	arrPricedID[50] 	int 	outer 	0
+/declare	intTotalPriced		int		outer	0
+/declare	intPriceLoop		int		outer	0
+
+|----------------------------------------------------------**| 
+
+/declare	strTraderName		string	outer	
+/declare	strTraderQTY		string	outer	
+/declare	intTraderQTY		int		outer	0
+/declare 	intMaxTraderPrice 	int 	outer 	0
+/declare 	intMaxTraderAmount	int 	outer 	0
+/declare	strMaxTraderName	string	outer	
+/declare	intCount			int		outer 	0
+
+/declare	intMaxQTY			int		outer	0
+/declare	intMaxProfit		int		outer	0
+
+/declare	intSearchItems		int		outer	1
+/declare	arrSearchItems[200]	string	outer
+
+|----------------------------------------------------------**| 
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+/echo <<=== === Go Bazaar 2 Barter === ===>>
+
+|Handle Parameters:
+|Verbose?
+/If ((${Param0.Equal[verbose]}) || (${Param1.Equal[verbose]}) || (${Param2.Equal[verbose]})) {
+	/varset intVerbose 1
+	/echo Verbose mode is set ON.
+}
+
+|Open Bazaar Search Window:
+/Windowstate BarterSearchWnd open
+/Windowstate BazaarSearchWnd open
+
+/call CheckAllBarterers
+
+/Windowstate BarterSearchWnd close
+/Windowstate BazaarSearchWnd close
+
+/end
+
+|==================================================================================================|
+Sub CheckAllBarterers
+|---------------------------------------------------
+	/echo Checking All Barterers in the bazaar...
+
+	/if (${intVerbose}) /echo There are ${Math.Calc[${Window[BarterSearchWnd].Child[BTRSRCH_PlayerCombo].Items} - 1]} barterers in the Bazaar.
+
+	|Search Barterers:
+	/call ClearBarterItemName
+	/call MakeBarterQuery
+	
+	/echo There are ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].Items} items on the barterers in the Bazaar.
+
+	/for intI 1 to ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].Items}
+		/varset strBarterName ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].List[${intI},4]}
+		/varset intBarterPrice ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].List[${intI},3]}
+		/varset strBarterQTY ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].List[${intI},2]}
+		/varset strBarterQTY ${strBarterQTY.Right[${Math.Calc[${strBarterQTY.Length} - ${strBarterQTY.Find["("]}]}]}
+		/varset strBarterQTY ${strBarterQTY.Left[${Math.Calc[${strBarterQTY.Length} - 1]}]}
+		/varset intBarterQTY ${strBarterQTY}
+		/varset strItem ${Window[BarterSearchWnd].Child[BTRSRCH_BuyLineList].List[${intI},2]}
+		/varset strItem ${strItem.Left[${Math.Calc[${strItem.Length} - ${Math.Calc[${strBarterQTY.Length} + 2]}]}]}
+
+		/if (${intVerbose}) /echo ================================
+		/if (${intVerbose}) /echo ${strItem} - ${strBarterName} will buy ${intBarterQTY} for ${intBarterPrice} pp.
+
+		|Check Traders for Barter items:
+		/call CheckTraders
+
+	/next intI
+
+	/return
+
+|==================================================================================================|
+Sub CheckTraders
+|---------------------------------------------------
+
+	/call ResetQuery
+	/call SetItemName ${strItem}
+	/call MakeQuery
+
+	/if (${intVerbose}) /echo There are ${Bazaar.Count} matching items in the Bazaar.
+
+	|Cycle through all available items and find prices:
+	/varset intJ 1
+	/varset intMinPrice 999999
+	/varset intMaxPrice 0
+	/varset intMaxProfit 0
+	/varset intMaxQTY 0
+
+	:TraderCycle
+	/if (${intJ} <= ${Bazaar.Count}) {
+		/varset intCompPrice ${Int[${Math.Calc[${Bazaar.Item[${intJ}].Price} / 1000]}]}
+		
+		/if (${intVerbose}) /echo =${Bazaar.Item[${intJ}].Trader} has ${Bazaar.Item[${intJ}].Quantity} for ${intCompPrice} pp.
+		/if (${intCompPrice} < ${intBarterPrice}) {
+			/echo  | ${strItem}: ${Bazaar.Item[${intJ}].Trader} has ${Bazaar.Item[${intJ}].Quantity} for ${intCompPrice} pp.
+			/varset intMinVendorAmount ${Bazaar.Item[${intJ}].Quantity}
+			/varset strMinVendorName ${Bazaar.Item[${intJ}].Trader}
+			/varset intMinVendorPrice ${intCompPrice}
+			/if (${intMaxQTY} < ${intBarterQTY}) {
+				/if (${intMaxQTY} + ${Bazaar.Item[${intJ}].Quantity} < ${intBarterQTY}) {
+					/varcalc intMaxProfit ${intMaxProfit} + (${intMinVendorAmount} * ${intCompPrice})
+					/varcalc intMaxQTY ${intMaxQTY} + ${intMinVendorAmount}
+				} else {
+					/varcalc intMaxProfit ${intMaxProfit} + (${intTraderQTY} * ${intBarterPrice})
+					/varcalc intMaxQTY ${intMaxQTY} + ${intTraderQTY}
+				}
+				/beep
+				/if (${intVerbose}) /echo Maximum cost is now ${intMaxProfit} pp for QTY: ${intMaxQTY}
+			}
+		}
+		/if (${intCompPrice} < ${intMinPrice}) {
+			/varset intMinPrice ${intCompPrice}
+		}
+		/if (${intCompPrice} > ${intMaxPrice}) {
+			/varset intMaxPrice ${intCompPrice}
+		}
+	}
+	/varcalc intJ ${intJ} + 1
+	/doevents
+	/if (${intJ} <= ${Bazaar.Count}) /goto :TraderCycle
+	
+	/if (${intVerbose}) /echo Minimum price: ${intMinPrice} pp.
+	
+	|Summary Information Line:
+	/if (${intMaxProfit}) {
+		/beep
+		/varcalc intMaxProfit (${intMaxQTY} * ${intBarterPrice}) - ${intMaxProfit}
+		/echo | ${strItem}: BUY ${intMinVendorAmount} from ${strMinVendorName} for ${intMinVendorPrice} each.
+		/echo | ${strItem}: SELL up to ${intBarterQTY} to ${strBarterName} for ${intBarterPrice} each.
+		/echo | ${strItem}: Estimated total profit available is ${intMaxProfit} pp.
+		/echo |-----------------------------------------------------------
+	}
+	
+/Return
+
+|==================================================================================================|
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+sub SetBarterItemName(ItemName) 
+|/echo Received variable as ${ItemName}.
+/declare local_i int local 
+
+/notify BarterSearchWnd BTRSRCH_ItemSearchEdit leftmouse 
+
+/for local_i 1 to 50
+/keypress backspace chat 
+/keypress delete chat 
+/next local_i 
+
+/for local_i 1 to ${ItemName.Length} 
+/if (${ItemName.Mid[${local_i},1].Equal[ ]}) { 
+/keypress space chat 
+} else { 
+/keypress ${ItemName.Mid[${local_i},1]} chat 
+} 
+/next local_i 
+/return 
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+sub MakeBarterQuery 
+/delay  3s ${Window[BarterSearchWnd].Child[BTRSRCH_SearchButton].Enabled} 
+/if (!${Window[BarterSearchWnd].Child[BTRSRCH_SearchButton].Enabled}) { 
+    /echo BTRSRCH_SearchButton NOT enabled 
+    /return 
+} 
+/breset 
+/nomodkey /notify BarterSearchWnd BTRSRCH_SearchButton leftmouseup 
+/delay  3s ${Barter.Done} 
+/return 
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+sub ClearBarterItemName
+/declare local_i int local 
+
+/notify BarterSearchWnd BTRSRCH_ItemSearchEdit leftmouse 
+
+/for local_i 1 to 50
+/keypress backspace chat 
+/keypress delete chat 
+/next local_i 
+
+/return 
+

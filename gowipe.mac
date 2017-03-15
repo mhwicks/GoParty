@@ -1,0 +1,354 @@
+|**---------------------------------------------------------- 
+Formerly SilkHunt.mac 
+by Dadda!
+
+This macro will Automate Destroying all of a mob named in the parameters
+
+Usage: /mac gowipe "Radius"
+
+03/30/2007 v1.0
+Basic Creation based on SilkHunt
+
+All updates by Dadda
+----------------------------------------------------------**| 
+
+#turbo 40 
+#include spell_routines.inc
+#include ZZdeletions.inc
+#include iBuffs.inc
+#include iLoot.inc
+#include iMove.inc
+
+Sub Main 
+
+|----------------------------------------------------------**| 
+|Variable Declarations:
+
+|/declare intRadius int outer 3000
+
+/declare Iterations int outer 0
+/declare LastDistance float outer
+/declare LocDiff float outer
+/declare StillGotOne int outer 1
+/declare StuckCounter int outer 0
+/declare BigStuckCounter int outer 0
+/declare Looper int outer 0
+/declare intRadius int outer 0
+
+/declare intCombatDistance			int			outer	12
+
+/declare intLoot int outer 1
+/declare intLootedCorpse int outer 0
+/declare intLootAll int outer 1
+
+/call DeclareBuffs
+/call DeclareLoot
+/call DeclareMove
+
+/declare BardRun string outer "Selo's Song of Travel"
+/declare BardNuke string outer "Gorenaire's Chant of Frost"
+
+|----------------------------------------------------------**| 
+
+
+|Main Loop
+|==================================================================================================|
+|==================================================================================================|
+|/target clear
+/echo <<========= Go Wipe! =========>>
+/echo Usage: /mac gowipe "Radius"
+
+/if (${Param0}) {
+	/varset intRadius ${Param0}
+	/echo Setting Radius to ${intRadius}
+} else {
+	/varset intRadius 3000
+}
+
+/echo Wiping out everything within ${intRadius} feet, from the iSafeMobs.ini [GoWipe] section!
+
+/echo Using rules for a ${Me.Class} (ID:${Me.Class.ID}).
+
+/if (${Me.Class.ID} == 13) /varset intCombatDistance 25
+
+|Add wipe mobes to ALERT 3:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,GoWipe,${Zone.Name}].Count[|]} + 1]}
+	/alert add 3 ${Ini[iSafeMobs.ini,GoWipe,${Zone.Name}].Arg[${Looper},|]}
+/next Looper
+|All section of the SafeMobs.ini file:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,GoWipe,All].Count[|]} + 1]}
+	/echo ${Ini[iSafeMobs.ini,GoWipe,All].Arg[${Looper},|]}
+	/squelch /alert add 3 ${Ini[iSafeMobs.ini,GoWipe,All].Arg[${Looper},|]}
+/next Looper
+
+
+|Add safe mob list to ALERT 1:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,SafeMobs,${Zone.Name}].Count[|]} + 1]}
+	/alert add 1 ${Ini[iSafeMobs.ini,SafeMobs,${Zone.Name}].Arg[${Looper},|]}
+/next Looper
+|All section of the SafeMobs.ini file:
+/for Looper	1 to ${Math.Calc[${Ini[iSafeMobs.ini,SafeMobs,All].Count[|]} + 1]}
+	/squelch /alert add 1 ${Ini[iSafeMobs.ini,SafeMobs,All].Arg[${Looper},|]}
+/next Looper
+
+:mainloop
+
+/if (${intLoot} > 0) {
+	/if (${SpawnCount[corpse radius 200]}) {
+		/varset intJustLooted 0
+		/if (${SpawnCount[corpse radius 200]}) /Call LootCheck
+		/if (${intJustLooted} > 0) /goto :mainloop
+	} else {
+		/echo No corpses.
+	}
+} 
+
+| Mapshow target mobs:
+|/mapshow ${strWipeMob1} - **Retired**
+|/if (!${strWipeMob2.Equal[npc]}) /mapshow ${strWipeMob2}
+/mapshow pc
+
+/Call TargetCheck
+
+/if (${Me.Class.ID} == 13) /Call HealthCheck
+/if (${Me.Class.ID} == 13) {
+	/Call MAGBuffCheck
+	/if (!${Me.PetBuff[Velocity]}) {
+		/if (${Me.Book[Velocity]}) {
+			/call cast Velocity gem1 0
+		}
+	}
+}
+/if (${Me.Class.ID} == 4) /Call RNGBuffCheck
+
+/DoEvents
+
+/Call GMAlert
+
+|Reloop:
+/delay 5
+/goto :mainloop
+
+/end
+
+|==================================================================================================|
+
+
+|==================================================================================================|
+Sub TargetCheck
+|Pretend to track:
+/if (${Me.Skill[Tracking]} < ${Skill[Tracking].SkillCap}) {
+	/if (${Me.AbilityReady[Tracking]}) /doability Tracking
+	/if (${Window[TrackingWnd].Open}) /windowstate TrackingWnd close
+}
+
+|TargetCheck (only if nothing already targeted):
+
+|Extended Targets:
+/if (${Me.XTarget}) /target ID ${Me.XTarget[1].ID}
+
+|Primary Target:
+/if (!${Target.ID}) /target ${Spawn[npc radius ${intRadius} alert 3 noalert 1]}
+
+|Clear named:
+|/if (${Target.Named}) /squelch /target clear
+
+/if (${Target.Type.Equal[NPC]}) /call GotOne
+/squelch /target clear
+
+:Targeted
+
+/Return
+
+|==================================================================================================|
+
+
+|==================================================================================================|
+Sub GotOne
+|Got One:
+
+	/echo Found ${Target.Name} at range ${Target.Distance}.
+	/varset StillGotOne 1
+	/varset StuckCounter 0
+	/varset BigStuckCounter 0
+	/varset Iterations 0
+	/if (${Target.ID}) /face
+	/delay 3
+	
+	:RunLoop
+
+	|Certain things should be checked if the target is not VERY close:
+	/if (${LastDistance} > 199) {
+		|Re-check Primary Target - I can be fickle about my target if I see a better one:
+		/if (!${Target.ID}) /target ${Spawn[npc radius ${intRadius} alert 3]}
+	}
+	
+	/if (${Target.ID}) /face
+	/keypress forward hold 
+	/varcalc LocDistance ${Math.Distance[${Me.X},${Me.Y},0:${Target.X},${Target.Y},0]}
+	/vardata LocDiff Math.Calc[${LastDistance} + 0.20]
+	
+	|/echo ${LocDistance}, ${LocDiff}
+	
+	/Varcalc Iterations ${Iterations} + 1
+
+	|If we've lost our target, give up.
+	/if  (${Target.ID} < 1) {
+		/varset StillGotOne 0
+	} 
+
+	|Jiggle occsionally to prevent getting stuck.
+	/vardata LocDiff Math.Calc[${LocDistance} + 0.10]
+	/if  ((${LastDistance} < ${LocDiff})&&(${LocDistance} > 15)) {
+		|/echo Jiggle (${Target.Name} at range ${Target.Distance})...
+		/varcalc StuckCounter ${StuckCounter} + 1
+		|/echo Stuck? ${StuckCounter}, ${LocDistance}, ${LocDiff}
+		/if (${StuckCounter} > 10) {
+			/echo Jiggle (${Target.Name} at range ${Target.Distance})...
+			/varcalc BigStuckCounter ${BigStuckCounter} + 1
+			/keypress forward
+			/delay 1
+			/keypress STRAFE_RIGHT hold
+			/keypress back hold
+			
+			/echo Big loops: ${BigStuckCounter}
+			/for Looper 1 to ${BigStuckCounter}
+				/if (${Looper} > 1) /keypress back
+				/delay 1s
+			/next Looper
+			
+			|Pop out if you are really stuck.
+			/if (${BigStuckCounter} > 5) {
+				/varset StillGotOne 0
+			}
+
+			/keypress right
+			/keypress back
+			/varset Iterations 1
+			/varset StuckCounter 0
+		}
+	} else {
+		|/varset StuckCounter 0
+	}
+		
+	/varset LastDistance ${LocDistance}
+
+	|If we've been walking too long, give up.
+	/if  (${Iterations} > ${intRadius}) {
+		/Varset StillGotOne 0
+	} 
+
+	|If it's really a corpse, give up.
+	/if  (${Target.Type.Equal[Corpse]}) /Varset StillGotOne 0
+
+	|MELEE BATTLE:
+	/if (${intCombatDistance} < 20) {
+		|If we're close enough for combat, get it!
+		/if  (${LocDistance} < ${intCombatDistance}) {
+			/attack on
+			/keypress forward
+			/delay 5
+			/varset LastDistance 0
+			|/varcalc LastDistance ${LocDiff} + 20
+		}
+	}
+	
+	|MAGE BATTLE:
+	/if (${Me.Class.ID} == 13) {
+		|If we're close enough for combat, get it!
+		/if  (${LocDistance} < 190) {
+			/if (!${Me.Pet.Following.ID}) {
+				/pet attack
+				/delay 5
+			}
+		}
+		/if  (${LocDistance} < 50) {
+			/pet attack
+			/keypress forward
+			|/call Cast ${nuke} gem7 0
+			/delay 1s
+			/varcalc LastDistance ${LocDiff} + 20
+		}
+	}
+	
+	|BARD DAMAGE:
+	/if (${Me.Class.ID} == 8) {
+		|If we're close enough for combat, get it!
+		/if (${LocDistance} < ${Math.Calc[${Spell[${BardNuke}].MyRange} * 1]}) {
+			|Nuke if close enough:
+			/if (${Me.Casting.ID} != ${Spell[${BardNuke}].ID}) /stopsong
+			/if (${Me.SpellReady[${BardNuke}]}) /cast ${BardNuke}
+		} else {
+			|Run song over distance:
+			/keypress forward hold
+			/if (${Me.SpellReady[${BardRun}]} && !${Me.Casting.ID}) /cast ${BardRun}
+		}
+	}
+	
+	|RANGER DAMAGE:
+	/if (${Me.Class.ID} == 4) {
+		/if (${LocDistance} < 210 && ${LocDistance} > 30) {
+			/if (!${Me.AutoFire}) /autofire
+		}
+	}
+
+
+	|If we're done, then stop.
+	/if (${StillGotOne} > 0) {
+		/attack off
+		/Goto :RunLoop
+	}
+	
+	|Made it: 
+	/keypress forward
+	/delay 1s
+
+
+/return
+|==================================================================================================|
+
+|==================================================================================================|
+Sub HealthCheck 
+
+|Mages can heal their pet only:
+	/if (${Me.Pet.PctHPs} < 70) {
+   	/target id ${Me.Pet.ID} 
+      /call Cast "Renewal of Aenda" gem8 0
+      /Echo ${Me.Pet.CleanName} is low health!
+      /Target clear
+      /Assist ${Me.Pet.CleanName}
+      /delay 6s
+   }
+/return
+|==================================================================================================|
+
+|==================================================================================================|
+Sub GMAlert 
+
+/if (${Spawn[gm].ID}) { 
+	/echo GM has entered the zone! 
+   
+	/mqlog GM Alert Active.
+
+	/keypress forward 
+	/keypress back 
+
+	/call cast "Shared Camoflage" alt
+	/afk
+
+	:GMBeeps	
+	/beep
+	/delay 1
+	/beep
+	/delay 1
+	/beep
+	/delay 5
+	/doevents
+	/beep
+	/delay 1
+	/beep
+	/delay 10
+	/goto :GMBeeps
+}
+
+/return
