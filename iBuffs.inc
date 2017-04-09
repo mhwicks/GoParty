@@ -17,8 +17,7 @@ Sub DeclareBuffs
 	/declare intAbilityCountdown	int		outer	0
 	/declare strNewAA				string	outer	
 	/declare strDOTList				string	outer
-
-	
+		
 |==================================================================================================|
 | BARD Declaration Section:
 
@@ -668,57 +667,8 @@ Sub DeclareBuffs
 |==================================================================================================|
 | WIZARD Declaration Section:
 
-	/if (${Me.Class.ID} == 12) {
-	|WIZshield:
-		/declare WIZshield string outer
-		/call SetTheSpell WIZshield
-		/varset WIZshield ${Macro.Return}
-	|WIZfamiliar:
-		/declare WIZfamiliar string outer
-		/call SetTheSpell WIZfamiliar
-		/varset WIZfamiliar ${Macro.Return}
-	|WIZarmor:
-		/declare WIZarmor string outer
-		/call SetTheSpell WIZarmor
-		/varset WIZarmor ${Macro.Return}
-	|WIZrune:
-		/declare WIZrune string outer
-		/call SetTheSpell WIZrune
-		/varset WIZrune ${Macro.Return}
-	|WIZnuke:
-		/declare WIZnuke string outer
-		/call SetTheSpell WIZnuke
-		/varset WIZnuke ${Macro.Return}
-	|WIZblast:
-		/declare WIZblast string outer
-		/call SetTheSpell WIZblast
-		/varset WIZblast ${Macro.Return}
-	|WIZlightning:
-		/declare WIZlightning string outer
-		/call SetTheSpell WIZlightning
-		/varset WIZlightning ${Macro.Return}
-	|WIZcold:
-		/declare WIZcold string outer
-		/call SetTheSpell WIZcold
-		/varset WIZcold ${Macro.Return}
-	|WIZconc:
-		/declare WIZconc string outer
-		/call SetTheSpell WIZconc
-		/varset WIZconc ${Macro.Return}
-		/declare intWIZconc int outer 0
-	|WIZharvest:
-		/declare WIZharvest string outer
-		/call SetTheSpell WIZharvest
-		/varset WIZharvest ${Macro.Return}
-	|WIZAE:
-		/declare WIZAE string outer
-		/call SetTheSpell WIZAE
-		/varset WIZAE ${Macro.Return}
-	|WIZhorse:
-		/declare WIZhorse string outer "Summon Warhorse"
-		/declare WIZhorseitem string outer "White Chain Bridle and Barding"
-	}
-
+	/if (${Me.Class.ID} == 12) /call WIZSetSpells
+	
 /return
 
 
@@ -1214,65 +1164,6 @@ Sub SHMBuffCheck
 
 /return
 
-|==================================================================================================|
-Sub WIZBuffCheck
-
-|Check Buffs:
-
-|Shield
-|--------------------------
-	/call BuffHandler ${WIZshield} 1
-
-|Armor
-|--------------------------
-	/call BuffHandler ${WIZarmor} 3
-
-|Harvest
-|--------------------------
-	/if (${Me.PctMana}<=25) {
-		/call BuffHandler ${WIZharvest} 9
-	}
-
-|Rune
-|--------------------------
-	/call BuffHandler ${WIZrune} 2
-
-|Familiar
-|--------------------------
-	|Remove Specialized Familiars:
-	/if (${Me.AltAbilityReady[${WIZfamiliar}]}) {
-		/if (${Me.Buff[Druzzil's Mystical Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Druzzil's Mystical Familiar].ID}-1]}]} leftmouseup
-		/if (${Me.Buff[E'ci's Icy Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[E'ci's Icy Familiar].ID}-1]}]} leftmouseup
-		/if (${Me.Buff[Ro's Flaming Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Ro's Flaming Familiar].ID}-1]}]} leftmouseup
-	}
-
-	|Pick Spell or AA Familiar:
-	/if (${Spell[${WIZfamiliar}].Stacks[2]}) {
-		/if (${Me.SpellReady[${WIZfamiliar}]} || ${Me.AltAbilityReady[${WIZfamiliar}]}) {
-			/if (${AltAbility[${WIZfamiliar}]} > 0) {
-				/call Cast ${WIZfamiliar} alt
-			} else {
-				/if (${Spell[${WIZfamiliar}].Mana} < ${Me.CurrentMana}) {
-					/target myself
-					/call Cast ${WIZfamiliar} gem2 0
-					/target clear
-				}
-			}
-		}
-	}
-
-|Horse
-|--------------------------
-	/if ((${Spell[${WIZhorse}].Stacks[2]}) && (${intFollow} < 1) && (${boolOutdoors})) {
-		/if (${FindItemCount[${WIZhorseitem}]}) {
-			/target myself
-			/call Cast ${WIZhorseitem} item
-			/delay 1s
-			/target clear
-		}	
-	}
-
-/return
 
 |==================================================================================================|
 | Reads the Spell from the appropriate INI file
@@ -1285,15 +1176,20 @@ Sub SetTheSpell
 	/varcalc Looper ${Looper} + 1
 	/varset strCurrentSpell "${Ini[iBuffs.ini,${Me.Class},${Param0}].Arg[${Looper},|]}"
 	|/echo Try number ${Looper} of ${Math.Calc[${Ini[iBuffs.ini, ${Me.Class}, ${Param0}].Count[|]} + 1]} is ${strCurrentSpell}.
-	/if (!${Me.Book[${strCurrentSpell}]} && ${Looper} < ${Math.Calc[${Ini[iBuffs.ini,${Me.Class},${Param0}].Count[|]} + 1]}) /goto :TryNextSpell
-	/echo Setting ${Param0} to ${strCurrentSpell} (option # ${Looper}).
+	|/if (!${Me.Book[${strCurrentSpell}]} && ${Looper} < ${Math.Calc[${Ini[iBuffs.ini,${Me.Class},${Param0}].Count[|]} + 1]}) /goto :TryNextSpell
+	/if (${Me.Book[${strCurrentSpell}]}) {
+		/echo Setting ${Param0} to ${strCurrentSpell} (option # ${Looper}).
+		/varset Looper ${Math.Calc[${Ini[iBuffs.ini,${Me.Class},${Param0}].Count[|]} + 1]}
+	}
 
 	|AA Override section:
-	/if (${Me.AltAbility["${Ini[iBuffs.ini, ${Me.Class},${Param0}].Arg[${Looper},|]}"]} > 0) {
+	/if (${Me.AltAbility["${Ini[iBuffs.ini,${Me.Class},${Param0}].Arg[${Looper},|]}"]} > 0) {
 		/varset strCurrentSpell "${Ini[iBuffs.ini,${Me.Class},${Param0}].Arg[${Looper},|]}"
 		/varset ${Param0} "${strCurrentSpell}"
 		/echo AA Override: setting ${Param0} to AA ${strCurrentSpell}.
+		/varset Looper ${Math.Calc[${Ini[iBuffs.ini,${Me.Class},${Param0}].Count[|]} + 1]}
 	}
+	/if (${Looper} < ${Math.Calc[${Ini[iBuffs.ini,${Me.Class},${Param0}].Count[|]} + 1]}) /goto :TryNextSpell
 	|/delay 1
 
 /return ${strCurrentSpell}
@@ -1326,6 +1222,7 @@ Sub BuffHandler
 	|/echo Running BuffHandler on ${Param0} for gem ${Param1}
 	/varset strCurrentSpell "${Param0}"
 	/if (${intLocalDebug}) /echo Checking Buff: ${strCurrentSpell}.
+	/if (${strCurrentSpell.Equal["NULL"]}) /return
 	
 	|Look for base spell
 	/call GetBaseSpell

@@ -95,6 +95,7 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 #event HotON "#*#tells the group, 'please hot#*#"
 #event HotOFF "#*#tells you, 'please no hot#*#"
 #event HotOFF "#*#tells the group, 'please no hot#*#"
+#event HOTRequest "#1# tell#*#'hot me'"
 
 #event Exp "You gain experience#*#" 
 #event Exp "You gain party#*#" 
@@ -111,7 +112,6 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 #event Cramped "Your Target is too close#*#"
 #event Cramped "Your target is too close#*#"
 #event Invis "#*#invis please#*#"
-#event Invis "Biha begins to cast a spell.#*#"
 #event MyKill "You have slain #*#"
 #event Track "#*#track?#*#"
 #event Burn "#*#burn!#*#"
@@ -140,7 +140,6 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 
 #event TrackGuides "* #*#"
 #event DiseasedNag "#1# tell#*#'Diseased!'"
-#event HOTRequest "#1# tell#*#'hot me'"
 
 |#event Summoned "You have been summoned!"
 #event GoLowHit "You pierce#*#"
@@ -150,7 +149,6 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 #turbo 40 
 #include spell_routines.inc
 #include iPrepare.inc
-|------------------------#include Znozone.inc
 #include ZZdeletions.inc
 #include iTracking.inc
 #include iBuffs.inc
@@ -168,6 +166,9 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 #include iTasks.inc
 #include iClickies.inc
 #include iGoLow.inc
+
+|Class Includes:
+#include cWIZ.inc
 
 |Waypoint file:
 #include Zwaypoints.inc
@@ -195,6 +196,7 @@ Sub Main
 /declare intMelee 				int 	outer 	0
 /declare intTank				int		outer	0
 /declare intPlayerTank			int		outer	0
+
 |Bards, Berzerkers and Monks melee by default
 /if (${Me.Class.ID} == 16 || ${Me.Class.ID} == 7) {
 	|/varset intMelee 1
@@ -248,8 +250,8 @@ Sub Main
 		}
 		/varset intDDMax 95
 	}
-/declare intSnaredMob 			int 	outer 	0
 
+/declare intSnaredMob 			int 	outer 	0
 /declare intPull 				int 	outer 	0
 /declare intPullTimer 			int 	outer 	0
 /declare intPulled				int		outer	0
@@ -262,16 +264,12 @@ Sub Main
 	|Chanters:
 	/If (${Me.Class.ID} == 14) {
 		/varset intSlow 0
-		|-Chanters Nuke later in the fight-
-		|/varset intDDMax 60
 	}
+
 	|Shaman:
 	/If (${Me.Class.ID} == 10) {
 		/varset intSlow 1
 	}
-
-|Wizards need to hold off DD longer:
-|/If (${Me.Class.ID} == 12) /varset intDDMax 85
 
 /declare announce 				int 	outer 	1 
 /declare autosit 				int 	outer 	1 
@@ -549,8 +547,6 @@ Sub Main
 	/delay 60s
 	/goto :mainloop
 }
-
-|/if (${Me.AFK}) /afk
 
 /if (${Me.Class.ID} == 13) {
 	|Pet here?
@@ -1205,12 +1201,16 @@ Sub GotOne
 /If (${Me.Class.ID} == 10) /Call QuickHealSub
 /If (${Me.Class.ID} == 13) /Call HealthCheck
 
-| HOTing:
+|HOTing:
 /if (${Me.Class.ID} == 2) /Call HOTSub
+
+|-----------------------------
+|Class Specific Combat:
+|-----------------------------
+/If (${Me.Class.ID} == 12) /call WIZFightFull
 
 |Mob Under 99% Health
 |-------------------
-
 /if (${Target.PctHPs} <= 99 || ${intLead}) {
 
 	|All pet classes - send in the clowns, baby!!!
@@ -1231,9 +1231,6 @@ Sub GotOne
 			/delay 2
 		}
 	}
-	
-	|Activate Warrior mercs:
-	|/call MercenaryEngage
 	
 	|Melee if instructed:
 	/doevents
@@ -1528,170 +1525,6 @@ Sub GotOne
 		}
 	}
 	
-	|-----------------------------
-	|Wizards
-	|Only jump in if less than 300 mobs close:
-	/If (${Me.Class.ID} == 12 && ${SpawnCount[npc radius 60]} < 300) {
-		
-		|Avoid double-concussion effect:
-		/if (${Me.Song["Concussive Flames"].ID} || ${Me.Song["Concussive Flame"].ID} || ${Me.Song["Concussive Magic"].ID} || ${Me.Song["Concussive Chill"].ID})  /varcalc intWIZconc ${intWIZconc} + 1
-		
-		|Don't try to concussion if you don't have it:
-		/if (!${Me.Book[${WIZconc}]}) /varset intWIZconc 1
-		
-		/if (${intWIZconc} < 1) {
-			|Concussion!
-			/call Cast ${WIZconc} gem4 0
-			/varcalc intWIZconc ${intWIZconc} + 1
-			
-			|Pause for delay
-			/for intDelayLoop 1 to ${Math.Calc[${intBurnTime}*1.0]}
-				/delay 1
-				/doevents
-			/next intDelayLoop
-		} else {
-			|Avoid regular Nuking when AE is engaged:
-			|/echo Checking for AE instead of single damage...
-			/if (${SpawnCount[npc zradius 50 radius ${Spell[${WIZAE}].AERange}]} < 2 || !${intAE}) {
-				|/echo Not AE - Nuking singles engaged...
-	
-				|Nuke - While taking into account any Concussive effects:
-				/if (${Me.Song["Concussive Flame"].ID} || ${Me.Song["Concussive Flames"].ID}) {
-					|/g Major safe Wizzy fire incoming!
-					
-					|=====================================================================================
-					|Pyromancy:
-					/if (!${Me.Buff[Pyromancy].ID}) {
-						/notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
-						/notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
-						
-						/call Cast "Pyromancy" alt
-						/delay 2
-					}
-					|/if (!${Me.Buff[Pyromancy].ID}) /g Pyromantic not good.
-	
-					|Ro's Familiar:
-					/if (!${Me.Buff[Ro's Flaming Familiar].ID}) {
-						/if (${Me.AltAbilityReady[Ro's Flaming Familiar]}) {
-							/if (${Me.Buff[Druzzil's Mystical Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Druzzil's Mystical Familiar].ID}-1]}]} leftmouseup
-							/if (${Me.Buff[E'ci's Icy Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[E'ci's Icy Familiar].ID}-1]}]} leftmouseup
-							/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
-							
-							/call Cast "Ro's Flaming Familiar" alt
-						}
-					}
-					
-					|Fury of Ro:
-					/if (!${Me.Buff[Fury of Ro].ID}) {
-						/if (${Me.AltAbilityReady[Fury of Ro]}) {
-							/if (${Me.Buff[Fury of Druzzil].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Druzzil].ID}-1]}]} leftmouseup
-							/if (${Me.Buff[Fury of E'ci].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of E'ci].ID}-1]}]} leftmouseup
-
-							/call Cast "Fury of Ro" alt
-						}
-					}
-					
-					|Cast Fire Spell:
-					/call Cast ${WIZblast} gem6 0
-				} else {
-					/if (${Me.Song["Concussive Magic"].ID}) {
-						|/g Major safe Wizzy magic incoming!
-	
-						|====================================================================================
-						|Arcomancy:
-						/if (!${Me.Buff[Arcomancy ].ID}) {
-							/if (${Me.Buff[Cryomancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
-							/if (${Me.Buff[Pyromancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Pyromancy].ID}-1]}]} leftmouseup
-							
-							/call Cast "Arcomancy" alt
-							/delay 2
-						}
-						|/if (!${Me.Buff[Arcomancy ].ID}) /g Arcomantic not good.
-	
-						|Druzzil's Familiar:
-						/if (!${Me.Buff[Druzzil's Mystical Familiar].ID}) {
-							/if (${Me.AltAbilityReady[Druzzil's Mystical Familiar]}) {
-								/if (${Me.Buff[E'ci's Icy Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[E'ci's Icy Familiar].ID}-1]}]} leftmouseup
-								/if (${Me.Buff[Ro's Flaming Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Ro's Flaming Familiar].ID}-1]}]} leftmouseup
-								/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
-								
-								/call Cast "Druzzil's Mystical Familiar" alt
-							}
-						}
-				
-						|Fury of Druzzil:
-						/if (!${Me.Buff[Fury of Druzzil].ID}) {
-							/if (${Me.AltAbilityReady[Fury of Ro]}) {
-								/if (${Me.Buff[Fury of Ro].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Ro].ID}-1]}]} leftmouseup
-								/if (${Me.Buff[Fury of E'ci].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of E'ci].ID}-1]}]} leftmouseup
-	
-								/call Cast "Fury of Druzzil" alt
-							}
-						}
-					
-						|Cast Magic Spell:
-						/call Cast ${WIZlightning} gem8 0
-						|/g Lightning bang.
-					} else {
-						/if (${Me.Song["Concussive Chill"].ID}) {
-							|/g Major safe Wizzy cold incoming!
-	
-							|=============================================================================================
-							|Cryomancy:
-							/if (!${Me.Buff[Cryomancy].ID}) {
-								/if (${Me.Buff[Pyromancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Pyromancy].ID}-1]}]} leftmouseup
-								/if (${Me.Buff[Arcomancy ].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
-								
-								/call Cast "Cryomancy" alt
-								/delay 2
-							}
-							|/if (!${Me.Buff[Cryomancy].ID}) /g Cryomantic not good.
-	
-							|E'ci's Familiar:
-							/if (!${Me.Buff[E'ci's Icy Familiar].ID}) {
-								/if (${Me.AltAbilityReady[E'ci's Icy Familiar]}) {
-									/if (${Me.Buff[Druzzil's Mystical Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Druzzil's Mystical Familiar].ID}-1]}]} leftmouseup
-									/if (${Me.Buff[Ro's Flaming Familiar].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Ro's Flaming Familiar].ID}-1]}]} leftmouseup
-									/if (${Me.Buff[${WIZfamiliar}].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[${WIZfamiliar}].ID}-1]}]} leftmouseup
-									
-									/call Cast "E'ci's Icy Familiar" alt
-								}
-							}
-				
-							|Fury of E'ci:
-							/if (!${Me.Buff[Fury of E'ci].ID}) {
-								/if (${Me.AltAbilityReady[Fury of Ro]}) {
-									/if (${Me.Buff[Fury of Ro].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Ro].ID}-1]}]} leftmouseup
-									/if (${Me.Buff[Fury of Druzzil].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Fury of Druzzil].ID}-1]}]} leftmouseup
-		
-									/call Cast "Fury of E'ci" alt
-								}
-							}
-
-							|Cast Cold Spell:
-							/call Cast ${WIZcold} gem5 0
-						} else {
-							|Regular Wizzy Nukes (No concussion effects):
-							
-							|Pyromancy:
-							/if (!${Me.Buff[Pyromancy].ID}) {
-								/if (${Me.Buff[Cryomancy].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Cryomancy].ID}-1]}]} leftmouseup
-								/if (${Me.Buff[Arcomancy ].ID}) /notify BuffWindow Buff${Int[${Math.Calc[${Me.Buff[Arcomancy ].ID}-1]}]} leftmouseup
-								
-								/call Cast "Pyromancy" alt
-								/delay 2
-							}
-	
-							|/echo Regular Wiz Nuke...
-							/call Cast ${WIZnuke} gem7 0
-							/varset intWIZconc 0
-						}
-					}
-				}
-			}
-		}
-	}
-
 	|-----------------------------
 	|Necros
 	/if (${Me.Class.ID} == 11) {
@@ -2070,7 +1903,7 @@ Sub HealthCheck
 	/if (${Me.Pet.PctHPs} < 35) {
 		/target id ${Me.Pet.ID} 
     	/Echo ${Me.Pet.CleanName} is VERY low health!
-		/call Cast "Replenish Companion" alt
+		/call Cast "Mend Companion" alt
 		|/Target clear
    		/Assist ${Me.Pet.CleanName}
    		/delay 1s
@@ -2302,7 +2135,8 @@ Sub Event_Shield
 		
 		|Mages
 		/if (${Me.Class.ID} == 13) /call Cast "Shared Health" alt
-	
+		/if (${Me.Class.ID} == 13) /call Cast "Arcane Whisper" alt
+		
 		|Wizards
 		/if (${Me.Class.ID} == 12) /varset intWIZconc 0
 	

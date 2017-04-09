@@ -14,6 +14,11 @@ Sub AAPrepare
 	|Stop moving if you are:
 	/keypress forward
 	
+	|Bards
+	/If (${Me.Class.ID} == 8) {
+		|
+	}
+
 	|Clerics
 	/If (${Me.Class.ID} == 2) {
 		|/call BuffHandlerAA "Forceful Rejuvenation" |Resets all AA Timers
@@ -23,12 +28,13 @@ Sub AAPrepare
 		/call BuffHandlerAA "Ward of Purity" |Creates a healing Ward
 		/call BuffHandlerAA "Silent Casting" |Reduces hate on casting by 20% per rank
 		/call BuffHandlerAA "Exquisite Benediction" |Creates a Ward that heals all around it
-		/call BuffHandlerAA "Glyph of Lost Secrets" |Reduces mana on casting all but percentage or complete heals.
+		|/call BuffHandlerAA "Glyph of Lost Secrets" |Reduces mana on casting all but percentage or complete heals.
+		/call BuffHandlerAA "Celestial Rapidity" |Decreases cast time on heals.
 	}
 
-	|Rangers
-	/If (${Me.Class.ID} == 4) {
-		|
+	|Enchanters
+	/If (${Me.Class.ID} == 14) {
+		/call BuffHandlerAA "Illusions of Grandeur" |Group increase DD Crit chance and damage.
 	}
 	
 	|Mages
@@ -44,13 +50,13 @@ Sub AAPrepare
 		/call BuffHandlerAA "Glyph of Frantic Infusion" |Increases Pet damage at an increasing rate
 	}
 	
-	|Wizards
-	/If (${Me.Class.ID} == 12) {
+	|Rangers
+	/If (${Me.Class.ID} == 4) {
 		|
 	}
-
-	|Bards
-	/If (${Me.Class.ID} == 8) {
+	
+	|Wizards
+	/If (${Me.Class.ID} == 12) {
 		|
 	}
 
