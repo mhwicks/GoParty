@@ -2085,31 +2085,7 @@ Sub Event_Lang
 |---------------------------------------------------
 Sub Event_Invite
 	/if (1==1) {
-		/Invite Arei
-		/Invite Baiylee
-		/Invite Baygan
-		/Invite Biha
-		/Invite Bihajr
-		/Invite Biho
-		/Invite Bloodraven
-		/Invite Bodybags
-		/Invite Cnote
-		/Invite Darcru
-		/Invite Derailer
-		/Invite Dontcare
-		/Invite Drak
-		/Invite Frakkin
-		/Invite Heffex
-		/Invite Inattentive
-		/Invite Kamdara
-		/Invite Leisah
-		/Invite Logs
-		/Invite Online
-		/Invite Ripp
-		/Invite Shawdow
-		/Invite Tinksa
-		/Invite Tinkso
-		/Invite Tyrannasaurus
+		/Invite soandso
 	} else {
 		/g Sorry baked beans are off tonight.  I'm farming no XP items.
 	}
