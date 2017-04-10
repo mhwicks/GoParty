@@ -337,8 +337,10 @@ Sub Main
 
 |XP Tracking Variables:
 |--------------------------------
-/declare Exper 					float 	outer 
+/declare Exper 					float 	outer
 /declare AAExp 					float 	outer
+/declare TotalXP				float 	outer	0
+/declare TotalAAXP				float 	outer	0
 
 /Varset Exper ${Me.PctExp} 
 /Varset AAExp ${Me.PctAAExp} 
@@ -2019,9 +2021,26 @@ Sub Event_Exp
 	|XP Calc
 	|------------------------------------------------
 	/varset Exper ${Math.Calc[${Me.PctExp}-${Exper}]}
+	/if (${Exper} < 0) /varcalc Exper ${Exper} + 100
+	
 	/varset AAExp ${Math.Calc[${Me.PctAAExp}-${AAExp}]} 
 	/if (${AAExp} < 0) /varcalc AAExp ${AAExp} + 100
-	/echo XP: ${Exper} : ${Me.PctExp}% ; AAXP: ${AAExp} : ${Me.PctAAExp}% ; ${Math.Calc[${Macro.RunTime}/60]} minutes
+	/echo XP: ${Me.PctExp}% [+${Exper}]; AAXP: ${Me.PctAAExp}% [+${AAExp}]; ${Math.Calc[${Macro.RunTime}/60]} minutes
+	
+	|Total XP:
+	/varcalc TotalXP ${Math.Calc[${TotalXP} + ${Exper}]}
+	/varcalc TotalAAXP ${Math.Calc[${TotalAAXP} + ${AAExp}]}
+	/echo Session Total XP: ${TotalXP}; Session Total AAXP: ${TotalAAXP}
+	
+	|Math for hours/level
+	/if (${TotalXP} > 0) {
+		/echo XP Estimte: ${Math.Calc[${Macro.RunTime} / ${TotalXP} / 36]} hours per level.
+	}
+	
+	|AAs per hour = total AA% / run time (seconds) * 3600 (60 seconds * 60 minutes) / 100 (convert % to total AAs)
+	/if (${TotalAAXP} > 0) {
+		/echo AA Estimate: ${Math.Calc[${TotalAAXP} / ${Macro.RunTime} * 36]} AAs per hour.
+	}
 
 	|INI File Writing:
 	/if (${intLead}) {
