@@ -60,7 +60,7 @@ Sub DeclareMez
 
 |==================================================================================================|
 Sub MezCheck
-	/declare  intMezVerbose      int 	local 1
+	/declare  intMezVerbose      int 	local 0
 
 	/if (${intMezVerbose}) /echo MEZ CHECK ACTIVE!
 	
@@ -150,7 +150,7 @@ Sub MezCheck
 		
 |==================================================================================================|
 Sub MezCheckThisOne
-	/declare  intMezVerbose      int 	local 1
+	/declare  intMezVerbose      int 	local 0
 		
 		/if (${intMezVerbose}) /echo Considering mob ${Spawn[${intGroupTargetID}].Name} (${intGroupTargetID}).
 		/varset intNeedsMez 1 
@@ -297,7 +297,7 @@ Sub MezCheckThisOne
 
 |==================================================================================================|
 Sub SingleMez
-	/declare  intMezVerbose      int 	local 1
+	/declare  intMezVerbose      int 	local 0
 
 	/if (${Me.XTarget} != 1) /return
 	
@@ -321,7 +321,7 @@ Sub SingleMez
 
 |==================================================================================================|
 Sub MezList
-	/declare  intMezVerbose      int 	local 1
+	/declare  intMezVerbose      int 	local 0
 
 	/if (${intLastMobMezedID}) /g ${Spawn[${intLastMobMezedID}].CleanName} has been MEZZED.
 	/mqlog ${Spawn[${intLastMobMezedID}].CleanName} has been MEZZED.
@@ -346,7 +346,7 @@ Sub MezList
 
 |==================================================================================================|
 Sub MezBroke(MezSpell, MezTarget)
-	/declare  intMezVerbose      int 	local 1
+	/declare  intMezVerbose      int 	local 0
 
 	| Was it really a mez?:
 	/if (${intMezVerbose}) /echo Validating ${MezSpell} that wore off of ${MezTarget}...
