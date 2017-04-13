@@ -7,15 +7,19 @@ This macro will Automate your party members.
 Class ID List:
 Warrior (1)
 Cleric (2)
+? (3)
 Ranger (4)
+? (5)
 Druid (6)
 Monk (7)
 Bard (8)
+Rogue (9)
 Shaman (10)
 Necro (11)
 Wizard (12)
 Magician (13)
 Enchanter (14)
+? (15)
 Berzerker (16)
 
 Usage: /mac goparty - Target "key" player.
@@ -168,6 +172,8 @@ Parameters: Follow, Loot, Lootall, Pull, Lead
 #include iGoLow.inc
 
 |Class Includes:
+#include cROG.inc
+#include cWAR.inc
 #include cWIZ.inc
 
 |Waypoint file:
@@ -564,11 +570,6 @@ Sub Main
 /if (${Me.Class.ID} == 6) /Call QuickHealSub
 /if (${Me.Class.ID} == 10) /Call QuickHealSub
 
-|Warriors 
-/if (${Me.Class.ID} == 1) {
-	/call AreaTaunting
-}
-
 |Jump to Combat Check at beginning:
 /if (!${strMyTank.Equal[${Me.CleanName}]}) {
 	/if (${Macro.RunTime} < 5) {
@@ -583,10 +584,12 @@ Sub Main
 		/call Clickies
 		
 		|Standard buffs:
+		/if (${Me.Class.ID} == 1) /Call WARBuffCheck
 		/if (${Me.Class.ID} == 2) /Call CLRBuffCheck
 		/if (${Me.Class.ID} == 4) /Call RNGBuffCheck
 		/if (${Me.Class.ID} == 6) /Call DRUBuffCheck
 		/if (${Me.Class.ID} == 8) /Call BardSongs
+		/if (${Me.Class.ID} == 9) /Call ROGBuffCheck
 		/if (${Me.Class.ID} == 10) /Call SHMBuffCheck
 		/if (${Me.Class.ID} == 12) /Call WizBuffCheck
 		/if (${Me.Class.ID} == 13) /Call MAGBuffCheck
@@ -657,9 +660,6 @@ Sub Main
 } else {
 	/varset intLastKillTimeReport 0
 }
-
-|Calm down the aggressive Warrior mercs:
-|/call MercenaryCalm
 
 |Mezzers:
 /if (${Me.XTarget} > 1) {
@@ -1206,7 +1206,9 @@ Sub GotOne
 |-----------------------------
 |Class Specific Combat:
 |-----------------------------
-/If (${Me.Class.ID} == 12) /call WIZFightFull
+/if (${Me.Class.ID} == 1) /call WARFightFull
+/if (${Me.Class.ID} == 9) /call ROGFightFull
+/if (${Me.Class.ID} == 12) /call WIZFightFull
 
 |Mob Under 99% Health
 |-------------------
@@ -1651,11 +1653,6 @@ Sub GotOne
 
 }
 
-|Warriors
-/if (${Me.Class.ID} == 1) {
-	/call AreaTaunting
-}
-
 |Enchanters
 /if (${Me.Class.ID} == 14) {
 	|Group rune for named! - ENCgrouprune
@@ -1928,71 +1925,6 @@ Sub HealthCheck
 
 
 |==================================================================================================|
-Sub MercenaryCalm
-|Calm down the aggressive Warrior mercs:
-	/if (!${Me.Mercenary.State.Equal[Active]}) /return
-	|/echo There is an active merc.
-	
-	|/echo Class is ${Group.Member[1].Class.ID}.
-	/if (${Group.Member[1].Class.ID} != 1) /return
-	|/echo That merc is a warrior.
-	
-	/if (${intMercSleep}) /return
-	|/echo Sleep is not set.
-	
-	/echo Calm down, ${Group.Member[1].CleanName}.
-	/stance passive
-	/varset intMercSleep 1
-	
-/return			
-	
-
-|==================================================================================================|
-Sub MercenaryEngage
-|Activate a mercenary:
-	/if (!${Me.Mercenary.State.Equal[Active]}) /return
-	/if (${Group.Member[1].Class.ID} != 1) /return
-	/if (!${intMercSleep}) /return
-	
-	/if (!${Target.Moving} && !${Target.Casting}) {
-		/echo Get them, ${Group.Member[1].CleanName}.
-		/stance assist
-		/varset intMercSleep 0
-	} else {
-		/delay 2
-	}
-
-/return
-
-
-|==================================================================================================|
-Sub AreaTaunting
-	|Boop some noses if there are enough of them:
-	/if (${Me.XTarget} < 2) /return
-	|/echo There are ${Me.XTarget} XTargets.
-	
-	/if (${SpawnCount[npc zradius 50 radius 50]} < 2) /return
-	|/echo There are ${SpawnCount[npc zradius 50 radius 50]} mobs within 50 feet.
-	
-	/if (${Me.CombatAbilityReady[Stormstrike Blades]}) {
-		/echo Wheeling Blades!
-		/doability "Stormstrike Blades"
-		/delay 3
-	} else {
-		/if (${SpawnCount[npc zradius 50 radius 30]} > 1) {
-			|/echo There are ${SpawnCount[npc zradius 50 radius 30]} mobs within 30 feet.
-			/if (${Me.CombatAbilityReady[Rallying Roar]}) {
-				/echo Rallying Roar!
-				/doability "Rallying Roar"
-				/delay 3
-			}
-		}
-	}
-
-/return
-
-
-|==================================================================================================|
 |Events:
 |==================================================================================================|
 
@@ -2021,21 +1953,21 @@ Sub Event_Exp
 	
 	/varset AAExp ${Math.Calc[${Me.PctAAExp}-${AAExp}]} 
 	/if (${AAExp} < 0) /varcalc AAExp ${AAExp} + 100
-	/echo XP: ${Me.PctExp}% [+${Exper}]; AAXP: ${Me.PctAAExp}% [+${AAExp}]; ${Math.Calc[${Macro.RunTime}/60]} minutes
+	/echo [ XP ] XP: ${Me.PctExp}% [+${Exper}]; AAXP: ${Me.PctAAExp}% [+${AAExp}]; ${Math.Calc[${Macro.RunTime}/60]} minutes
 	
 	|Total XP:
 	/varcalc TotalXP ${Math.Calc[${TotalXP} + ${Exper}]}
 	/varcalc TotalAAXP ${Math.Calc[${TotalAAXP} + ${AAExp}]}
-	/echo Session Total XP: ${TotalXP}; Session Total AAXP: ${TotalAAXP}
+	/echo [ XP ] Session Total XP: ${TotalXP}; Session Total AAXP: ${TotalAAXP}
 	
 	|Math for hours/level
 	/if (${TotalXP} > 0) {
-		/echo XP Estimte: ${Math.Calc[${Macro.RunTime} / ${TotalXP} / 36]} hours per level.
+		/echo [ XP ] XP Estimte: ${Math.Calc[${Macro.RunTime} / ${TotalXP} / 36]} hours per level.
 	}
 	
 	|AAs per hour = total AA% / run time (seconds) * 3600 (60 seconds * 60 minutes) / 100 (convert % to total AAs)
 	/if (${TotalAAXP} > 0) {
-		/echo AA Estimate: ${Math.Calc[${TotalAAXP} / ${Macro.RunTime} * 36]} AAs per hour.
+		/echo [ XP ] AA Estimate: ${Math.Calc[${TotalAAXP} / ${Macro.RunTime} * 36]} AAs per hour.
 	}
 
 	|INI File Writing:
@@ -2065,9 +1997,7 @@ Sub Event_Exp
 	/squelch /target clear
 	/varset intDifficultCorpse 0
 
-	|/Echo Combating (gotone): ${Combating}
-	
-/Return
+/return
 
 |==================================================================================================|
 |Language Training Code:
@@ -2209,9 +2139,6 @@ Sub Event_BackPets
 			/varset strFollowTarget ${strMyTank}
 			/Call Follow
 		}		
-		
-		|Calm down the aggressive Warrior mercs:
-		|/call MercenaryCalm
 	}
 	
 	/doevents

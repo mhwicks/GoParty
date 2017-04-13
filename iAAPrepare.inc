@@ -14,6 +14,11 @@ Sub AAPrepare
 	|Stop moving if you are:
 	/keypress forward
 	
+	|Class Compartment Prepares:
+	/if (${Me.Class.ID} == 1) /call WARAAPrepare
+	/if (${Me.Class.ID} == 9) /call ROGAAPrepare
+	/if (${Me.Class.ID} == 12) /call WIZAAPrepare
+
 	|Bards
 	/If (${Me.Class.ID} == 8) {
 		|
@@ -50,14 +55,6 @@ Sub AAPrepare
 		/call BuffHandlerAA "Glyph of Frantic Infusion" |Increases Pet damage at an increasing rate
 	}
 	
-	|Rangers
-	/If (${Me.Class.ID} == 4) {
-		|
-	}
-	
-	|Wizards
-	/If (${Me.Class.ID} == 12) /call WIZAAPrepare
-
 	/doevents flush
 	
 /return

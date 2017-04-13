@@ -24,6 +24,11 @@ Sub BurnDown
 		/return
 	}
 
+	|Class Compartment Burns:
+	/if (${Me.Class.ID} == 1) /Call WARBurn
+	/if (${Me.Class.ID} == 9) /Call ROGBurn
+	/if (${Me.Class.ID} == 12) /Call WIZBurn
+
 	|Bards
 	/If (${Me.Class.ID} == 8) {
 		/if (${Me.Book[Song of Stone]}) {
@@ -116,9 +121,6 @@ Sub BurnDown
 			/call Cast "Spirit Call" alt
 		}
 	}
-
-	|Wizards
-	/if (${Me.Class.ID} == 12) /Call WizBurn
 
 	/doevents flush
 	
