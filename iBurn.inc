@@ -118,13 +118,7 @@ Sub BurnDown
 	}
 
 	|Wizards
-	/If (${Me.Class.ID} == 12) {
-
-		/call Cast "Prolonged Destruction" alt
-		/call Cast "Call of Xuzl" alt
-		/call Cast "Ward of Destruction" alt
-		
-	}
+	/if (${Me.Class.ID} == 12) /Call WizBurn
 
 	/doevents flush
 	

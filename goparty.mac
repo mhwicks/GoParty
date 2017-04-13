@@ -715,9 +715,6 @@ Sub Main
 		/echo Burn down complete.
 	}
 
-	|-Reset Concussion Varaibles:
-	/if (${Me.Class.ID} == 12) /varset intWIZconc 0
-
 	|-Reset Low Mana Report:
 	/varset intReportedLow 0
 
@@ -1675,7 +1672,6 @@ Sub GotOne
 /if (${intAE}) {
 	/if (${SpawnCount[npc zradius 50 radius ${Spell[${MAGAE}].AERange}]} > 1) {
 		/if (${Me.Class.ID} == 13) /call Cast ${MAGAE} gem1 0
-		/if (${Me.Class.ID} == 12) /call Cast ${WIZAE} gem1 0
 	}
 }
 

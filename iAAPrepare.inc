@@ -56,9 +56,7 @@ Sub AAPrepare
 	}
 	
 	|Wizards
-	/If (${Me.Class.ID} == 12) {
-		|
-	}
+	/If (${Me.Class.ID} == 12) /call WIZAAPrepare
 
 	/doevents flush
 	

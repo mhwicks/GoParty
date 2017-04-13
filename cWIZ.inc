@@ -116,6 +116,17 @@ Sub WIZBuffCheck
 		}	
 	}
 
+	
+|Non-Buff out of combat work
+|--------------------------
+	|-Reset Concussion Varaibles:
+	/if (${Me.Class.ID} == 12) /varset intWIZconc 0
+
+/return
+
+|==================================================================================================|
+Sub WIZAAPrepare
+	
 /return
 
 |==================================================================================================|
@@ -129,6 +140,11 @@ Sub WIZFightFull
 
 |==================================================================================================|
 Sub WIZFightAlways
+/if (${intAE}) {
+	/if (${SpawnCount[npc zradius 50 radius ${Spell[${MAGAE}].AERange}]} > 1) {
+		/if (${Me.Class.ID} == 12) /call Cast ${WIZAE} gem1 0
+	}
+}
 
 /return
 
@@ -311,4 +327,11 @@ Sub WIZFightCryomancy
 |==================================================================================================|
 Sub WIZFightEnd
 
+/return
+
+|==================================================================================================|
+Sub WIZBurn
+	/call Cast "Sustained Devastation" alt
+	/call Cast "Call of Xuzl" alt
+	/call Cast "Ward of Destruction" alt
 /return
