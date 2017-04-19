@@ -15,7 +15,7 @@ Sub WARBuffCheck
 /return
 
 |==================================================================================================|
-Sub WIZAAPrepare
+Sub WARAAPrepare
 	
 /return
 

@@ -2,7 +2,7 @@
 |==================================================================================================|
 Sub DeclareAAPrepare
 	
-	/declare 	intPrepareNag		int 		outer 		0
+	/declare 	intPrepareNag		int 		outer 		180
 	
 /return
 
