@@ -18,6 +18,7 @@ Sub Locations
 	/if (${Zone.ID} == 732) /call Erillion
 	/if (${Zone.ID} == 764) /call PlaneofShadow
 	/if (${Zone.ID} == 780000) /call Katta
+	/if (${Zone.ID} == 755) /call eastwasteshard
 
 /return
 
@@ -2525,5 +2526,116 @@ Sub Feerrott2
 	/Varset LocY[${TotalLocs}] -398
 	/Varset LocFace[${TotalLocs}] 135
 	/Varset LocDur[${TotalLocs}] 60
+	/Varset LocRange[${TotalLocs}] 130
+/return
+
+|==================================================================================================|
+Sub eastwasteshard
+	/Echo Loading eastwasteshard Locations.
+	/varset LocationID 755
+	|--------------------------------
+	
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "1"
+	/Varset LocX[${TotalLocs}] -2292
+	/Varset LocY[${TotalLocs}] 286
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "1.1"
+	/Varset LocX[${TotalLocs}] -2310
+	/Varset LocY[${TotalLocs}] 382
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "2"
+	/Varset LocX[${TotalLocs}] -2260
+	/Varset LocY[${TotalLocs}] 275
+	/Varset LocFace[${TotalLocs}] 370
+	/Varset LocDur[${TotalLocs}] 10
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "3"
+	/Varset LocX[${TotalLocs}] -2142
+	/Varset LocY[${TotalLocs}] 230
+	/Varset LocFace[${TotalLocs}] 370
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "4"
+	/Varset LocX[${TotalLocs}] -1971
+	/Varset LocY[${TotalLocs}] 286
+	/Varset LocFace[${TotalLocs}] 0
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "5"
+	/Varset LocX[${TotalLocs}] -1859
+	/Varset LocY[${TotalLocs}] 310
+	/Varset LocFace[${TotalLocs}] 380
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "6"
+	/Varset LocX[${TotalLocs}] -1750
+	/Varset LocY[${TotalLocs}] 435
+	/Varset LocFace[${TotalLocs}] 5
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "7"
+	/Varset LocX[${TotalLocs}] -1692
+	/Varset LocY[${TotalLocs}] 766
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "7.1"
+	/Varset LocX[${TotalLocs}] -1798
+	/Varset LocY[${TotalLocs}] 767
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "8"
+	/Varset LocX[${TotalLocs}] -1575
+	/Varset LocY[${TotalLocs}] 568
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "9"
+	/Varset LocX[${TotalLocs}] -1803
+	/Varset LocY[${TotalLocs}] 276
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "9.1"
+	/Varset LocX[${TotalLocs}] -1912
+	/Varset LocY[${TotalLocs}] 226
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
+	/Varset LocRange[${TotalLocs}] 130
+
+	/Varcalc TotalLocs ${TotalLocs} +1
+	/Varset LocDesc[${TotalLocs}] "1"
+	/Varset LocX[${TotalLocs}] -2292
+	/Varset LocY[${TotalLocs}] 286
+	/Varset LocFace[${TotalLocs}] 60
+	/Varset LocDur[${TotalLocs}] 30
 	/Varset LocRange[${TotalLocs}] 130
 /return
